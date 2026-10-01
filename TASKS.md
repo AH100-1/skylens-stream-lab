@@ -43,7 +43,7 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | P12 `dataset-io` | 실제 데이터 읽기(`images/cam{F,R,L}`, `gps.txt`, STRIDE) + `run` 명령 뼈대 | 새 `dataset.rs`, CLI `run` | scaffold | — |
 | [x] P13 `progressive-stream` (2026-10-01, 제품 f2b658b) | T12 구역 분할, 초벌/정밀, 공유 관측 닮음 정렬, 잔상 1.5m 걸러내기, 스냅샷·manifest | 새 `stream.rs` | two-view | P08 인터페이스 |
 | P14 `verify` | T13 `verify <폴더>` — SPEC §4 일곱 항목, 실패 시 종료 코드 1 | 새 `verify.rs`, CLI `verify` | scaffold | — |
-| [x] P15 `benchmarks` (2026-10-01, 제품 5f2e886, F-128~F-132 남음) | T14 구간별 시간 측정 틀(합성 240장) | 새 `benches/` | fast-matching | — |
+| [x] P15 `benchmarks` (2026-10-01, 제품 5f2e886; benchmarks-scale 2026-10-01 제품 dc9bb55, F-040·F-128·F-130~F-132·F-149 남음) | T14 구간별 시간 측정 틀(합성 240장) | 새 `benches/` | fast-matching | — |
 
 ### 묶음 사이 인터페이스 (먼저 이 모양으로 맞춘다)
 - `align::Similarity { s: f64, r: Rotation3<f64>, t: Vector3<f64> }`, `align::umeyama(src, dst) -> Option<Similarity>`,
