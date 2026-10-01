@@ -1,7 +1,8 @@
 # verify: 출력 폴더 검증 명령
 
 ## 결론
-- `skylens-stream verify <폴더>` 가 SPEC §4 일곱 항목을 판정하고 표(항목·PASS/FAIL·측정값·기준)를 찍는다. 하나라도 실패면 종료 코드 1.
+- `skylens-stream verify <폴더>` 가 SPEC §4 일곱 항목을 판정하고 표(항목·PASS/FAIL/판정 불가·측정값·기준)를 찍는다. 종료 코드: FAIL 이 하나라도 있으면 1, FAIL 없이 판정 불가가 있으면 2, 일곱 항목 모두 PASS 면 0.
+- SPEC §2 출력만으로 판정할 수 있는 항목과 없는 항목을 나눴다. 등록 사진 수·구역 사진 수·정밀 재투영 오차(항목 1~3)는 SPEC §2 의 어느 파일에도 값이 없다(파일 이름 `pos{lo}-{hi}` 로 위치 수는 알지만 사진 수는 모름). `report.json` 이 없으면 세 항목은 FAIL 이 아니라 "판정 불가" 로 표시하고, 있으면 그 값으로 판정한다. 형식이 깨진 `report.json` 은 FAIL, 출력 폴더 자체가 없으면 일곱 항목 모두 FAIL. 초벌 정렬·초벌↔정밀·정밀 겹침·스냅샷(항목 4~7)은 SPEC §2 출력만으로 측정값 판정.
 - 최근접 탐색을 경계 상자 k-d 트리로 바꾸고 상한을 판정 기준 3 m 의 2배(6 m)로 낮췄다. 초벌이 정밀에서 30 m 떠 있는 구역 2개 × 9만 점 폴더가 0.97 s 에 끝나고 종료 코드 1(이전 격자 껍질 탐색은 질의 2만 개에 57.7 s, 9만 점 폴더는 400 s 안에 끝나지 않음).
 - 기대 파일 목록을 만든다: 구역 집합 = report `regions` ∪ preview 구역 ∪ refined 구역 ∪ {0..마지막 정수 step}. 구역마다 preview·refined PLY, 정수 step 1..=구역 수, manifest 단계마다 스냅샷 PLY 가 있어야 한다. 빠지면 해당 항목 FAIL 과 빠진 이름 표시.
 - manifest `step` 은 1 이상 정수, 최종만 `"final"`. 문자열 `"01"` 등은 형식 오류로 snapshots FAIL (SPEC §2 에 형 한 줄 추가 제안: "`step`: 정수 1..N, 최종은 문자열 `final`").
@@ -24,6 +25,8 @@
 | 스냅샷 점 수 | 100→150, final 288 / 100→300, final 288 / 150→150 | 100→90 / final 289(추출 합과 불일치) / 단계 2 새 영역 0 / NaN 1점 |
 | 파일 누락 | — | preview_01·refined_01·step_02·step_final 삭제 → 3항목 FAIL, manifest 단계 2 누락 FAIL |
 | step 형 | 1, 2, "final" | "01" |
+| report.json 없음 (SPEC §2 출력만) | 1~3 판정 불가, 4~7 PASS(최근접·높이 차 1.990 m), "결과: 4/7 통과", 종료 코드 2 | 같은 폴더에서 초벌 +2.5 m → preview_vs_refined FAIL, 종료 코드 1 |
+| report.json 형식 깨짐 | — | 1~3 FAIL, 종료 코드 1 |
 
 | 속도 (4 코어 측정 기계, 다른 빌드와 함께) | 시간 |
 |---|---|
@@ -49,20 +52,22 @@ final 288 = 정밀 구역 861 점 × 2 를 6:1 추출(144 + 144).
 - 점이 20만 개를 넘으면 질의 점을 일정 간격으로 추린다.
 - CLI 연결은 `["verify", dir] => verify::run_cli(dir)` 한 줄, 표 출력·종료 코드는 `verify::run_cli`.
 
+- 판정 불가: `report.json` 이 없고 출력 폴더는 있을 때 항목 1~3 의 `decided = false`. 표에는 "판정 불가", 요약 줄 아래 "판정 불가: n개 (SPEC §2 출력에 없는 값)". `Report::exit_code()` 가 0/1/2 를 정한다. `all_pass()` 는 일곱 항목 모두 판정·통과일 때만 참.
+
 ### report.json 형식 (SPEC §2 추가 제안)
 ```json
 {"registered": {"total": 240, "preview": 240, "refined": 240},
  "reprojection_px": {"preview": 4.5, "refined": 0.59},
  "regions": [{"region": 0, "positions": 14, "images": 42}]}
 ```
-SPEC §2 출력 목록에 "`report.json`: 등록 사진 수(전체·초벌·정밀), 재투영 RMS(px), 구역별 위치 수·사진 수" 한 줄과 위 형식을 올리고, 스트림 출력 단계가 이 파일을 쓰도록 맞춰야 한다. 그 전까지 SPEC §2 대로만 만든 폴더는 항목 1~3 이 "report.json: No such file" 로 FAIL 한다.
+SPEC §2 출력 목록에 "`report.json`: 등록 사진 수(전체·초벌·정밀), 재투영 RMS(px), 구역별 위치 수·사진 수" 한 줄과 위 형식을 올리고, 스트림 출력 단계가 이 파일을 쓰도록 맞춰야 한다. 그 전까지 SPEC §2 대로만 만든 폴더는 항목 1~3 이 "판정 불가" 로 남고 종료 코드는 최선이 2 다.
 
 ## 남은 문제
-- report.json 을 쓰는 쪽(스트림 출력)이 아직 없다. SPEC §2 반영과 스트림 쪽 기록이 필요하다(F-089 의 나머지).
-- 현재 main 의 스트림 manifest 는 step 을 문자열 `"01"` 로 쓴다. 스트림 쪽이 정수로 고치기 전에는 실제 출력의 snapshots 항목이 형식 오류로 FAIL 한다. 스트림 수정 뒤 `write_outputs` 결과를 바로 verify 하는 시험을 붙여야 한다.
+- report.json 을 쓰는 쪽(스트림 출력)이 아직 없다(main 병합 뒤 재확인). 항목 1~3 을 실제 출력에서 측정값으로 판정하려면 SPEC §2 반영과 스트림 쪽 기록이 필요하다. 그 전까지 실제 출력은 최선이 종료 코드 2.
+- main 병합 뒤 다시 본 결과 현재 main 의 스트림 manifest 는 step 을 문자열 `"01"` 로 쓴다. 스트림 쪽이 정수로 고치기 전에는 실제 출력의 snapshots 항목이 형식 오류로 FAIL 한다. 스트림 수정 뒤 `write_outputs` 결과를 바로 verify 하는 시험을 붙여야 한다.
 - final 대조의 간격 추출 비율은 1..=64 중 어느 하나와 맞으면 통과다. 출력에 비율을 기록하면 정확히 하나로 좁힐 수 있다.
 - 구역 1개 출력의 겹침 "해당 없음" 은 PASS 로 센다. 표에서 따로 표시할지 정해야 한다.
 - 겹침 차를 수평 1 m 짝 높이 차로 재는 방식은 경사면이 많은 실제 데이터에서 3D 최근접과 비교가 필요하다.
 
 ## 제품 브랜치·커밋
-- feat/verify: f79ef29 (verify 명령·시험), e9cb5cf (k-d 트리 최근접·기대 파일 목록·정수 step·구역 간 스케일 차), 8ff9d93 (누락·먼 초벌·경사 지면·문자열 step·빈 정밀 fixture), a327c61 (정리)
+- feat/verify: f79ef29 (verify 명령·시험), e9cb5cf (k-d 트리 최근접·기대 파일 목록·정수 step·구역 간 스케일 차), 8ff9d93 (누락·먼 초벌·경사 지면·문자열 step·빈 정밀 fixture), a327c61 (정리), b9ad45c (main 병합), 0475047 (report.json 없을 때 항목 1~3 판정 불가, 종료 코드 0/1/2)
