@@ -35,7 +35,7 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | [x] P04 `io-robustness` (2026-10-01, 제품 3b0fa9c; io-cleanup 2026-10-01 제품 d4432c7) | F-016~F-020·F-022·F-023, README 정리(한·영) | `ply.rs`, `camera.rs`, `features.rs`(from_rgb), CLI 인자, `README.md` | scaffold | — |
 | [x] P05 `rotation-averaging-hardening` (2026-10-01, 제품 9f111f2, F-137·F-138 남음) | F-006~F-009 | `rotation_averaging.rs` | rotation-averaging | — |
 | P06 `translation-averaging` | T07 방향 제약 위치 추정 + 다시점 삼각측량 | 새 `translation_averaging.rs`, `triangulation.rs` | rotation-averaging | — |
-| [x] P07 `bundle-adjustment` (2026-10-01, 제품 04e4d29) | T08 희소 LM + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터, 트랙 10만 제한 | 새 `ba.rs` | two-view | — |
+| [x] P07 `bundle-adjustment` (2026-10-01, 제품 04e4d29; ba-hardening 2026-10-01 제품 ec18464, F-036·F-164~F-167 남음) | T08 희소 LM + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터, 트랙 10만 제한 | 새 `ba.rs` | two-view | — |
 | [x] P08 `similarity-align` (2026-10-01, 제품 f87549a, F-094·F-099 높음 남음) | T09 Umeyama 닮음 변환 + 반복 트리밍, GPS→동-북-위 정렬 | 새 `align.rs` | rotation-averaging | — |
 | [x] P09 `view-selection` (2026-10-01, 제품 80f9a86) | T10a 이웃 8장 점수·깊이 범위·왜곡 보정(960px) | 새 `view_selection.rs`, `undistort.rs` | camera-model | — |
 | P10 `patchmatch` | T10b 시점별 PatchMatch 깊이·법선(rayon) | 새 `patchmatch.rs` | camera-model | P09 인터페이스 |
