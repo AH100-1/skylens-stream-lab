@@ -1,7 +1,44 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-01T23:07Z
+- 상태: 검토 대기
+- 마지막 갱신: 2026-10-01T23:39Z
+- 이번 실행(23:07Z 시작, 4 코어 측정 기계에서 13 묶음 동시 진행 — 부하 평균 25~42, 시간 수치는 부풀려짐):
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | P04 io-cleanup | PR #23 (ff3a769) | PR #40 (→ scaffold) | F-020·F-133~F-136 README 한·영, F-061·F-081·F-062·F-063·F-082·F-058 재시험. core 136 통과·3 무시 |
+  | P08 align-robust | PR #24 (08bd593) | PR #41 (→ similarity-align) | F-099 일부: 기울기 0.200°(기준 0.25°)·위치 1.013 m·유지 97.2%, 방위 최악 0.641° = 이론 σ_ψ 의 1.95배. 무시 시험 없앰 |
+  | P11 fusion-hardening | PR #25 (de4556e) | PR #42 (→ depth-fusion) | F-069 원인: 같은 드론 이웃 3장의 같은 배율 이상치가 만드는 가짜 평면. `min_ratio` 0.5 로 0.3 m 초과 101 → 5점, 최대 11.5 m 그대로(편대 시험 무시 유지). F-112·F-113 미착수 |
+  | P05 rotation-averaging-robust | PR #26 (06ac8d2) | PR #43 (→ rotation-averaging) | F-137·F-138 처리, F-047 일부(무시 시험 해제). 152 통과·0 실패 |
+  | P13 stream-hardening | PR #27 (3d831e6) | PR #44 (→ progressive-stream) | 오대응 30·50% 정렬 복구(스케일 비 1.000, fit 0.10 m), F-065·F-056 일부. core 141 통과 |
+  | P15 benchmarks-followup | PR #28 (a7ad157) | PR #45 (→ benchmarks) | F-131·F-130 처리, F-149·F-132 일부, F-128·F-040 부하로 미측정. 144 통과 |
+  | P03 two-view-hardening | PR #13 갱신 (997437e) | PR #29 갱신 | F-146 처리, F-148 일부(정상 수 유의성 검사, 합성 2° 초과 0/40·겹침 없는 짝 0/20). F-033·F-144·F-145 미착수. 직접 재검증 137+13 통과·0 실패 |
+  | P02 matching-refine | PR #16 갱신 (223f30d) | PR #32 갱신 | F-140·F-143 처리. F-141·F-142·F-148(매칭 쪽 표) 미달. 직접 재검증 144+13 통과·0 실패, main 과 충돌 없음 |
+  | P20 ba-hardening | PR #17 갱신 (022e5cf) | PR #33 갱신 | F-121·F-122 처리, F-036 진전 없음 |
+  | P14 verify | PR #10 갱신 (0475047) | PR #24 갱신 | F-089 처리(report.json 없으면 1~3 판정 불가, 종료 코드 2). 직접 재검증 CLI 20·verify 8 통과 |
+  | P01 formation-scene-check | PR #22 병합됨(e9f7187), 브랜치 d56dfde | experiment/formation-scene-check 71029cd | 최신 main 과 합친 트리에서 다른 모듈 시험 깨짐 없음, F-115·F-116 수치 재확인 |
+  | tracks | PR #15 갱신 (cbb8255), 라벨 안 붙임 | experiment/tracks cb2f609 | F-124·F-125·F-126 처리. F-123 미달 — `sparse_recall_keeps_tracks_whole` 실패 상태(재현율 50% 완전도 0.9756, 30% 0.8313) |
+  | P10 patchmatch | `feat/patchmatch` da06217 (main 병합만), 라벨 안 붙임 | experiment/patchmatch c5b64f0 | 부하로 속도·법선 실험 못 함, clippy·전체 시험 미확인 |
+  | P06 translation-averaging | — | — | 이번 실행에서 시작하지 못함 |
+- 검증: 위 PR 머리마다 전용 빌드 폴더에서 fmt·clippy(-D warnings) 통과 확인, 시험은 해당 모듈 + 전체(two-view·matching-refine). 동시 부하에서 `two_view::tests::five_point_terminates_on_many_seeds` 최악 호출 100 ms 단언이 여러 브랜치에서 실패, 단독 재실행 0.3~0.8 s 통과(F-059).
+- 막힌 점:
+  - 13 묶음 동시 진행으로 부하 평균 40 안팎 — 시간 측정 항목(F-048·F-113·F-128·F-040·F-127·F-056 속도)은 모두 미측정. 다음 실행은 시간 측정 묶음을 따로 돌릴 것.
+  - P10 `From<&features::GrayImage>` 는 P04(#23) 병합 뒤 `Self::new(g.width(), g.height(), g.data().to_vec())` 로 바꿔야 컴파일된다.
+  - tracks: 재현율 30~50% 에서 참 조각을 잇는 간선이 1개뿐인 경우가 많아 2단계 문턱(간선 2개)에 막힘.
+  - 구역 분할 함수가 dataset·stream 두 벌(F-065).
+- 결정 필요:
+  1. F-099 방위 기준: 고정 0.5° 대신 이론 σ_ψ 배수(최대 |z| < 3.5) 로 바꿀지.
+  2. SPEC §3.4 GPS 잔차 상한: "3 m 하한 + 잡음 비례 확장(최대 9 m)" 반영 여부.
+  3. SPEC §2 `report.json`(등록 사진 수·재투영 오차)을 출력에 넣을지 — 없으면 verify 1~3 판정 불가.
+  4. 회전 평균 '놓침' 정의 변경(문턱 + 두 끝 정점 오차 합).
+  5. SPEC §2 manifest `step` 형(정수/"final")·정렬 실패 null 규칙.
+- 다음 할 일:
+  1. P06 translation-averaging 잡음+이상치 퇴행 원인 분리(이번에 시작 못 함).
+  2. F-148: bench `회전 평균(검증 결과)` 재측정, 짝 종류별 틀린 간선 표(두 시점·매칭).
+  3. F-069 가짜 평면: 다른 드론 시선 1장 이상 요구 검토.
+  4. tracks F-123, patchmatch F-048 와 법선 시험.
+  5. 부하 없는 상태에서 시간 측정 묶음.
+
+## 이전 실행 기록 (19:40Z)
 - 이번 실행(18:54Z 시작, 4 코어 측정 기계에서 15 묶음 동시 빌드 — 부하 평균 40~60, 시간 수치는 부풀려짐):
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
