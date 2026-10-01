@@ -59,3 +59,30 @@
 
 ## 제품 브랜치·커밋
 - 브랜치 `feat/formation-scene-check`, 커밋 b198689 (crates/core/src/synth.rs 만)
+
+## 최신 main 병합 재확인 (2026-10-01, main dc9bb55 병합 → 제품 d56dfde)
+### 결론
+- 이 브랜치에 main dc9bb55(벤치 하네스 정리, `crates/core/benches/pipeline.rs`·`examples/bench_stages.rs` 만 바뀜)를 병합했다. 충돌 없음, synth.rs·matching.rs·two_view.rs 는 병합으로 바뀌지 않았다.
+- 편대 배치에 기대는 시험은 병합 뒤에도 모두 통과하고 수치가 위 표와 한 자리까지 같다. 그래서 기준을 다시 잴 시험은 없고, matching.rs·two_view.rs 시험 코드도 고치지 않았다.
+- F-115: 시드 1~5 × F/R/L 15 경우 중앙값이 위 표와 같은 값으로 두 범위 안. 처리됨-검증대기 유지.
+- F-116: 노트 수치(정상 504~703, 정밀도 ≥0.991, 회전 0.016~0.069°, 방향 0.061~0.470°)가 이번 출력과 일치, `invalid_tilt_is_rejected`·`formation_exact_values` 통과. 처리됨-검증대기 유지.
+- 전체 `cargo test --release` 에서 실패 1개: `two_view::tests::five_point_terminates_on_many_seeds` 의 최악 호출 시간(기준 ≤ 100 ms). 편대 장면과 무관한 시험(두 시점 시험 자체 장면, 기선 3 m)이고, 정답 포함 995/1000·중앙 0.162 ms 는 기준 안이다. 같은 측정 기계에 부하 평균 약 30(4 코어)일 때 최악 호출 104 ms·158 ms 로 넘고, 같은 부하에서 그 시험만 세 번 돌리면 21.6·45.5·40.3 ms 로 통과한다. 한 번의 스케줄링 지연을 재는 기준이라 부하에 따라 넘나든다. 이 묶음 파일의 시험이 아니고 기준을 느슨하게 하지 않으므로 그대로 미달로 둔다(두 시점 묶음 몫).
+
+### 수치 (같은 커밋 `cargo test --release --no-fail-fast -- --nocapture`)
+| 시험 | 경우 | 이번 측정 | 이전 노트 | 기준 |
+|---|---|---|---|---|
+| synth `one_step_triangulation_angle_is_small` F/R/L 중앙 | 시드 1~5 | F 1.431~1.460, R 1.454~1.481, L 1.490~1.505 | 같음 | 위 기준 1·2 |
+| matching `ransac_on_synthetic_drone_views` 정상 수 | 18 | 504~703 | 504~703 | ≥ 400 |
+| 같은 시험 정밀도 최솟값 | 18 | 0.991 | 0.991 | ≥ 0.98 |
+| two_view `pose_from_rendered_drone_views` 회전 | 18 | 0.0159~0.0691° | 0.016~0.069° | < 0.15° |
+| 같은 시험 이동 방향 | 18 | 0.061~0.470° | 0.061~0.470° | < 0.7° |
+| two_view `five_point_terminates_on_many_seeds` 최악 호출 | 1000 시드 | 158.03 ms(전체), 21.6/45.5/40.3 ms(단독 3회) | — | ≤ 100 ms |
+
+- 시험 개수: core 133 통과·1 실패·3 무시, perf_structure 5, ply_info 4, synth_args 4 통과.
+
+### 남은 문제
+- `five_point_terminates_on_many_seeds` 최악 호출 시간 기준은 부하가 큰 측정 기계에서 넘나든다. 두 시점 묶음에서 시간 기준 대신 연산량 기준으로 바꿀지 볼 일.
+- 위 "남은 문제" 그대로(편대 놓임 가정, 두 파일 주석 수치, F-114).
+
+### 제품 브랜치·커밋
+- `feat/formation-scene-check` d56dfde (main dc9bb55 병합, 코드 변경 없음)
