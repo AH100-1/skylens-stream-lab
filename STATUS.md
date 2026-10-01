@@ -2,7 +2,7 @@
 
 - 상태: 진행 중
 - 현재 작업: FEEDBACK 높음 F-015 평면 5점 RANSAC — 제품 `feat/essential-ransac` 2bb2e02(PR #18), 연구 `experiment/essential-ransac` 8a93a2a(PR #20, base `experiment/two-view`)
-- 마지막 갱신: 2026-10-01T12:22Z (병렬 묶음 P01~P15 시작)
+- 마지막 갱신: 2026-10-01T12:59Z (병렬 묶음 재개)
 - 검토 요청: essential-ransac (F-015, 제품 PR #18, 연구 PR #20). fast-matching(PR #17)은 감독이 병합함.
 - 방금 한 일:
   - 진단: 이상치 30% 미달은 정상 집합 문제(후보 = 자기 정상 집합의 최적점, 에피폴라 문턱 안 거짓 정상 1~5개).
