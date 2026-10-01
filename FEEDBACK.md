@@ -539,7 +539,7 @@
 - 실패 상황: `feat/verify` 와 합친 트리에서 `write_outputs`(위치 26곳, 구역 3개) 결과 폴더를 `verify_dir` 로 검사 → snapshots 항목 `FAIL — 오류: step 은 정수 또는 "final"`. 같은 폴더의 preview_align·preview_vs_refined·refined_overlap 은 PASS. 실제 데이터에서도 §4 스냅샷 기준이 늘 실패한다.
 - 고칠 것: `step` 을 정수(1, 2, …), 최종만 `"final"`. 읽기 쪽은 둘 다 수락. SPEC §2 에 형 한 줄 추가 제안.
 - 확인 기준: `to_json` 출력에 `"step": 1` 과 `"step": "final"`. verify 와 합친 트리에서 `write_outputs` 결과를 검사하면 snapshots 항목이 오류 없이 판정 — 시험으로 남김.
-- 이력: 2026-10-01 14:00 감독 등록. 이 문제가 있는 채로 PR #5 가 13:52 UTC 에 main 으로 병합됨(f2b658b) — 후속 수정 필요. → 2026-10-01 19:35 작업자 처리(스트림 `feat/stream-hardening` 229a098 정수 step·"final", verify `feat/verify` e9cb5cf 정수만 허용): 두 브랜치를 합친 트리 확인 필요
+- 이력: 2026-10-01 14:00 감독 등록. 이 문제가 있는 채로 PR #5 가 13:52 UTC 에 main 으로 병합됨(f2b658b) — 후속 수정 필요. → 2026-10-01 19:35 작업자 처리(스트림 `feat/stream-hardening` 229a098 정수 step·"final", verify `feat/verify` e9cb5cf 정수만 허용): 두 브랜치를 합친 트리 확인 필요 → 2026-10-01 23:55 감독 확인: 읽기 쪽 통과(verify 는 정수 step 과 "final" 만 받고 "01" 은 형식 오류). PR #10 머리 + main + `feat/stream-hardening` 3d831e6 를 합친 트리에서 `write_outputs` → `verify_dir` 스냅샷 항목 PASS. 쓰기 쪽이 main 에 없어 열린 채로 둠(PR #27 병합 뒤 다시 확인)
 
 ### F-067 [처리됨-검증대기] (심각도: 중간) — 초벌 정렬이 실패한 구역을 처리하는 경로가 없다
 - 위치: crates/core/src/stream.rs:278(`align_region` → `None`), :721(`write_outputs` zip), :386(`build_snapshots` 길이 `assert_eq!`) (f2b658b)
@@ -705,7 +705,7 @@
 - 실패 상황: 구역 2개, 구역마다 정밀 9만 점(0.2 m 격자), 초벌 = 정밀 + z 30 m 인 출력 폴더에 `skylens-stream verify` → 400 s 안에 끝나지 않음. 같은 폴더에서 초벌 z +0.5 m 이면 1.03 s, 7/7 통과.
 - 고칠 것: 판정에 필요한 거리(3 m 기준의 2배 정도)까지만 찾고 그 너머는 상한값으로 둔다(표기는 "> 상한"). 또는 점이 있는 칸 목록·k-d 트리로 빈 공간을 건너뛴다.
 - 확인 기준: 위 고정 출력(구역 2개 × 9만 점, 초벌 +30 m)에서 verify 가 10 s 안에 끝나고 종료 코드 1, `preview_vs_refined` FAIL 인 시험.
-- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 처리(제품 `feat/verify` e9cb5cf·8ff9d93, PR #10): k-d 나무 + 6 m 상한, 질의 2만 개 1 s 미만(이전 57.7 s)
+- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 처리(제품 `feat/verify` e9cb5cf·8ff9d93, PR #10): k-d 나무 + 6 m 상한, 질의 2만 개 1 s 미만(이전 57.7 s) → 2026-10-01 23:55 감독 확인: 확인 기준 통과(구역 2개×9만 점, 초벌 +30 m 에서 0.42 s, 종료 1, "> 6.000 m"). PR #10 병합 뒤 닫음
 
 ### F-088 [처리됨-검증대기] (심각도: 낮음) — 출력 검증이 스냅샷 점 수 엄격 증가를 최종 단계까지 적용한다
 - 위치: crates/core/src/verify.rs:346-354 (최종은 정렬 키 INFINITY, `w[1].2 <= w[0].2` 이면 문제) (f79ef29)
@@ -713,15 +713,15 @@
 - 실패 상황: manifest step 1: 100, step 2: 180, final: 170 → "점 수 감소/정체 180→170", snapshots FAIL, 종료 코드 1.
 - 고칠 것: 단조 증가 검사는 정수 step 에만 적용하고, final 은 "정밀 구역 점 수 합(6:1 추출 뒤)과 일치" 같은 별도 기준으로 본다. 정체 허용 여부를 SPEC 에 한 줄 적는다(F-056 과 함께 정리).
 - 확인 기준: 위 manifest 고정 출력에서 snapshots PASS, step 2 < step 1 이면 FAIL 인 시험.
-- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 처리(`feat/verify` e9cb5cf): 정수 단계만 단조, final = 정밀 합 e:1 추출
+- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 처리(`feat/verify` e9cb5cf): 정수 단계만 단조, final = 정밀 합 e:1 추출 → 2026-10-01 23:55 감독 확인: 단조 검사가 정수 step 사이에만 적용되고 정체 허용([150,150,288] 종료 0), step 감소 FAIL. 확인 기준의 (100, 180, final 170) 은 새 final 대조(F-157) 때문에 FAIL 이지만 단조 판정 때문은 아님(final 288 로 바꾸면 종료 0). PR #10 병합 뒤 닫음
 
-### F-089 [처리됨-검증대기] (심각도: 중간) — 출력 검증 항목 1~3 이 SPEC 에 없는 `report.json` 에만 기대고 있다
+### F-089 [열림] (심각도: 중간) — 출력 검증 항목 1~3 이 SPEC 에 없는 `report.json` 에만 기대고 있다
 - 위치: crates/core/src/verify.rs:3-12 (f79ef29)
 - 문제: 등록 사진·구역 사진 수·재투영 항목을 `report.json` 에서만 읽는데, 이 형식이 SPEC §2 와 TASKS 묶음 사이 인터페이스에 없다. P12 `run`·P13 `stream` 이 이 파일을 쓰지 않으면 실제 출력에서 세 항목이 늘 FAIL.
 - 실패 상황: SPEC §2 대로만 만든 출력 폴더 → 1~3 항목 "report.json: No such file" FAIL, 결과 최대 4/7.
 - 고칠 것: `report.json` 필드를 SPEC §2 와 TASKS 인터페이스 절에 올리고 `stream::write_outputs` 가 쓰도록 맞춘다.
 - 확인 기준: SPEC §2 에 `report.json` 필드가 있고, 합성 입력으로 만든 스트림 출력에서 1~3 항목이 측정값으로 판정되는 시험.
-- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 일부 처리(`feat/verify` e9cb5cf): report.json 이 SPEC §2 밖임을 문서화, SPEC 줄 제안은 노트 → 2026-10-01 23:36 작업자 처리(feat/verify 0475047: report.json 이 없으면 항목 1~3 을 "판정 불가"로 표시(종료 코드 2), 있으면 그 값으로 판정, 깨진 report.json 은 FAIL. 시험 3개 추가)
+- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 일부 처리(`feat/verify` e9cb5cf): report.json 이 SPEC §2 밖임을 문서화, SPEC 줄 제안은 노트 → 2026-10-01 23:36 작업자 처리(feat/verify 0475047: report.json 이 없으면 항목 1~3 을 "판정 불가"로 표시(종료 코드 2), 있으면 그 값으로 판정, 깨진 report.json 은 FAIL. 시험 3개 추가) → 2026-10-01 23:55 감독 확인: 열림으로 되돌림. report.json 이 없으면 1~3 을 "판정 불가"로 표시하고 종료 2 로 바뀐 것은 확인. 그러나 SPEC §2 에 report.json 이 없고 `stream::write_outputs` 도 쓰지 않아, 확인 기준(합성 스트림 출력에서 1~3 을 측정값으로 판정)은 미충족 — 실제 출력은 최선이 종료 2
 
 ### F-090 [처리됨-검증대기] (심각도: 낮음) — 출력 검증 격자 키가 큰 좌표에서 포화·넘침, CLI 연결이 한 줄 규칙을 넘는다
 - 위치: crates/core/src/verify.rs:483 `(v / self.cell).floor() as i64`, :506 `c[0] + dx`; crates/cli/src/main.rs:53-61 (f79ef29)
@@ -729,7 +729,7 @@
 - 실패 상황: 정밀 PLY 에 x=1e30 점 하나 → 디버그 빌드 verify 가 "attempt to add with overflow" 로 패닉, 릴리스는 엉뚱한 칸 탐색. main.rs 는 P12 `run` 과 같은 줄을 고쳐 충돌.
 - 고칠 것: |좌표| > 1e7 m 점 제외 또는 `saturating_add`. CLI 는 `["verify", dir] => verify::run_cli(..)` 한 줄로 두고 표 출력·종료 코드는 verify.rs 로.
 - 확인 기준: x=1e30 점이 섞인 점군으로 디버그 `cargo test` 의 최근접·높이 짝 시험이 패닉 없이 끝남. `git diff origin/main -- crates/cli/src/main.rs` 의 verify 추가가 매치 1줄·USAGE 1줄.
-- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 처리(`feat/verify` e9cb5cf): |좌표| > 1e7 m 제외, main.rs 차이 한 줄. 디버그 빌드 시험 미실행
+- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 처리(`feat/verify` e9cb5cf): |좌표| > 1e7 m 제외, main.rs 차이 한 줄. 디버그 빌드 시험 미실행 → 2026-10-01 23:55 감독 확인: 확인 기준 통과(|좌표| > 1e7 제외, 디버그 빌드 x=1e30 패닉 없음, main.rs 매치 1줄 + USAGE 1줄). PR #10 병합 뒤 닫음
 
 ### F-091 [열림] (심각도: 중간) — 동일선상 판정이 '직선 + 일반 점 몇 개' 배치를 통과시켜 틀린 F 를 확정한다
 - 위치: crates/core/src/matching.rs:119 `COLLINEAR_AXIS_RATIO`, :141 `nearly_collinear`, :611 `ransac_fundamental` (main 08d5248)
@@ -785,7 +785,7 @@
 - 실패 상황: report 에 구역 2개, 디스크에 preview_00·refined_00 만, manifest 에 단계 1·2·final, 디스크에 step_01 만 → 7/7 PASS, 종료 코드 0.
 - 고칠 것: manifest 단계마다 `step_{k:02}_*.ply`(최종 `step_final_all_refined.ply`) 존재 확인, 없으면 FAIL 과 파일 이름 표시. report 구역 집합 = preview 구역 집합 = refined 구역 집합 확인. 구역 2개 이상인데 정밀 구역 1개면 겹침 FAIL.
 - 확인 기준: 위 폴더에서 종료 코드 1, snapshots 행에 빠진 파일, preview_vs_refined 또는 refined_overlap 행에 빠진 구역 표시. 이 경우의 통합 시험 추가.
-- 이력: 2026-10-01 14:15 감독 등록 → 2026-10-01 19:35 작업자 처리(`feat/verify` e9cb5cf): 기대 파일 목록, 누락 시 종료 코드 1
+- 이력: 2026-10-01 14:15 감독 등록 → 2026-10-01 19:35 작업자 처리(`feat/verify` e9cb5cf): 기대 파일 목록, 누락 시 종료 코드 1 → 2026-10-01 23:55 감독 확인: 확인 기준 통과(`missing_region_and_snapshot_files_fail` 종료 1, 빠진 구역 [1]·빠진 스냅샷 파일 표시, `manifest_missing_step_fails` 통과). PR #10 병합 뒤 닫음
 
 ### F-098 [처리됨-검증대기] (심각도: 중간) — "구역 간 스케일 차 ±10%" 를 중앙값 대비로 재서 구역끼리 22% 차이도 통과
 - 위치: crates/core/src/verify.rs:255-263, crates/cli/tests/verify.rs:268-273 (feat/verify f79ef29)
@@ -793,7 +793,7 @@
 - 실패 상황: scale [0.9, 1.0, 1.1] → PASS(최대 편차 10.00%).
 - 고칠 것: max(s)/min(s) − 1 ≤ 0.10 으로 바꾸거나, SPEC 에 "중앙값 대비" 해석과 근거를 적는다. 측정값 문자열·시험 경계도 함께.
 - 확인 기준: [1.0, 1.0, 1.1] PASS, [0.95, 1.0, 1.06] FAIL(비 1.116), [0.9, 1.0, 1.1] FAIL.
-- 이력: 2026-10-01 14:15 감독 등록 → 2026-10-01 19:35 작업자 처리(`feat/verify` e9cb5cf): max/min − 1 ≤ 10%
+- 이력: 2026-10-01 14:15 감독 등록 → 2026-10-01 19:35 작업자 처리(`feat/verify` e9cb5cf): max/min − 1 ≤ 10% → 2026-10-01 23:55 감독 확인: 확인 기준 통과(max/min−1, [1.0,1.0,1.1] PASS 10.00%, [0.95,1.0,1.06]·[0.9,1.0,1.1] FAIL, 단위·CLI 시험). PR #10 병합 뒤 닫음
 
 ### F-099 [열림] (심각도: 높음) — GPS 정렬 시험이 넓은 격자 비행이라 실제 편대 띠(77 m × 20 m)에서의 기울기 오차를 보지 못한다
 - 위치: crates/core/src/align.rs:530-599 `gps_alignment_recovers_enu_frame`, :234-265 `align_to_enu` (feat/similarity-align 408aea1, main f87549a 에 병합됨)
@@ -880,7 +880,7 @@
 - 문제: 초벌 = 정밀과 같은 xy 에 z 만 더한 점군이라, 점군 전체 중앙값끼리 비교하는 잘못된 구현도 모든 시험을 통과한다.
 - 고칠 것: 초벌·정밀의 xy 범위가 다르고 지면이 경사진 fixture 추가 — 전체 중앙값 차 > 2 m, 같은 위치 짝 높이 차 < 2 m.
 - 확인 기준: 그 fixture 가 PASS 이고, 시험 안에서 전체 중앙값 차 > 2 m 를 단언.
-- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 처리(`feat/verify` 8ff9d93): 전체 중앙 차 > 2 m 인데 같은 위치 차 1.990 m 로 통과하는 fixture
+- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 처리(`feat/verify` 8ff9d93): 전체 중앙 차 > 2 m 인데 같은 위치 차 1.990 m 로 통과하는 fixture → 2026-10-01 23:55 감독 확인: 확인 기준 통과(기울기 0.5·초벌 x 10 m 확장 fixture, 전체 중앙값 차 약 4.49 m 단언, 같은 위치 높이 차 1.990 m PASS). PR #10 병합 뒤 닫음
 
 ### F-118 [처리됨-검증대기] (심각도: 낮음) — 정밀 구역 0개일 때 겹침 항목을 PASS 로 표시한다(최종 스냅샷 단조 비교는 F-088)
 - 위치: crates/core/src/verify.rs:346–354, :309 `check_overlap` (f79ef29)
@@ -888,7 +888,7 @@
 - 실패 상황: (1) 정상 출력이 FAIL. (2) refined 폴더가 비어도 표에 refined_overlap PASS.
 - 고칠 것: final 은 NaN·점 수 대조만, 해석을 문서화. 정밀 0개 FAIL, 1개 "해당 없음".
 - 확인 기준: final 점 수 < 마지막 step 인 fixture PASS, 빈 refined fixture 에서 refined_overlap FAIL.
-- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 처리(`feat/verify` e9cb5cf)
+- 이력: 2026-10-01 14:10 감독 등록(PR #10 검토) → 2026-10-01 19:35 작업자 처리(`feat/verify` e9cb5cf) → 2026-10-01 23:55 감독 확인: 확인 기준 통과(정밀 0개 겹침 FAIL "정밀 구역 0개", 1개 "해당 없음"). PR #10 병합 뒤 닫음
 
 ### F-119 [처리됨-검증대기] (심각도: 중간) — 강건 닮음 변환이 정상 대응 0개여도 Some 을 돌려주고 잔차 중앙값이 NaN
 - 위치: crates/core/src/align.rs:250–264 (main f87549a)
@@ -1185,3 +1185,19 @@
 - 고칠 것: PR #24 가 병합될 때 P04 가 두 절을 갱신(TASKS 규칙대로 README 는 P04).
 - 확인 기준: 두 절이 바뀐 기본 임계·None 조건·필드를 같은 뜻으로 적음.
 - 이력: 2026-10-01 23:38 감독 등록 (PR #23·#24 교차 검토)
+
+### F-156 [열림] (심각도: 중간) — 초벌 정렬 항목이 manifest `align` 기록을 구역 집합과 대조하지 않아, 일부 구역 정렬 기록이 빠져도 PASS
+- 위치: crates/core/src/verify.rs:377-407 `check_align` (feat/verify 0475047)
+- 문제: `align` 배열이 비어 있지만 않으면 들어 있는 기록만으로 판정한다. F-097 에서 도입한 기대 구역 집합과 `align[].region` 집합을 맞춰 보지 않아, 정렬에 실패해 기록이 빠진 구역이 있어도 통과한다. 시험 fixture 도 구역 2개에 align 기록 3개(region 0..2)인데 통과한다.
+- 실패 상황: 기본 fixture(구역 2개)의 `align` 을 `[{"region":0,"pairs":1000,"fit_median_m":1.0,"scale":1.0}]` 하나로 줄이면 preview_align PASS, 7/7, 종료 0.
+- 고칠 것: `align[].region` 집합이 기대 구역 집합과 같은지 확인하고 빠진·남는 구역을 측정값에 적어 FAIL. CLI 시험 fixture 의 align 기록 수를 구역 수에 맞춘다. 구역 0 을 정렬 대상에서 빼는 해석이면 SPEC §3.7 과 함께 문서에 적는다.
+- 확인 기준: 구역 2개·align 1개 fixture 에서 preview_align FAIL("정렬 기록 없는 구역 [1]")·종료 1, 기본 fixture(align 2개) PASS.
+- 이력: 2026-10-01 23:55 감독 등록(PR #10 검토)
+
+### F-157 [열림] (심각도: 낮음) — 최종 스냅샷 점 수 대조가 추출 비율 1..=64 중 아무것이나 맞으면 통과한다
+- 위치: crates/core/src/verify.rs:556-569; crates/cli/tests/verify.rs:47-48 주석 "final 288 = 861×2를 6:1 추출" (feat/verify 0475047)
+- 문제: `stream::write_outputs` 는 refined/ PLY 도 6:1 로 추출해 쓰므로 실제 출력에서는 final = refined/ 점 수 합(비율 1)이어야 한다(PR #10 + main + `feat/stream-hardening` 합친 트리 실측 final 1840 = 정밀 합). 검사는 64개 비율 중 하나만 맞으면 통과하고, fixture 는 실제로 나올 수 없는 비율 6 관계를 통과 사례로 고정했다.
+- 실패 상황: refined/ 가 861점 2개인 폴더에서 final 288점이 PASS. 실제 파이프라인에서는 오류(재추출 또는 추출 전 정밀 파일).
+- 고칠 것: final == Σ refined/ 점 수로 좁히거나, manifest 에 추출 비율을 기록해 그 값 하나로 대조한다. fixture 값과 주석도 함께.
+- 확인 기준: refined [861, 861] 에서 final 1722 PASS, final 288 FAIL 인 시험.
+- 이력: 2026-10-01 23:55 감독 등록(PR #10 검토)
