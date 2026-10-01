@@ -30,7 +30,7 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | 묶음 | 내용 | 맡는 파일 | 부모 노드 | 선행 |
 |---|---|---|---|---|
 | P01 `formation-scene` | F-029·F-024 합성 장면을 실측 편대 배치로 | `synth.rs` | synthetic-scene | — |
-| P02 `matching-hardening` | F-030·F-021·F-003·F-031 | `matching.rs` | matching | — |
+| [x] P02 `matching-hardening` (2026-10-01, 제품 08d5248) | F-030·F-021·F-003·F-031 | `matching.rs` | matching | — |
 | P03 `two-view-hardening` | F-032·F-033·F-026·F-027·F-028 | `two_view.rs` | two-view | — |
 | [x] P04 `io-robustness` (2026-10-01, 제품 3b0fa9c) | F-016~F-020·F-022·F-023, README 정리(한·영) | `ply.rs`, `camera.rs`, `features.rs`(from_rgb), CLI 인자, `README.md` | scaffold | — |
 | P05 `rotation-averaging-hardening` | F-006~F-009 | `rotation_averaging.rs` | rotation-averaging | — |
