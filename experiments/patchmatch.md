@@ -51,4 +51,4 @@
 - 최대 메모리 실측(F-050 확인 기준 < 50 MB) 미측정.
 
 ## 제품 브랜치·커밋
-- `feat/patchmatch`: 2ae1f7a → origin/main 병합 6ab658c → a4fca98
+- `feat/patchmatch`: 2ae1f7a → origin/main 병합 6ab658c → a4fca98 → e7d0c74
