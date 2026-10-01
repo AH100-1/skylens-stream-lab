@@ -1225,3 +1225,19 @@
 - 고칠 것: 주석 수치를 같은 커밋의 `cargo test --release ransac_essential_nonplanar_first_candidate -- --nocapture` 출력(최대 초과와 시드)으로 바꾼다.
 - 확인 기준: 주석 수치가 출력의 시드별 (첫 후보 − 하한) 최댓값과 일치.
 - 이력: 2026-10-01 23:58 감독 등록(PR #13 검토)
+
+### F-161 [열림] (심각도: 중간) — 융합 이웃 목록의 중복 번호를 막지 않아 사진 2장으로도 3장 동의가 된다
+- 위치: crates/core/src/fusion.rs:173 (`check` 의 이웃 검사), 248-290 (동의 반복) (feat/fusion-hardening de4556e)
+- 문제: `neighbors` 에 같은 번호가 여러 번 있으면 그 사진이 동의 수와 위치·법선·색 평균에 여러 번 들어간다. `check` 는 범위 밖 번호와 자기 자신만 거른다.
+- 실패 상황: 원형 보조 장면 사진 2장에 neighbors [1,1]·[0,0], 기본 설정(min_views 3)으로 `try_fuse` → 오류 없이 3053점(이웃이 비어 있으면 0점, `two_views_give_nothing` 과 모순).
+- 고칠 것: `check` 에서 사진마다 이웃 번호 중복을 `FusionError::BadNeighbor`(또는 새 변형)로 거절한다.
+- 확인 기준: `mismatched_inputs_are_errors` 에 neighbors=[1,1] 경우를 넣어 정해진 오류를 받는다.
+- 이력: 2026-10-01 23:58 감독 등록(PR #25 검토)
+
+### F-162 [열림] (심각도: 중간) — 번들 조정이 투영된 관측이 0개일 때 재투영 RMS 를 0 px 로 보고한다
+- 위치: crates/core/src/ba.rs:577 `(sq / (obs.len() - behind).max(1) as f64).sqrt()`, :666, 시험 :1369 `no_accepted_step_is_not_refined` (feat/ba-hardening 022e5cf, main ec18464)
+- 문제: 분모를 `.max(1)` 로 막아 투영된 관측이 0개이면 0/1 = 0 이 된다. "쓸 관측 없음"이 "오차 0 px" 로 보고되어 SPEC §4 정밀 재투영 ≤ 0.7 px 판정을 통과하는 값이 된다. 시험은 이 경우 RMS 를 단언하지 않는다.
+- 실패 상황: `noisy_perturbed(16)`(관측 2811)에서 (1) 모든 픽셀 x = NaN → EvaluationOnly, initial/final RMS 0, 제외 2811 (2) 모든 점 z = 1000(전부 카메라 뒤) → StepFailed, RMS 0, 뒤쪽 2811 (3) `max_tracks: 0` → EvaluationOnly, RMS 0.
+- 고칠 것: 투영된 관측 수가 0 이면 initial_rms·final_rms 를 NaN(또는 `Option<f64>` None)으로 두거나 `BaStop::InvalidInput` 으로 보고한다.
+- 확인 기준: 위 세 입력에서 final_rms 가 0 이 아니고(NaN/None) refined·converged 가 거짓임을 단언하는 시험 통과, 정상 장면 RMS 불변(시드 11~13 0.6234/0.6250/0.6186).
+- 이력: 2026-10-01 23:58 감독 등록(PR #17 검토, 병합 뒤 확인)
