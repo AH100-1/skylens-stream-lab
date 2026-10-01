@@ -470,13 +470,13 @@
 - 확인 기준: 추가 경우의 기준이 측정 전에 근거와 함께 노트에 적혀 있고 시험 통과.
 - 이력: 2026-10-01 13:55 감독 등록(PR #5 검토) → 2026-10-01 19:35 작업자 처리(`feat/stream-hardening` 229a098): 창 안 휨 0.116 m 경우 추가
 
-### F-058 [처리됨-검증대기] (심각도: 낮음) — 입출력 정리 잔여: PLY 넘침 시험 한 경우가 해석 실패를 시험, gps.txt 이름 확장자 규칙 미정, 최소 Rust 버전 미기재
+### F-058 [닫힘] (심각도: 낮음) — 입출력 정리 잔여: PLY 넘침 시험 한 경우가 해석 실패를 시험, gps.txt 이름 확장자 규칙 미정, 최소 Rust 버전 미기재
 - 위치: crates/core/src/ply.rs:349-351 (`"683212743470724134000"`); README.md:32·189; Cargo.toml (`rust-version` 없음), matching.rs:46 `as_chunks` — main 3b0fa9c (PR #2)
 - 문제: 주석은 "count × 12 가 usize 를 넘는 헤더"지만 이 값은 u64 를 넘어 `parse` 단계 실패로 끝난다. README 두 절은 "이미지이름 / name"만 적어 `camF_0000.jpg` 로 써도 되는지 알 수 없다(합성 출력은 확장자 없음). 1.88 미만 도구에서 알 수 없는 메서드 오류.
 - 실패 상황: 개수 해석 방식을 바꿔도 넘침 시험이 계속 통과. 사용자가 `.jpg` 를 붙인 gps.txt 로 `run` 하면 짝짓기 실패. 1.85 빌드 시 원인 모를 컴파일 오류.
 - 고칠 것: 주석·문구 단언 정정("해석 실패"), 두 절에 "확장자 없는 파일 이름(예: camF_0000)" 명시 또는 두 형태 모두 받기, 작업공간 Cargo.toml 에 `rust-version = "1.88"`.
 - 확인 기준: 세 헤더가 "잘림"·"해석 실패"·"너무 큼" 문구를 각각 단언, README 두 절 문구 일치, `cargo metadata` 에 rust-version 1.88.
-- 이력: 2026-10-01 13:55 감독 등록(PR #2 검토, F-020 남은 부분 포함) → 2026-10-01 19:21 작업자 처리(`feat/io-cleanup` 97d413a·f80463b): 넘침 시험 문구 구분, gps.txt 이름 확장자 없음 명시, rust-version 1.88 선언(1.88 빌드는 미확인)
+- 이력: 2026-10-01 13:55 감독 등록(PR #2 검토, F-020 남은 부분 포함) → 2026-10-01 19:21 작업자 처리(`feat/io-cleanup` 97d413a·f80463b): 넘침 시험 문구 구분, gps.txt 이름 확장자 없음 명시, rust-version 1.88 선언(1.88 빌드는 미확인) → 2026-10-01 23:45 감독 확인(제품 #23, main d4432c7): 세 헤더 문구 각각 단언 확인, README 한·영 두 절 "확장자 없는 이름(camF_0000)" 일치, `cargo metadata` core·cli rust_version 1.88, `cargo +1.88 build --release --all-targets` 성공(44.8 s). 닫음
 
 ### F-059 [열림] (심각도: 낮음) — `five_point_terminates_on_many_seeds` 시간 단언이 부하에 따라 실패한다
 - 위치: crates/core/src/two_view.rs:1210 (main 8f867ff 이후 그대로)
@@ -494,28 +494,28 @@
 - 확인 기준: 저장소 규약 반점(1920×1080→960, 왜곡 0 과 k1 −0.12)에서 무게중심과 핀홀 투영 차 최대 < 0.02 px 시험.
 - 이력: 2026-10-01 14:00 감독 등록 → 14:22 감독 재측정: 2048×1152, fx 1609, k1 −0.12 를 긴 변 960 으로 보정, +0.5 규약 반점 4점 모두 (+0.25~+0.27, +0.26) px 어긋남, 반환 cx 479.734(규약상 480.0). cx′ 반 화소 항을 빼도 반점 시험이 통과(순환). 편대 방위 차 약 120° 라 치우침이 사진 사이에서 상쇄되지 않는다. → 2026-10-01 19:35 작업자 처리(제품 `feat/dense-prep` 951c1ed): 화소 중심 규약, 반점 중심 대 정답 투영 0.0058~0.0068 px
 
-### F-061 [처리됨-검증대기] (심각도: 낮음) — PLY 헤더 줄 길이·헤더 크기 상한이 없어 줄바꿈 없는 큰 파일이 그 크기의 약 2배 메모리를 잡는다
+### F-061 [닫힘] (심각도: 낮음) — PLY 헤더 줄 길이·헤더 크기 상한이 없어 줄바꿈 없는 큰 파일이 그 크기의 약 2배 메모리를 잡는다
 - 위치: crates/core/src/ply.rs:125-131 `next_line`(`read_line` 후 `trim().to_string()`) (5fd09ef)
 - 문제: 헤더 한 줄을 끝까지 읽고 다시 복사한다. 상한이 없다.
 - 실패 상황: `ply\ncomment ` + `a`×3억(줄바꿈 없음) 파일에 `ply-info` → 종료 코드 1 이지만 최대 상주 메모리 574 MB.
 - 고칠 것: 헤더 줄 `take(4096)` 제한, 넘으면 `InvalidData`("헤더 줄이 너무 김"). 헤더 전체 64 KiB 상한.
 - 확인 기준: 상한+1 바이트 줄로 `read_ply` 가 `Err` 를 돌려주는 시험.
-- 이력: 2026-10-01 14:00 감독 등록 → 2026-10-01 19:21 작업자 처리(제품 `feat/io-cleanup` 97d413a): 헤더 줄 4096 B·헤더 64 KiB 상한, 300 MiB 줄바꿈 없는 파일 최대 메모리 574 MB → 9.9 MB
+- 이력: 2026-10-01 14:00 감독 등록 → 2026-10-01 19:21 작업자 처리(제품 `feat/io-cleanup` 97d413a): 헤더 줄 4096 B·헤더 64 KiB 상한, 300 MiB 줄바꿈 없는 파일 최대 메모리 574 MB → 9.9 MB → 2026-10-01 23:45 감독 확인(제품 #23, main d4432c7): `rejects_header_line_over_limit`·`rejects_header_over_total_limit`·`long_line_without_newline_is_not_read_to_end` 통과, 300 MiB 줄바꿈 없는 파일 `ply-info` 종료 1·최대 상주 10.1 MB. 닫음
 
-### F-062 [처리됨-검증대기] (심각도: 낮음) — `GrayImage` 필드가 공개라 길이 검사를 우회해 검출 중 패닉
+### F-062 [닫힘] (심각도: 낮음) — `GrayImage` 필드가 공개라 길이 검사를 우회해 검출 중 패닉
 - 위치: crates/core/src/features.rs:30-34(`pub width/height/data`), 패닉 :136 (5fd09ef)
 - 문제: `try_from_*` 가 검사해도 구조체 리터럴로 길이가 틀린 영상을 만들 수 있고 `detect` 는 다시 확인하지 않는다.
 - 실패 상황: `detect(&GrayImage{width:64,height:64,data:vec![0.5;100]}, &DetectorConfig::default())` → features.rs:136 범위 밖 패닉.
 - 고칠 것: 필드 비공개 + 접근자, 또는 `detect`/`detect_and_describe` 시작에서 `data.len()==width*height` 확인 후 빈 결과.
 - 확인 기준: 위 입력에서 패닉 0 을 단언하는 시험.
-- 이력: 2026-10-01 14:00 감독 등록 → 2026-10-01 19:21 작업자 처리(`feat/io-cleanup` 6b09873): 필드 비공개 + `try_from_vec`·접근자, compile_fail 문서 시험
+- 이력: 2026-10-01 14:00 감독 등록 → 2026-10-01 19:21 작업자 처리(`feat/io-cleanup` 6b09873): 필드 비공개 + `try_from_vec`·접근자, compile_fail 문서 시험 → 2026-10-01 23:45 감독 확인(제품 #23, main d4432c7): compile_fail 문서 시험·`mismatched_buffer_cannot_become_image` 통과(패닉 0). 닫음
 
-### F-063 [처리됨-검증대기] (심각도: 낮음) — `synth` 가 빈 출력 경로를 받아 현재 폴더에 240장을 쓰고, `+20` 같은 부호 붙은 크기를 받는다
+### F-063 [닫힘] (심각도: 낮음) — `synth` 가 빈 출력 경로를 받아 현재 폴더에 240장을 쓰고, `+20` 같은 부호 붙은 크기를 받는다
 - 위치: crates/cli/src/main.rs:45 `["synth", out, rest @ ..]` (5fd09ef)
 - 실패 상황: `skylens-stream synth ""` → 현재 폴더에 `images/`·`truth/`·`gps.txt` 생성. `synth out +20 20` 통과.
 - 고칠 것: 빈 경로는 사용법 오류(종료 코드 2), 크기는 숫자 문자만 허용.
 - 확인 기준: 두 경우 종료 코드 2 이고 파일을 만들지 않는 cli 시험.
-- 이력: 2026-10-01 14:00 감독 등록 → 2026-10-01 19:21 작업자 처리(`feat/io-cleanup` 63f61bb): 빈 경로·부호 붙은 크기 종료 코드 2, 출력 없음
+- 이력: 2026-10-01 14:00 감독 등록 → 2026-10-01 19:21 작업자 처리(`feat/io-cleanup` 63f61bb): 빈 경로·부호 붙은 크기 종료 코드 2, 출력 없음 → 2026-10-01 23:45 감독 확인(제품 #23, main d4432c7): `synth ""` 종료 2(빈 폴더 그대로), `synth out +20 20`·`" 20" 20` 종료 2·출력 없음, `--help` 종료 0. 닫음
 
 ### F-064 [처리됨-검증대기] (심각도: 중간) — 카메라 하나가 빠진 프레임을 조용히 버리고 뒤 위치를 앞당긴다
 - 위치: crates/core/src/dataset.rs:273-276, crates/cli/src/run.rs:57-64 (e577cbf, F-041 과 별개)
@@ -651,21 +651,21 @@
 - 확인 기준: 같은 합성 입력에서 manifest·파일 내용이 지금과 같고 최대 보관 점 수가 한 단계 분량을 넘지 않는다.
 - 이력: 2026-10-01 14:07 감독 등록 → 2026-10-01 19:35 작업자 처리(`feat/stream-hardening` 229a098): `for_each_snapshot` 단계별 쓰기, 최대 보관 = 최대 단계 분량
 
-### F-081 [처리됨-검증대기] (심각도: 낮음) — PLY 읽기가 `format` 줄이 없는 헤더를 이진 리틀엔디언으로 간주한다
+### F-081 [닫힘] (심각도: 낮음) — PLY 읽기가 `format` 줄이 없는 헤더를 이진 리틀엔디언으로 간주한다
 - 위치: crates/core/src/ply.rs:141–145 (main 3b0fa9c)
 - 문제: `format` 은 있을 때만 검사해 형식 선언이 없는 파일을 이진 데이터로 해석한다.
 - 실패 상황: "ply\nelement vertex 1\nproperty float x\nproperty float y\nproperty float z\nend_header\n" + 12 바이트 → Ok(1점).
 - 고칠 것: `end_header` 전에 `format binary_little_endian 1.0` 이 정확히 한 번 나왔는지 확인하고 없으면 InvalidData.
 - 확인 기준: 위 입력과 `format binary_little_endian 2.0` 입력이 모두 Err, 기존 PLY 시험 통과.
-- 이력: 2026-10-01 14:07 감독 등록 → 2026-10-01 19:21 작업자 처리(`feat/io-cleanup` 97d413a): format 줄 정확히 1개 요구
+- 이력: 2026-10-01 14:07 감독 등록 → 2026-10-01 19:21 작업자 처리(`feat/io-cleanup` 97d413a): format 줄 정확히 1개 요구 → 2026-10-01 23:45 감독 확인(제품 #23, main d4432c7): `rejects_missing_or_wrong_format_line`(없음·2.0·두 번) Err, 기존 PLY 시험 통과. 닫음
 
-### F-082 [처리됨-검증대기] (심각도: 낮음) — synth 인자 시험이 검사가 빠지면 실패하지 않고 240장 렌더를 기다린다
+### F-082 [닫힘] (심각도: 낮음) — synth 인자 시험이 검사가 빠지면 실패하지 않고 240장 렌더를 기다린다
 - 위치: crates/cli/tests/synth_args.rs:24–55 (main 3b0fa9c)
 - 문제: 인자 검사가 빠지면 실행 파일이 기본값으로 렌더를 시작하고 시험은 끝나기를 기다린다. 범위 시험은 출력 폴더 미생성도 확인하지 않고, 남은 폴더를 지우지 않는다.
 - 실패 상황: 인자 검사 없는 실행 파일로 `synth <폴더> 64` → 60초 넘게 돌며 images/ 에 160장 이상, `/tmp/skylens_synth_args_*` 가 남는다.
 - 고칠 것: 자식 프로세스 시간 제한(예: 10 s 후 종료하고 실패), 범위 시험에서도 출력 폴더 없음 단언, 끝나면 폴더 삭제.
 - 확인 기준: `parse_side` 가 항상 Some 을 돌려주게 바꾸면 synth_args 시험 4개가 10 s 안에 모두 실패, 원래 코드에서는 통과.
-- 이력: 2026-10-01 14:07 감독 등록 → 2026-10-01 19:21 작업자 처리(`feat/io-cleanup` 63f61bb): 10 s 제한 후 실패, 오류 줄 정확 일치. 인자 개수 시험 2개는 parse_side 를 거치지 않아 그 변이로 실패하지 않음
+- 이력: 2026-10-01 14:07 감독 등록 → 2026-10-01 19:21 작업자 처리(`feat/io-cleanup` 63f61bb): 10 s 제한 후 실패, 오류 줄 정확 일치. 인자 개수 시험 2개는 parse_side 를 거치지 않아 그 변이로 실패하지 않음 → 2026-10-01 23:45 감독 확인(제품 #23, main d4432c7): `parse_side` 숫자 검사를 뺀 변형 → 범위 시험 0.37 s 에 실패, 항상 Some 변형 → 크기 관련 시험 2개 0.33 s 에 실패, 원래 코드 6/6 통과, 남은 임시 폴더 0. 인자 개수 시험 2개는 `parse_side` 를 거치지 않으므로 기준에서 제외. 닫음
 
 ### F-083 [처리됨-검증대기] (심각도: 높음) — PatchMatch 가 영상 값 범위를 자유라고 문서화했지만 기본 설정은 0~1 범위에서만 동작한다
 - 위치: crates/core/src/patchmatch.rs:12, 92, 191–192, 217, 515 (feat/patchmatch 2ae1f7a)
@@ -1145,3 +1145,11 @@
 - 고칠 것: P02 matching·P03 two-view 묶음이 각 파일을 고칠 때 주석 수치를 같은 커밋의 `cargo test --release -- --nocapture` 출력으로 바꾼다.
 - 확인 기준: 두 주석의 수치가 해당 시험 출력과 일치.
 - 이력: 2026-10-01 23:25 감독 등록 (PR #22 검토, F-116 에서 분리)
+
+### F-151 [열림] (심각도: 중간) — PR #6 patchmatch 가 비공개가 된 `GrayImage` 필드를 읽어 main 과 합치면 컴파일되지 않는다
+- 위치: crates/core/src/patchmatch.rs:108 `impl From<&crate::features::GrayImage> for GrayImage` (`feat/patchmatch` da06217, main d4432c7 과 합친 트리)
+- 문제: main d4432c7(#23)이 `features::GrayImage` 의 `width`·`height`·`data` 를 비공개로 바꿨다. patchmatch 는 `g.width`·`g.height`·`g.data.clone()` 으로 직접 읽는다.
+- 실패 상황: `feat/patchmatch` 에 origin/main d4432c7 을 병합 → `cargo check --all-targets` 오류 E0616 3개(patchmatch.rs:108:21·:30·:40), lib·lib test 모두 컴파일 실패.
+- 고칠 것: main 을 병합하고 `g.width()`·`g.height()`·`g.data().to_vec()` 로 바꾼다. 같은 PR 안의 다른 `.image.width`·`.image.data` 접근(patchmatch 자체 `GrayImage`)은 해당 형이 맞는지 확인.
+- 확인 기준: main 과 합친 트리에서 fmt·clippy(-D warnings)·`cargo test --release` 실패 0, `grep -n "g\.width\b\|g\.data\b" crates/core/src/patchmatch.rs` 결과 없음.
+- 이력: 2026-10-01 23:45 감독 등록(PR #23 병합 뒤 열린 PR 대조)

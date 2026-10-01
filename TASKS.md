@@ -32,7 +32,7 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | [x] P01 `formation-scene` (2026-10-01, 제품 1609550; formation-scene-check 2026-10-01 제품 e9f7187) | F-029·F-024 합성 장면을 실측 편대 배치로 | `synth.rs` | synthetic-scene | — |
 | [x] P02 `matching-hardening` (2026-10-01, 제품 08d5248) | F-030·F-021·F-003·F-031 | `matching.rs` | matching | — |
 | P03 `two-view-hardening` | F-032·F-033·F-026·F-027·F-028 | `two_view.rs` | two-view | — |
-| [x] P04 `io-robustness` (2026-10-01, 제품 3b0fa9c) | F-016~F-020·F-022·F-023, README 정리(한·영) | `ply.rs`, `camera.rs`, `features.rs`(from_rgb), CLI 인자, `README.md` | scaffold | — |
+| [x] P04 `io-robustness` (2026-10-01, 제품 3b0fa9c; io-cleanup 2026-10-01 제품 d4432c7) | F-016~F-020·F-022·F-023, README 정리(한·영) | `ply.rs`, `camera.rs`, `features.rs`(from_rgb), CLI 인자, `README.md` | scaffold | — |
 | [x] P05 `rotation-averaging-hardening` (2026-10-01, 제품 9f111f2, F-137·F-138 남음) | F-006~F-009 | `rotation_averaging.rs` | rotation-averaging | — |
 | P06 `translation-averaging` | T07 방향 제약 위치 추정 + 다시점 삼각측량 | 새 `translation_averaging.rs`, `triangulation.rs` | rotation-averaging | — |
 | [x] P07 `bundle-adjustment` (2026-10-01, 제품 04e4d29) | T08 희소 LM + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터, 트랙 10만 제한 | 새 `ba.rs` | two-view | — |
