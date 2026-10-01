@@ -45,4 +45,7 @@ README 두 절의 예시를 고쳤다. 검출기 출력 규약 자체를 바꾸�
   정규화 경로를 `DistortedIntrinsics::unproject` 하나로 모으는 일과 왜곡 있는 합성 카메라 두 장의 자세 시험은 T08 전에 해야 한다.
 
 ## 제품 브랜치·커밋
-- 브랜치 `feat/io-robustness`, 커밋 아래 참조.
+- 브랜치 `feat/io-robustness`, 커밋 `5fd09ef`.
+- 시험: fmt·clippy 통과. 전체 `cargo test --release` 에서 core 84개 중 83 통과, 1개 실패 —
+  `two_view::tests::five_point_terminates_on_many_seeds` 의 시간 기준(최악 호출 202 ms, 이 묶음이 고치지 않은 파일)으로,
+  측정 기계가 여러 빌드를 함께 돌리던 부하 때문으로 본다. cli 시험 8개(ply_info 4, synth_args 4)와 이 묶음의 core 시험 18개는 모두 통과.
