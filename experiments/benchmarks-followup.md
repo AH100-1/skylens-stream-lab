@@ -38,7 +38,7 @@
   설정한다. `--positions`·`--quick`·`--full` 중 하나라도 주면 위치를 지정한 것으로 본다. 지정이 없고 `--mode ba-scale` 이면 80.
 - 간선 진단: 두 시점 결과 간선 (i, j, R_ij) 마다 정답 R_j R_iᵀ 와의 사이 각 ∠(R_ij (R_j R_iᵀ)ᵀ) 를 구해 2° 초과 수/전체를 적는다.
   반환 시점 수는 `AveragingResult::rotations` 중 값이 있는 것의 수.
-- 구조 시험은 `cargo test --release --test perf_structure` 로 확인했다.
+- 구조 시험은 `cargo test --release --test perf_structure` 로 확인했다(4 통과). a7ad157 에서 `cargo fmt --all --check`·`cargo clippy --all-targets -- -D warnings` 통과, `cargo test --release` 144 통과·0 실패·3 무시(기존 무시 시험).
 
 ## 남은 문제
 1. 검출 해시 시험은 `feat/pixel-convention` 의 `features.rs` 에만 있다. 그 브랜치가 병합될 때까지 main 에 검출 해시 회귀 시험이 없다.
