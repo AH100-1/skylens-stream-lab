@@ -52,4 +52,4 @@
 - 시간은 한 장 약 1 s 로, 다중 스레드 분할이나 옥타브 병렬화 여지를 따로 재지 않았다.
 
 ## 측정한 제품 커밋
-- skylens-stream-rs origin/main 08d5248 (features.rs 는 T03 병합 cde0fb4 이후 상태). 제품 브랜치·커밋 없음.
+- skylens-stream-rs origin/main 08d5248. 이 커밋에서 features.rs 의 마지막 변경은 3b0fa9c(입력 버퍼 검증), 그 앞은 75516ae(층별 기울기 표). 원래 노트의 병합 해시 cde0fb4 는 현재 origin/main 이력에서 찾을 수 없어 해시 대신 위 커밋으로 적는다. 제품 브랜치·커밋 없음.
