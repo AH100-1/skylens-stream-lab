@@ -2,10 +2,7 @@
 
 ## 결론
 
-- **F-026**: 국소 최적화(LO) 시작 조건을 `lo_should_start(cnt, best_cnt)` = `cnt ≥ 8 && 4·cnt ≥ best_cnt` 로 떼어 내고 주석을 "최고 가설의 4분의 1 이상" 으로 맞췄다. 1/4 를 고른 근거(절반 기준에서 다중 시드 재현율 미달 → 1/4 에서 500/500, matching 3차 표)를 함수 문서에 한 줄로 달았다. 경계값 시험 `lo_start_condition_is_one_quarter_of_best`(25/100 참, 24/100 거짓, 30/100 참 — 절반 기준이면 거짓).
-- **F-027**: Sampson LM 정밀화의 야코비안을 해석식으로 바꿨다. 부호 있는 잔차 r = e/√d, e = bᵀFa, d = (Fa)₀²+(Fa)₁²+(Fᵀb)₀²+(Fᵀb)₁² 에서
-  ∂e/∂F_lm = b_l a_m, ∂d/∂F_lm = 2(Fa)_l a_m[l<2] + 2(Fᵀb)_m b_l[m<2], ∂r/∂F = ∂e/√d − e·∂d/(2d^{3/2}),
-  정규화 매개 G(F_px = T2ᵀ G T1)로는 ∂r/∂G = T2 (∂r/∂F_px) T1ᵀ. 중앙 차분(h = 1e-6)과 상대 1e-6 안에서 일치(60점 × 9성분 모두). 다중 시드 시험(정밀도·재현율·탐색·None) 결과 불변(모두 통과).
+- **F-026·F-027 은 이 브랜치에서 최종 반영하지 않았다.** 같은 두 항목을 `feat/sampson-lm`(899f67a) 이 처리 중이라, 한때 넣었던 해석적 야코비안·LO 조건 함수(31fe7b4)는 겹침을 피하려고 되돌렸다(7a7e46d). 그 시도에서 얻은 수치만 아래 "참고 측정"에 남긴다.
 - **F-003 평면**: `select_two_view_model(x1, x2, F, σ)` 공개. GRIC(Torr) 점수 두 개와 평면 밖 시차 짝 수를 함께 써서 F/H 를 고른다. 평면(z=0, σ=0.5 px) 5시드 모두 H, 지면 + 건물 5%·10% 5시드씩 모두 F, 일반 장면 5시드 모두 F(GRIC_F < GRIC_H). **`ransac_fundamental` 안에서 거부하지는 않는다** — 같은 위치에서 시선만 90° 돌린 짝(F→R step 0, 순수 회전)도 호모그래피로 설명되어 기존 `ransac_on_cross_camera_views` 가 깨졌다. 평면·순수 회전은 정상 짝으로 호출자가 모델 선택을 따로 부르는 구조로 두었다(두 시점 초기화 연결은 남은 문제).
 
 ## 수치
@@ -29,7 +26,7 @@
 
 시험: `planar_scene_selects_homography`(정답 F 와 RANSAC F 양쪽으로), `ground_scene_with_few_buildings_keeps_fundamental`(건물 5%·10%, 시드 1~5: 정답 F·RANSAC F 모두 F 선택, 정답 정상 짝 재현 ≥ 95%, 건물 점 Sampson 문턱 안 ≥ 90%), `general_scene_selects_fundamental`.
 
-### Sampson LM 비용 (F-027)
+### 참고 측정: Sampson LM 해석적 야코비안 시도 (31fe7b4, 되돌림)
 
 LM 반복 1회의 잔차 계산 횟수(정상 짝 m):
 
@@ -40,7 +37,7 @@ LM 반복 1회의 잔차 계산 횟수(정상 짝 m):
 
 반복당 약 2.5배 줄고, 전진 차분 오차 O(h) 가 없어져 수렴 판정(상대 1e-10)과 맞는다.
 
-대응 4000개(정상 50%, σ = 0.5 px) RANSAC 1회(`ransac_4000_timing`, `#[ignore]`, 단독·직렬 실행, 5회 중앙): **0.18 s**(최소 0.15 s), 4 코어 측정 기계에서 다른 빌드가 함께 돌던 상태. 확인 기준 0.1 s 에는 아직 못 미친다. 이전 구현의 같은 측정은 하지 못했다(아래 남은 문제).
+대응 4000개(정상 50%, σ = 0.5 px) RANSAC 1회(`ransac_4000_timing`, `#[ignore]`, 단독·직렬 실행, 5회 중앙): **0.18 s**(최소 0.15 s), 4 코어 측정 기계에서 다른 빌드가 함께 돌던 상태. 같은 시각 연속 측정에서 수치 미분 구현(main)은 중앙 0.108 s, 해석식은 0.128 s 로 부하 잡음 안에서 차이가 드러나지 않았다 — 4000 대응 RANSAC 1회 시간은 LM 야코비안보다 가설 탐색·LO·정상 판정이 차지하는 몫이 큰 것으로 보인다. 해석식-중앙 차분 일치(상대 1e-6)는 통과했다.
 
 ## 방법
 
@@ -51,11 +48,12 @@ LM 반복 1회의 잔차 계산 횟수(정상 짝 m):
 
 ## 남은 문제
 
-1. 4000 대응 RANSAC 1회 0.18 s(기준 0.1 s 미달). 이전 구현과 같은 조건 비교 미측정. 다음 후보: 상위 5개 가설 × 문턱 6단계 마무리를 3단계로 줄이기, 정규 방정식 누적(JᵀJ)을 점별 3×3 외적 대신 9×9 대칭 누적으로, 반복 수 기록(문턱 단계별 조기 종료 빈도).
+1. F-026·F-027 은 `feat/sampson-lm` 쪽 결과로 판단. 위 참고 측정상 4000 대응 0.1 s 기준은 야코비안만으로는 어렵고, 마무리 단계 수(상위 5개 가설 × 문턱 6단계) 축소가 필요해 보인다.
 2. 모델 선택은 공개 함수만 있고 두 시점 초기화(`two_view`)에 연결하지 않았다. 호모그래피가 선택된 짝을 회전 전용(F-004 의 회전 판정)과 평면(호모그래피 분해)으로 나누는 경로가 필요하다.
 3. σ 를 호출자가 준다(시험은 문턱/3). 실영상에서는 정상 짝의 Sampson 잔차 중앙값으로 추정하는 것을 검토.
 4. 시차 짝 필요 수(8 + 기대 + 3√기대)의 고정 8 은 "F 를 안정적으로 정하려면 평면 밖 짝이 몇 개 있어야 하는가" 에 대한 측정 근거가 아직 없다. 건물 비율 1%·2%(3·6점)에서 F 정확도 측정 필요.
 
 ## 제품 브랜치·커밋
 
-- `feat/matching-refine` 31fe7b4 — `crates/core/src/matching.rs`: `lo_should_start`, `sampson_residual_grad`·해석적 야코비안, `select_two_view_model`·`TwoViewModel`·`ModelSelection`.
+- `feat/matching-refine` 92db4e9(최신 main 병합) — `crates/core/src/matching.rs`: `select_two_view_model`·`TwoViewModel`·`ModelSelection`, `fit_homography`(`homography_support` 가 이를 사용), 시험 3개(`planar_scene_selects_homography`, `ground_scene_with_few_buildings_keeps_fundamental`, `general_scene_selects_fundamental`).
+- 31fe7b4 에 있던 해석적 야코비안·`lo_should_start` 는 7a7e46d 에서 되돌림.
