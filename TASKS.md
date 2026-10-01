@@ -13,7 +13,7 @@
 - [x] T06 `rotation-averaging` — 2026-10-01 병합, 제품 bc51103 — 상대 회전 그래프 → 전역 회전. 정답 대비 각도 오차.
 - [ ] T07 `translation-averaging` — 방향 제약 위치 추정 + 삼각측량 → 초벌 모델. 카메라 240대 등록 확인.
 - [x] T08 `bundle-adjustment` — 2026-10-01 병합, 제품 04e4d29 (F-034~F-037 남음) — 희소 Levenberg–Marquardt + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터. 재투영·중심 오차.
-- [ ] T09 `gps-align` — 위경도 → 동-북-위, Umeyama 닮음 변환 + 이상치 제외. 정답 대비 잔차.
+- [x] T09 `gps-align` — 2026-10-01 병합, 제품 f87549a — 위경도 → 동-북-위, Umeyama 닮음 변환 + 이상치 제외. 정답 대비 잔차.
 - [ ] T10 `dense-patchmatch` — 시점별 PatchMatch 깊이·법선(CPU, rayon 병렬). 정답 깊이 대비 오차.
 - [ ] T11 `depth-fusion` — 다시점 일관성 융합 → 점군 + 법선 + 색. 정답 표면 대비 최근접 거리.
 - [x] T12 `progressive-stream` — 2026-10-01 병합, 제품 f2b658b (임시 닮음 변환 → P08 병합 뒤 교체, F-055~F-057 남음) — 구역 분할, 초벌/정밀, 3D 점 대응 정렬, 잔상 걸러내기, 스냅샷, manifest. SPEC §3.7~3.8.
