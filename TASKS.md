@@ -19,3 +19,36 @@
 - [ ] T12 `progressive-stream` — 구역 분할, 초벌/정밀, 3D 점 대응 정렬, 잔상 걸러내기, 스냅샷, manifest. SPEC §3.7~3.8.
 - [ ] T13 `verify` — SPEC §4 검증을 `skylens-stream verify <폴더>` 로. 실패 시 종료 코드 1.
 - [ ] T14 `perf` — 구간별 시간 측정, 병렬화. 합성 240장 전체 시간 기록. 이후 GPU 백엔드 설계 노트.
+
+## 병렬 묶음 (동시에 진행)
+
+아래 묶음은 **서로 다른 파일만 고치도록** 나눴다. 한 번에 여러 묶음을 동시에 진행한다.
+묶음마다 제품 `feat/<묶음>` 브랜치(별도 작업 트리), 연구 `experiment/<묶음>` 노드(괄호 안 부모 아래) 하나씩.
+README 는 P04 만 고친다. 다른 묶음은 사용법 변화를 PR 본문에 적고, P04 가 모아서 반영한다.
+CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소).
+
+| 묶음 | 내용 | 맡는 파일 | 부모 노드 | 선행 |
+|---|---|---|---|---|
+| P01 `formation-scene` | F-029·F-024 합성 장면을 실측 편대 배치로 | `synth.rs` | synthetic-scene | — |
+| P02 `matching-hardening` | F-030·F-021·F-003·F-031 | `matching.rs` | matching | — |
+| P03 `two-view-hardening` | F-032·F-033·F-026·F-027·F-028 | `two_view.rs` | two-view | — |
+| P04 `io-robustness` | F-016~F-020·F-022·F-023, README 정리(한·영) | `ply.rs`, `camera.rs`, `features.rs`(from_rgb), CLI 인자, `README.md` | scaffold | — |
+| P05 `rotation-averaging-hardening` | F-006~F-009 | `rotation_averaging.rs` | rotation-averaging | — |
+| P06 `translation-averaging` | T07 방향 제약 위치 추정 + 다시점 삼각측량 | 새 `translation_averaging.rs`, `triangulation.rs` | rotation-averaging | — |
+| P07 `bundle-adjustment` | T08 희소 LM + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터, 트랙 10만 제한 | 새 `ba.rs` | two-view | — |
+| P08 `similarity-align` | T09 Umeyama 닮음 변환 + 반복 트리밍, GPS→동-북-위 정렬 | 새 `align.rs` | rotation-averaging | — |
+| P09 `view-selection` | T10a 이웃 8장 점수·깊이 범위·왜곡 보정(960px) | 새 `view_selection.rs`, `undistort.rs` | camera-model | — |
+| P10 `patchmatch` | T10b 시점별 PatchMatch 깊이·법선(rayon) | 새 `patchmatch.rs` | camera-model | P09 인터페이스 |
+| P11 `depth-fusion` | T11 왕복 투영 걸러내기 + 3장 동의 합치기 → 점군 | 새 `fusion.rs` | camera-model | P10 인터페이스 |
+| P12 `dataset-io` | 실제 데이터 읽기(`images/cam{F,R,L}`, `gps.txt`, STRIDE) + `run` 명령 뼈대 | 새 `dataset.rs`, CLI `run` | scaffold | — |
+| P13 `progressive-stream` | T12 구역 분할, 초벌/정밀, 공유 관측 닮음 정렬, 잔상 1.5m 걸러내기, 스냅샷·manifest | 새 `stream.rs` | two-view | P08 인터페이스 |
+| P14 `verify` | T13 `verify <폴더>` — SPEC §4 일곱 항목, 실패 시 종료 코드 1 | 새 `verify.rs`, CLI `verify` | scaffold | — |
+| P15 `benchmarks` | T14 구간별 시간 측정 틀(합성 240장) | 새 `benches/` | fast-matching | — |
+
+### 묶음 사이 인터페이스 (먼저 이 모양으로 맞춘다)
+- `align::Similarity { s: f64, r: Rotation3<f64>, t: Vector3<f64> }`, `align::umeyama(src, dst) -> Option<Similarity>`,
+  `align::robust_similarity(src, dst, iters=5, floor_m=0.3) -> Option<(Similarity, Vec<bool>, f64 /*잔차 중앙*/)>`
+- `view_selection::select_neighbors(views, points, k=8) -> Vec<Vec<usize>>`, `view_selection::depth_range(view, points) -> (f64, f64)`
+- `patchmatch::DepthMap { w, h, depth: Vec<f32>, normal: Vec<[f32;3]>, cost: Vec<f32> }`, `patchmatch::estimate(ref_view, neighbors, range, cfg) -> DepthMap`
+- `fusion::fuse(views, depth_maps, cfg{reproj_px=1.0, depth_rel=0.01, min_views=3}) -> PointCloud`
+- 선행 묶음이 아직 병합 전이면 위 모양의 임시 구현(단순·정확)으로 시험하고, 병합 뒤 바꾼다.
