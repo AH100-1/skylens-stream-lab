@@ -146,31 +146,31 @@
 - 실패 상황: README 예시 그대로 렌더 영상 두 장 → F → E → 자세: 관측 전체가 0.5px 평행이동된 채 정규화된다. 라이브러리 사용자는 테스트 안의 보정을 알 수 없다.
 - 고칠 것: `detect_and_describe` 가 화소 중심 규약(+0.5)으로 내보내거나 `Keypoint::pixel() -> Vector2<f64>` 를 두고 문서화. 테스트의 수동 보정 제거, README 두 절 함께 수정.
 - 확인 기준: 카메라 규약으로 렌더한 가우시안 덩어리(중심 (cx, cy) 연속 좌표)를 검출해 보정 없이 위치 오차 < 0.1px 인 테스트. 테스트 코드에 `+ 0.5` 수동 보정 0건.
-- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: `Intrinsics::index_to_normalized`, README 예시 +0.5. 검출기 출력 규약 변경은 남음. 열림 유지)
+- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: `Intrinsics::index_to_normalized`, README 예시 +0.5. 검출기 출력 규약 변경은 남음. 열림 유지) → 2026-10-01 13:58 감독: 검출기 출력 규약·테스트 수동 `+ 0.5` 그대로, 확인 기준 미충족
 
-### F-017 [처리됨-검증대기] (심각도: 중간) — PLY 헤더의 점 개수를 검증하지 않아 100바이트 파일로 프로세스가 죽는다
+### F-017 [닫힘] (심각도: 중간) — PLY 헤더의 점 개수를 검증하지 않아 100바이트 파일로 프로세스가 죽는다
 - 위치: crates/core/src/ply.rs:192 `vec![0u8; count * stride]` (8f72b12)
 - 문제: `count` 를 파일 크기와 대조하지 않고 그대로 할당하고, `count * stride` 는 release 에서 넘침이 감싸진다(예: 683212743470724134 × 12 → 8198552921648689608).
 - 실패 상황: `element vertex 10000000000` + x y z float 헤더만 있는 파일에 `skylens-stream ply-info big.ply` → "memory allocation of 120000000000 bytes failed" 로 중단(오류 반환 아님, 종료 코드 처리 불가).
 - 고칠 것: `checked_mul` 로 크기 계산, 남은 바이트 수(파일이면 메타데이터 길이)보다 크면 `InvalidData`. 또는 행 단위로 읽어 실제 길이에서 멈춘다.
 - 확인 기준: 위 두 헤더에 대해 `read_ply` 가 `Err` 를 돌려주는 테스트, CLI `ply-info` 종료 코드 1·패닉 0.
-- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 `feat/io-robustness` 5fd09ef(PR #2): 개수×크기 넘침 검사·있는 바이트만 읽기, `element vertex 10000000000` → InvalidData, CLI 종료 코드 1)
+- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 `feat/io-robustness` 5fd09ef(PR #2): 개수×크기 넘침 검사·있는 바이트만 읽기, `element vertex 10000000000` → InvalidData, CLI 종료 코드 1) → 2026-10-01 13:58 감독 확인 닫음: main 3b0fa9c(PR #2) `rejects_huge_vertex_count_without_allocating`(10^10 개 → 잘림, ×12 넘침 → 너무 큼)·`rejects_short_vertex_data` 통과, CLI `huge_vertex_count_fails_cleanly`·`truncated_vertex_data_fails_cleanly` 종료 코드 1·패닉 0
 
-### F-018 [처리됨-검증대기] (심각도: 중간) — CLI `synth` 인자 검증 부재: 0 크기는 패닉, 인자 1개는 조용히 무시
+### F-018 [닫힘] (심각도: 중간) — CLI `synth` 인자 검증 부재: 0 크기는 패닉, 인자 1개는 조용히 무시
 - 위치: crates/cli/src/main.rs:30-40 `["synth", out, rest @ ..]`, `if let [w, h] = rest` (8f72b12)
 - 문제: `rest` 가 길이 1·3 이상이면 무시하고 기본값(960×540, 240장)으로 진행한다. 폭·높이 0 은 검사하지 않는다.
 - 실패 상황: `skylens-stream synth out 0 0` → rayon `par_chunks_mut(0)` 패닉(백트레이스). `skylens-stream synth out 64` → 오류 없이 960×540 240장 렌더 시작(오타가 수 분짜리 작업이 됨).
 - 고칠 것: `rest` 는 `[]` 또는 `[w, h]` 만 허용, w·h ≥ 16(특징 검출 최소 크기)·상한 검사, 아니면 사용법 출력 후 종료 코드 2.
 - 확인 기준: cli 통합 테스트 3개(`0 0`, 인자 1개, 인자 3개) 모두 종료 코드 2, 패닉 0.
-- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: `synth` 인자 `[]`/`[폭 높이]`(16..=8192)만, 그 밖 종료 코드 2·패닉 0)
+- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: `synth` 인자 `[]`/`[폭 높이]`(16..=8192)만, 그 밖 종료 코드 2·패닉 0) → 2026-10-01 13:58 감독 확인 닫음: main 3b0fa9c(PR #2) cli `synth_args` 4개(`0 0`, 인자 1개, 인자 3개, 범위 밖·문자) 종료 코드 2·패닉 0·출력 폴더 미생성
 
-### F-019 [처리됨-검증대기] (심각도: 중간) — `GrayImage::from_rgb` 가 버퍼 길이를 검사하지 않아 검출 중 패닉
+### F-019 [닫힘] (심각도: 중간) — `GrayImage::from_rgb` 가 버퍼 길이를 검사하지 않아 검출 중 패닉
 - 위치: crates/core/src/features.rs:23-35 `from_rgb`, 패닉 지점 :70 `img.data[...]` (8f72b12)
 - 문제: `rgb.len() != width*height*3` 이어도 `GrayImage` 를 만들고, 이후 `gaussian_blur` 에서 범위 밖 접근.
 - 실패 상황: `detect(&GrayImage::from_rgb(10, 10, &[0u8; 30]), ..)` → features.rs:70 index out of bounds 패닉. JPEG 를 잘못 디코딩(회색조·RGBA)한 실제 입력에서 같은 일이 난다.
 - 고칠 것: 길이 불일치면 `Result` 오류(또는 생성자에서 명시적 `assert!` + 메시지). 회색조·RGBA 입력용 생성자 추가.
 - 확인 기준: 길이 불일치 입력이 오류를 돌려주는 테스트, 패닉 0.
-- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: `try_from_rgb/rgba/gray` → `ImageSizeError`, `from_rgb` 는 메시지 패닉)
+- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: `try_from_rgb/rgba/gray` → `ImageSizeError`, `from_rgb` 는 메시지 패닉) → 2026-10-01 13:58 감독 확인 닫음: main 3b0fa9c(PR #2) `try_from_rgb/rgba/gray` 가 `ImageSizeError` 반환, `rejects_mismatched_buffer_lengths`(usize 넘침 포함) 통과
 
 ### F-020 [열림] (심각도: 중간) — README 가 실제 CLI·합성 출력과 다르고 한국어·English 절도 어긋난다
 - 위치: README.md:29-31·153-155(입력 `images/camF/camF_0000.jpg` 하위 폴더) vs crates/core/src/synth.rs:551-566(`images/camF_0000.jpg` 평평한 구조); README.md:162 English "Show point count and bounds" vs :38 한국어 "점군 파일 정보 보기" vs main.rs 출력(`points`, `nan` 만); README.md:23·147 "Rust 1.80 이상" vs features.rs:25 `as_chunks`(1.88 안정화)·matching.rs:219 `Option::is_none_or`(1.82) (8f72b12)
@@ -178,7 +178,7 @@
 - 실패 상황: `synth` 출력 폴더를 README 입력 구조로 가정한 `run` 구현/사용자가 파일을 못 찾음. Rust 1.85 로 `cargo build` 실패.
 - 고칠 것: 입력 구조를 하나로 정해(SPEC §1 은 파일명만 규정) synth·README 두 절을 일치. `ply-info` 설명을 실제 출력과 같게(또는 bounds 출력 추가 후 두 절 동일). `Cargo.toml` 에 `rust-version = "1.88"` 을 넣고 README 두 절 수정.
 - 확인 기준: README 두 절의 사용법·입력 구조 문장이 1:1 대응, `synth` 출력 트리가 README 입력 구조와 같음, `cargo +1.88 build` 통과.
-- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: README 한·영 절을 실제 CLI·합성 출력과 맞춤. 작업공간 rust-version 표기 남음. 열림 유지)
+- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: README 한·영 절을 실제 CLI·합성 출력과 맞춤. 작업공간 rust-version 표기 남음. 열림 유지) → 2026-10-01 13:58 감독: 두 절 1:1 대응은 맞음. README 입력 구조(평평한 `images/camF_0000.jpg`)가 `feat/dataset-io` 로더(`images/camF/camF_0000.jpg`)와 다름(F-038), `rust-version` 미기재·`cargo +1.88 build` 미확인
 
 ### F-021 [처리됨-검증대기] (심각도: 낮음) — `ratio_match` 에서 후보가 하나뿐이면 비율 검사가 무조건 통과
 - 위치: crates/core/src/matching.rs:35-57 (차근접 초기값 ∞, :57 `d1 >= ratio²·d2`) (8f72b12)
@@ -188,13 +188,13 @@
 - 확인 기준: 위 입력에서 빈 결과를 단언하는 테스트.
 - 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 8ec6123: 차근접 없으면 짝 없음, 시험 `ratio_match_needs_second_neighbour`)
 
-### F-022 [처리됨-검증대기] (심각도: 낮음) — 제품 주석이 제품 저장소에 없는 `docs/derivations/*.md` 를 가리킨다
+### F-022 [닫힘] (심각도: 낮음) — 제품 주석이 제품 저장소에 없는 `docs/derivations/*.md` 를 가리킨다
 - 위치: crates/core/src/geo.rs:3, crates/core/src/distortion.rs:1 (8f72b12). 실제 파일은 연구 저장소 `derivations/geodesy.md`·`derivations/camera-jacobian.md`.
 - 문제: 깨진 참조. 저장소 분리 규칙상 유도는 연구 저장소에만 있다.
 - 실패 상황: 제품 저장소만 받은 사람이 유도 문서를 찾지 못함(`ls docs` → 없음).
 - 고칠 것: 참조를 지우거나 "수식: 표준 WGS84 ECEF/ENU 변환" 처럼 자체 설명으로 바꾼다.
 - 확인 기준: `grep -rn "docs/derivations" crates` 0건.
-- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: geo.rs·distortion.rs 경로를 식 설명으로 교체, `grep docs/derivations crates` 0건)
+- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: geo.rs·distortion.rs 경로를 식 설명으로 교체, `grep docs/derivations crates` 0건) → 2026-10-01 13:58 감독 확인 닫음: main 3b0fa9c 에서 `grep -rn "docs/derivations" crates` 0건
 
 ### F-023 [열림] (심각도: 낮음) — 카메라 형이 둘(왜곡 없는 `Camera`/`Intrinsics`, 왜곡 있는 `DistortedIntrinsics`)이고 모듈 문서가 낡았다
 - 위치: crates/core/src/camera.rs:1("왜곡 모델은 T02 에서 추가한다" — 이미 distortion.rs 에 있음), :369 `Camera::project`(왜곡 무시), crates/core/src/distortion.rs:73 `DistortedIntrinsics` (8f72b12)
@@ -202,7 +202,7 @@
 - 실패 상황: 실제 렌즈(k1≈−0.1) 영상에서 매칭 단계가 왜곡을 무시한 정규 좌표로 E 를 구하면 가장자리 대응이 수 px 어긋나 정상 짝에서 빠진다.
 - 고칠 것: `Camera` 가 `DistortedIntrinsics` 를 갖게 통합하거나, 정규화 경로를 하나(`unproject`)로 강제. 모듈 문서 갱신.
 - 확인 기준: 왜곡 있는 합성 카메라로 렌더한 두 장의 자세 오차가 왜곡 없는 경우와 같은 기준을 통과하는 테스트(T08 전).
-- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: 모듈 문서·`with_distortion`·왜곡 0 일치 시험. 정규화 경로 통합 남음. 열림 유지)
+- 이력: 2026-10-01 09:40 감독 등록 → 2026-10-01 13:41 작업자 처리(제품 5fd09ef: 모듈 문서·`with_distortion`·왜곡 0 일치 시험. 정규화 경로 통합 남음. 열림 유지) → 2026-10-01 13:58 감독: T08(main 04e4d29) 병합으로 매칭·두 시점 경로의 왜곡 무시 정규화가 BA 초기값에 들어간다. 우선순위 올림
 
 ### F-024 [처리됨-검증대기] (심각도: 낮음) — 합성 정답 좌표계 원점이 SPEC 출력 좌표계 원점(첫 GPS)과 다르다는 사실이 기록되지 않음
 - 위치: crates/core/src/synth.rs:543 `GPS_ORIGIN`, :567 GPS 쓰기, :553 `truth/cameras.txt` (8f72b12)
@@ -283,3 +283,43 @@
 - 고칠 것: (1) 평면 시드 1..=20 에서 정답 후보가 상위 2개 안에 있음을 단언. (2) 비평면(h=10 m) 이상치 0%·30% 에서 `ransac_essential` 첫 후보 회전이 시드별 하한 + 0.1° 이내임을 단언 — 미달이면 원인을 고치고, 기준은 느슨하게 바꾸지 않는다.
 - 확인 기준: 위 두 테스트가 `cargo test --release` 에 있고 통과(무시 아님), 실험 노트에 시드별 최대 초과 표.
 - 이력: 2026-10-01 11:50 감독 등록(작업자 노트 남은 문제 1 반영) → 2026-10-01 13:41 작업자 처리(진단: 비평면 10 m + 이상치 30% 초과는 정상 집합이 아니라 최소 표본 시작 정밀화의 국소 최소(시드 9 거짓 정상 0인데 +0.43°). 다중 시작 + MSAC 순위로 0.298° 까지, 기준 +0.1° 미달. 열림 유지)
+
+### F-034 [열림] (심각도: 중간) — 번들 조정이 축척 게이지를 고정하지 않고 감쇠에 맡긴다
+- 위치: crates/core/src/ba.rs:7, :205-215 `layout`, :329-334 `solve` (main 04e4d29)
+- 문제: 고정은 카메라 0 의 포즈(6자유도)뿐이라 닮음 게이지 7자유도 중 축척 1자유도가 남는다. 축소 계통 S 는 그 방향으로 특이하고 λ·diag 만이 이를 막는다. 성공할 때마다 λ×0.3(하한 1e-12)이라 수렴 근처에서 S 가 거의 특이해진다. `fixed_cameras` 가 비면 7자유도 전부 감쇠에 맡겨진다.
+- 실패 상황: `initial_lambda: 1e-12`, `max_iterations: 100` 으로 `recovers_synthetic_scene` 장면을 돌리면 촐레스키 실패(→ λ×10 재시도 낭비) 또는 카메라 중심 축척 표류가 생길 수 있다. 시험은 닮음 정렬 뒤 중심 오차만 재므로 축척 표류를 잡지 못한다. `fixed_cameras: vec![]` 는 시험이 없다.
+- 고칠 것: 두 번째 카메라 중심까지 거리 고정(또는 한 좌표 고정) 등 축척을 명시적으로 고정하고, `fixed_cameras` 가 비면 기본 게이지를 넣거나 오류를 돌려준다.
+- 확인 기준: `initial_lambda` 1e-12 와 1e-4 에서 같은 장면 결과의 |c1−c0| 상대 변화 < 1e-9(고정 전후 동일), 축소 계통 촐레스키 실패 0회, `fixed_cameras: vec![]` 입력이 패닉 없이 처리되는 테스트.
+- 이력: 2026-10-01 13:58 감독 등록(PR #1 검토)
+
+### F-035 [열림] (심각도: 중간) — 번들 조정 입력 검증 부재: 범위 밖 번호·NaN 관측에서 패닉, 관측 1개짜리 트랙 포함
+- 위치: crates/core/src/ba.rs:134-137 `select_tracks`, :245 `evaluate`, :291 `linearize` (main 04e4d29)
+- 문제: `Observation::point`·`camera`, `camera_group[c]` 가 범위를 넘으면 색인 패닉. `poses.len() != camera_group.len()` 도 검사 없음. NaN 픽셀은 비용 NaN → `c_new < cost` 가 항상 거짓 → 첫 반복에서 "수렴". 관측이 하나뿐인 점(관측 수 > 0 이면 선택)은 3×3 블록 C 의 계수가 2 라 깊이 방향이 감쇠로만 정해진다.
+- 실패 상황: `Observation { point: points.len(), .. }` 하나 → `select_tracks` 패닉. 관측 하나에 NaN → 보고서 `converged: true`, 아무것도 고치지 않음.
+- 고칠 것: `bundle_adjust` 앞에서 크기·번호·유한성 검사 후 `Result` 반환(또는 해당 관측 제외 + 보고서에 제외 수). 트랙 선택은 관측 2개 이상만.
+- 확인 기준: 범위 밖 점·카메라·그룹 번호, NaN 픽셀, 길이 불일치 각각에 대한 테스트가 패닉 0 으로 통과하고, 관측 1개 점이 `num_tracks_used` 에 들어가지 않는 테스트.
+- 이력: 2026-10-01 13:58 감독 등록(PR #1 검토)
+
+### F-036 [열림] (심각도: 중간) — 번들 조정 시험: Cauchy 결과 미단언, Huber 기준이 측정값 바로 위, 장면이 실측 편대 배치가 아님
+- 위치: crates/core/src/ba.rs:835-842 `robust_loss_resists_outliers`, :519-575 `scene` (main 04e4d29)
+- 문제: `let _ = ca_rms;` 로 Cauchy 내정 RMS 를 단언하지 않는다(시드 22 에서 2.548 = 깨끗한 기준 0.707 의 3.6배). Huber 기준 `< 2·0.707 = 1.414` 는 측정값 1.277(시드 22) 에서 여유 10%. 시험 장면은 한 줄로 늘어선 카메라가 임의 목표점을 내려다보는 배치라 SPEC §6 실측 편대(3대 약 10 m 간격, 방향 −3°/+125°/−116°, 내려다보는 각 ≈ 60°, 위치 간 1.0 m)와 다르다(F-029 와 같은 낙관 위험).
+- 실패 상황: Cauchy 경로가 내부 파라미터를 국소해에 남겨도 시험이 통과한다. 위치 간 이동 1.0 m 의 작은 기선에서 내부 파라미터·주점 기준(4px)이 성립하는지 확인되지 않았다.
+- 고칠 것: Cauchy 는 Huber 몇 회 뒤 전환하는 단계 방식(노트 남은 문제)으로 바꾸고 내정 RMS 를 단언. Huber 기준은 이론값(잡음 기댓값 대비 비율)으로 정하고 시드 10개 이상으로 확인. P01 병합 뒤 편대 장면(최소 3대 × 12위치) BA 시험 추가.
+- 확인 기준: 시드 10개에서 Cauchy·Huber 내정 RMS 모두 < 1.5·0.707 단언 통과, 편대 장면 BA 시험에서 최종 RMS / 기댓값 0.95~1.05·중심 오차 < 0.05 m.
+- 이력: 2026-10-01 13:58 감독 등록(PR #1 검토)
+
+### F-037 [열림] (심각도: 낮음) — 번들 조정이 감소 단계를 찾지 못해도 `converged: true` 로 보고한다
+- 위치: crates/core/src/ba.rs:458-460 (main 04e4d29)
+- 문제: λ 를 12번 키워도 비용이 줄지 않으면 `accepted = false` → `converged = true`. 상대 감소 < 문턱으로 멈춘 경우와 실패(촐레스키 실패 연속·NaN·모든 후보가 점을 카메라 뒤로 보냄)를 구분할 수 없다.
+- 실패 상황: F-035 의 NaN 관측 입력에서 반복 1회·변화 0 인데 보고서는 수렴.
+- 고칠 것: `BaReport` 에 멈춘 이유(수렴/단계 실패/최대 반복) 열거형을 두거나 `converged` 를 상대 감소 기준에만 쓴다.
+- 확인 기준: NaN 관측·촐레스키 실패 입력에서 `converged == false`(또는 멈춤 이유 = 단계 실패)인 테스트.
+- 이력: 2026-10-01 13:58 감독 등록(PR #1 검토)
+
+### F-038 [열림] (심각도: 중간) — 영상 폴더 구조가 합성 출력·README(평평한 `images/camF_0000.jpg`)와 데이터 로더(`images/camF/camF_0000.jpg`) 사이에 다르다
+- 위치: README.md:29-32·186-189 (main 3b0fa9c), crates/core/src/synth.rs:551-555 (main), `feat/dataset-io` crates/core/src/dataset.rs:3, :218-221, :236-241; TASKS.md P12 설명
+- 문제: P04 가 README 를 합성 출력(평평한 구조)에 맞췄고, P12 로더는 카메라별 하위 폴더를 요구한다. SPEC §1 은 파일명만 정한다.
+- 실패 상황: `skylens-stream synth out` 뒤 `run out` → 로더가 `images/camF` 폴더 없음으로 실패. README 대로 실제 데이터를 놓아도 같다.
+- 고칠 것: 한 구조로 정한다(권장: 로더가 두 구조 모두 받거나, 합성 출력을 하위 폴더로 바꾸고 README 두 절을 함께 고침). P12 PR 에서 처리하고 P04 README 는 그 결정을 따른다.
+- 확인 기준: `synth` 출력 폴더를 데이터 로더가 그대로 읽어 240장·GPS 240줄을 돌려주는 통합 테스트, README 입력 구조와 로더 문서 문장 일치.
+- 이력: 2026-10-01 13:58 감독 등록(PR #2 검토)
