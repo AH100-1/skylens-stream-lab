@@ -1,7 +1,38 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-01T18:54Z
+- 상태: 검토 대기
+- 마지막 갱신: 2026-10-01T19:40Z
+- 이번 실행(18:54Z 시작, 4 코어 측정 기계에서 15 묶음 동시 빌드 — 부하 평균 40~60, 시간 수치는 부풀려짐):
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | P15 benchmarks-scale | PR #21 (805d474) | PR #38 (→ benchmarks) | F-040 BA 240대·트랙 10만 반복당 97.1 s(부하), F-031 검출 시간 기록, 측정 틀 하나로(예제 삭제). 재검증 fmt·clippy 통과, core 131 통과·1 실패(F-059 시간 단언)·3 무시 |
+  | P01 formation-scene-check | PR #22 (b198689) | PR #39 (→ formation-scene) | F-115·F-116. 재검증 fmt·clippy 통과, core 134 통과·0 실패·3 무시, 통합 5+4+4 |
+  | P04 io-cleanup | `feat/io-cleanup` f80463b (PR 안 엶) | experiment/io-cleanup 4dc2d91 | F-061·F-081·F-062·F-063·F-082·F-058·README. 재검증 fmt·clippy 통과, 시험 재검증 미완 |
+  | P08 align-robust | `feat/align-robust` acb6000 (PR 안 엶) | experiment/align-robust 72d5b41 | F-094·F-100·F-119·F-095·F-079·F-096, F-099 일부(σ 2 m 회전 0.671° > 0.5°, 무시 시험). 기본 GPS 정렬 임계가 잡음 비례로 바뀜 — SPEC §3.4(고정 3 m) 결정 필요 |
+  | P20 ba-hardening | PR #17 갱신 (4cbfa24) | experiment/ba-hardening 64d57a1 | F-085·F-086, F-036 일부(단계 Cauchy, 엄격 기준 시드 21~30 미달). 재검증 미완 |
+  | P17 dense-prep | `feat/dense-prep` fd0c1e0 (PR 안 엶) | experiment/dense-prep bfd0850 | F-060·F-053·F-092·F-111·F-054·F-110·F-052. 편대 장면 이웃 1위가 7칸(SPEC 예 8칸). 재검증 미완 |
+  | P05 rotation-averaging-robust | `feat/rotation-averaging-robust` a944908 (PR 안 엶) | experiment/rotation-averaging-robust ad8de02 | F-075·F-101·F-076·F-077·F-009·F-046·F-078, F-047 일부. 놓침 정의 변경 검토 필요. 재검증 미완 |
+  | P12 dataset-io | PR #4 갱신 (ab1fcef) | experiment/dataset-io 8503216 | F-041·F-042·F-043·F-064·F-065(로더)·F-044. 재검증 미완 |
+  | P13 stream-hardening | `feat/stream-hardening` 02c991e (PR 안 엶) | experiment/stream-hardening 1aea73f | F-066·F-055·F-065(스트림)·F-067·F-068·F-080·F-057, F-056 일부. 재검증 미완 |
+  | P14 verify | PR #10 갱신 (a327c61) | experiment/verify 76564ea | F-087·F-097·F-066(읽기)·F-117·F-118·F-088·F-098·F-090, F-089 일부. 재검증 미완 |
+  | P11 fusion-hardening | `feat/fusion-hardening` b87ae13 (PR 안 엶) | experiment/fusion-hardening d9e51b1 | F-071·F-072·F-073·F-074. F-069(최대 11.885 m 그대로)·F-112·F-070·F-113 미달 |
+  | P06 translation-averaging | `feat/translation-averaging` a096498 (PR 안 엶) | experiment/translation-averaging cb12be6 | 점 방향 제약·발자국 겹침 짝. 초벌 모델 시험 무시 해제(240/240, 점 RMS 0.270 m). 잡음+이상치 시드 1 은 105/240(지난번 239/240 보다 나빠짐) |
+  | P03 two-view-hardening | PR #13 갱신 (d96c0f5) | experiment/two-view-hardening a9f6c9f | F-114 처리(`assess_pair` 시차 < 1.0° 신뢰 불가, 간격 1 시험 복원 9경우 통과). F-033 미달(30% 이상치 최악 바닥 대비 +0.2448°, 무시 유지). 전체 `cargo test --release` 미확인 |
+  | P02 matching-refine | `feat/matching-refine` 2a1f60e | — | 이 기록 시점까지 결과 미보고 |
+  | P10 patchmatch | `feat/patchmatch` e7d0c74 | — | 이 기록 시점까지 결과 미보고 |
+- 막힌 점:
+  - 4 코어 기계에서 15 묶음을 함께 빌드하니 검증이 밀려 PR 은 직접 재검증을 마친 2건(#21·#22)만 새로 열었다. 나머지는 브랜치 푸시만 했고 작업자 쪽 검사(fmt·clippy·`cargo test --release`, F-059 시간 단언 1건 외 실패 0)만 있다 — 다음 실행에서 브랜치마다 전용 빌드 폴더로 재검증 후 PR.
+  - `two_view::tests::five_point_terminates_on_many_seeds`(F-059)는 부하에서 모든 브랜치가 실패, 단독 통과. P03 이 구조 단언으로 바꾸는 중.
+  - 묶음 사이 충돌 예상: P04 README 가 `bench_stages` 예제를 언급하지만 P15 가 예제를 지움. P17 이 `UndistortMap::new`·`pinhole_for_long_side` 를 Result 로 바꿈 → P10 patchmatch 와 합칠 때 확인. F-066 은 P13(쓰기)·P14(읽기)를 합친 트리에서 확인 필요. F-065 구역 분할 함수가 dataset·stream 두 벌.
+  - P13 정렬이 오대응 30% 이상에서 무너짐(첫 추정 최소제곱) — P08 LMedS 첫 추정과 합치면 풀릴 것으로 보임.
+  - P12: `feat/dataset-io` 에 19:04 다른 커밋(9aae457)이 있어 병합으로 받음(누락 카메라 GPS 를 다른 카메라 값으로 메우던 부분은 뺌).
+- 다음 할 일:
+  1. 미재검증 브랜치 재검증(한 번에 하나씩) → PR(#4·#10·#17 은 라벨 확인).
+  2. P06 잡음+이상치 퇴행 원인 분리(점 제약 없이 재실행, 행별 오차).
+  3. P11 F-069 떠 있는 점 하나를 기준 사진·동의 사진까지 추적.
+  4. 결정 필요: GPS 정렬 기본 임계(고정 3 m 대 잡음 비례), F-099 기준 분리, 회전 평균 놓침 정의, SPEC §3.6 이웃 1위 예(8칸) 재확인, SPEC §2 step 형·report.json.
+
+## 이전 실행 기록 (14:18Z)
 - 이번 묶음 결과(13:45Z 시작, 4 코어 측정 기계에서 동시 빌드):
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
