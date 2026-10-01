@@ -33,7 +33,7 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | [x] P02 `matching-hardening` (2026-10-01, 제품 08d5248) | F-030·F-021·F-003·F-031 | `matching.rs` | matching | — |
 | P03 `two-view-hardening` | F-032·F-033·F-026·F-027·F-028 | `two_view.rs` | two-view | — |
 | [x] P04 `io-robustness` (2026-10-01, 제품 3b0fa9c) | F-016~F-020·F-022·F-023, README 정리(한·영) | `ply.rs`, `camera.rs`, `features.rs`(from_rgb), CLI 인자, `README.md` | scaffold | — |
-| P05 `rotation-averaging-hardening` | F-006~F-009 | `rotation_averaging.rs` | rotation-averaging | — |
+| [x] P05 `rotation-averaging-hardening` (2026-10-01, 제품 9f111f2, F-137·F-138 남음) | F-006~F-009 | `rotation_averaging.rs` | rotation-averaging | — |
 | P06 `translation-averaging` | T07 방향 제약 위치 추정 + 다시점 삼각측량 | 새 `translation_averaging.rs`, `triangulation.rs` | rotation-averaging | — |
 | [x] P07 `bundle-adjustment` (2026-10-01, 제품 04e4d29) | T08 희소 LM + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터, 트랙 10만 제한 | 새 `ba.rs` | two-view | — |
 | [x] P08 `similarity-align` (2026-10-01, 제품 f87549a, F-094·F-099 높음 남음) | T09 Umeyama 닮음 변환 + 반복 트리밍, GPS→동-북-위 정렬 | 새 `align.rs` | rotation-averaging | — |
@@ -43,7 +43,7 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | P12 `dataset-io` | 실제 데이터 읽기(`images/cam{F,R,L}`, `gps.txt`, STRIDE) + `run` 명령 뼈대 | 새 `dataset.rs`, CLI `run` | scaffold | — |
 | [x] P13 `progressive-stream` (2026-10-01, 제품 f2b658b) | T12 구역 분할, 초벌/정밀, 공유 관측 닮음 정렬, 잔상 1.5m 걸러내기, 스냅샷·manifest | 새 `stream.rs` | two-view | P08 인터페이스 |
 | P14 `verify` | T13 `verify <폴더>` — SPEC §4 일곱 항목, 실패 시 종료 코드 1 | 새 `verify.rs`, CLI `verify` | scaffold | — |
-| P15 `benchmarks` | T14 구간별 시간 측정 틀(합성 240장) | 새 `benches/` | fast-matching | — |
+| [x] P15 `benchmarks` (2026-10-01, 제품 5f2e886, F-128~F-132 남음) | T14 구간별 시간 측정 틀(합성 240장) | 새 `benches/` | fast-matching | — |
 
 ### 묶음 사이 인터페이스 (먼저 이 모양으로 맞춘다)
 - `align::Similarity { s: f64, r: Rotation3<f64>, t: Vector3<f64> }`, `align::umeyama(src, dst) -> Option<Similarity>`,
