@@ -32,7 +32,7 @@
 - 스냅샷: `for_each_snapshot(prelim: &[Option<PointCloud>], refined, 반경, 간격, sink)`. 버퍼 앞부분에 정밀 0..=k-2(추출 뒤)를 쌓아 두고, 단계마다 뒷부분만 잘라 초벌(잔상 제거 뒤 추출)을 붙여 sink 에 넘긴다. 최종은 같은 버퍼에 정밀 마지막 구역을 붙인다. 따라서 메모리에는 한 단계 분량만 있다.
 - 잔상 제거: 칸 크기 = 반경, 27칸 검사. 칸 → 첫 점 번호 해시(곱셈 섞기 해시), 점마다 다음 점 번호. 질의는 rayon 으로 나눠 순서를 유지해 모은다.
 - 검사: `check_snapshots` (단조 증가, step ≥ 2 새 영역 0, NaN), `write_outputs` 는 여기에 정렬 실패 구역과 fit 중앙 ≥ 6 m 를 더해 `StreamReport { manifest, issues, peak_snapshot_points }` 로 돌려준다. 위반이 있어도 파일은 모두 쓴다.
-- 4 코어 측정 기계, 스트림 시험 14개 0.08 s.
+- 4 코어 측정 기계, 스트림 시험 15개 0.22 s. 큰 점군 측정 시험 `large_snapshot_speed` 는 이번에도 부하 때문에 돌리지 못했다.
 
 ## 남은 문제
 - 오대응 60 % 이상(정상 짝 < 40 %)은 여전히 복구하지 못한다. fit 중앙으로 드러나기만 한다. align 묶음에 같은 강건 첫 추정이 들어오면 stream 쪽 `robust_fit` 을 지우고 그것을 쓴다.
@@ -42,4 +42,4 @@
 - SPEC §2 에 `step` 형(정수 또는 "final")과 정렬 실패 시 null 한 줄 추가 제안.
 
 ## 제품 브랜치·커밋
-- feat/stream-hardening 229a098, 02c991e, acb0bcf(main 병합), 0678e65 강건 첫 추정 (crates/core/src/stream.rs)
+- feat/stream-hardening 229a098, 02c991e, acb0bcf(main 병합), 0678e65 강건 첫 추정, 3d831e6(main 병합) (crates/core/src/stream.rs)
