@@ -46,5 +46,5 @@
 - README 예시(+0.5 보정)는 이 묶음 범위 밖이라 그대로다. 이제 보정 없이 `kp.x as f64` 가 맞다.
 
 ## 제품 저장소
-- 브랜치 `feat/camera-unify-keypoints`, 커밋 155d613 (main 3b0fa9c 이후 기준). 같은 시기 `feat/camera-unify` 에 들어간 e0e7e43 과 camera.rs 가 겹쳐 합치지 않았다. 둘 중 하나로 정리할 때 features.rs 의 + 0.5 출력 규약과 덩어리 격자 시험은 그대로 옮길 수 있다.
+- 브랜치 `feat/camera-unify-keypoints`, 커밋 155d613 (main 08d5248 기준). 같은 시기 `feat/camera-unify` 에 들어간 e0e7e43 과 camera.rs 가 겹쳐 합치지 않았다. 둘 중 하나로 정리할 때 features.rs 의 + 0.5 출력 규약과 덩어리 격자 시험은 그대로 옮길 수 있다.
 - 시험: fmt 통과, clippy 통과, 코어 시험 95 통과·1 실패(ransac_on_cross_camera_views, 위 원인)·2 무시.
