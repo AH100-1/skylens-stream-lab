@@ -16,7 +16,7 @@
 - [ ] T09 `gps-align` — 위경도 → 동-북-위, Umeyama 닮음 변환 + 이상치 제외. 정답 대비 잔차.
 - [ ] T10 `dense-patchmatch` — 시점별 PatchMatch 깊이·법선(CPU, rayon 병렬). 정답 깊이 대비 오차.
 - [ ] T11 `depth-fusion` — 다시점 일관성 융합 → 점군 + 법선 + 색. 정답 표면 대비 최근접 거리.
-- [ ] T12 `progressive-stream` — 구역 분할, 초벌/정밀, 3D 점 대응 정렬, 잔상 걸러내기, 스냅샷, manifest. SPEC §3.7~3.8.
+- [x] T12 `progressive-stream` — 2026-10-01 병합, 제품 f2b658b (임시 닮음 변환 → P08 병합 뒤 교체, F-055~F-057 남음) — 구역 분할, 초벌/정밀, 3D 점 대응 정렬, 잔상 걸러내기, 스냅샷, manifest. SPEC §3.7~3.8.
 - [ ] T13 `verify` — SPEC §4 검증을 `skylens-stream verify <폴더>` 로. 실패 시 종료 코드 1.
 - [ ] T14 `perf` — 구간별 시간 측정, 병렬화. 합성 240장 전체 시간 기록. 이후 GPU 백엔드 설계 노트.
 
@@ -37,11 +37,11 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | P06 `translation-averaging` | T07 방향 제약 위치 추정 + 다시점 삼각측량 | 새 `translation_averaging.rs`, `triangulation.rs` | rotation-averaging | — |
 | [x] P07 `bundle-adjustment` (2026-10-01, 제품 04e4d29) | T08 희소 LM + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터, 트랙 10만 제한 | 새 `ba.rs` | two-view | — |
 | P08 `similarity-align` | T09 Umeyama 닮음 변환 + 반복 트리밍, GPS→동-북-위 정렬 | 새 `align.rs` | rotation-averaging | — |
-| P09 `view-selection` | T10a 이웃 8장 점수·깊이 범위·왜곡 보정(960px) | 새 `view_selection.rs`, `undistort.rs` | camera-model | — |
+| [x] P09 `view-selection` (2026-10-01, 제품 80f9a86) | T10a 이웃 8장 점수·깊이 범위·왜곡 보정(960px) | 새 `view_selection.rs`, `undistort.rs` | camera-model | — |
 | P10 `patchmatch` | T10b 시점별 PatchMatch 깊이·법선(rayon) | 새 `patchmatch.rs` | camera-model | P09 인터페이스 |
 | P11 `depth-fusion` | T11 왕복 투영 걸러내기 + 3장 동의 합치기 → 점군 | 새 `fusion.rs` | camera-model | P10 인터페이스 |
 | P12 `dataset-io` | 실제 데이터 읽기(`images/cam{F,R,L}`, `gps.txt`, STRIDE) + `run` 명령 뼈대 | 새 `dataset.rs`, CLI `run` | scaffold | — |
-| P13 `progressive-stream` | T12 구역 분할, 초벌/정밀, 공유 관측 닮음 정렬, 잔상 1.5m 걸러내기, 스냅샷·manifest | 새 `stream.rs` | two-view | P08 인터페이스 |
+| [x] P13 `progressive-stream` (2026-10-01, 제품 f2b658b) | T12 구역 분할, 초벌/정밀, 공유 관측 닮음 정렬, 잔상 1.5m 걸러내기, 스냅샷·manifest | 새 `stream.rs` | two-view | P08 인터페이스 |
 | P14 `verify` | T13 `verify <폴더>` — SPEC §4 일곱 항목, 실패 시 종료 코드 1 | 새 `verify.rs`, CLI `verify` | scaffold | — |
 | P15 `benchmarks` | T14 구간별 시간 측정 틀(합성 240장) | 새 `benches/` | fast-matching | — |
 
