@@ -50,6 +50,7 @@ main 을 병합(벤치 하네스 통합으로 `bench_stages` 예제 삭제)하�
 - 측정: 4 코어 측정 기계, 다른 빌드와 함께 도는 상태.
 
 ## 남은 문제
+- 2차 전체 `cargo test --release`(main 병합 뒤): lib 136 통과·1 실패·3 무시. 실패는 다시 `two_view::tests::five_point_terminates_on_many_seeds`(시간 기준, 전체 378 s 동안 4 코어 측정 기계에 다른 빌드가 함께 돎), 단독 재실행 0.82 s 통과. perf_structure 5, core 문서 시험 1, cli ply_info 4·synth_args 6 통과. fmt·clippy(-D warnings) 통과.
 - `crates/core/tests/perf_structure.rs` 머리말이 아직 삭제된 `examples/bench_stages.rs` 를 가리킨다(이 묶음의 파일이 아니라 두었다).
 - 전체 `cargo test --release` 에서 `two_view::tests::five_point_terminates_on_many_seeds`(시간 기준, 이 묶음이 고치지 않은 파일)가
   부하 중 한 번 실패, 단독 재실행에서 통과(0.42 s). 그 밖은 lib 136 통과·3 무시, perf_structure 5, 문서 시험 1, cli 10 통과.
