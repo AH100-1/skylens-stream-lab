@@ -1,8 +1,30 @@
 # 현재 상태
 
-- 상태: 검토 대기 (13:45Z 에 시작한 다른 묶음 묶음표 — P16 sampson-lm·P17 pixel-convention·P18 camera-unify·P19 readme-sync·P20 ba-hardening 등 — 은 아직 진행 중일 수 있음)
-- 마지막 갱신: 2026-10-01T14:16Z
-- 진행 중 묶음(13:45Z 시작, 검토 중 PR 과 파일이 겹치지 않게): P03 two-view-hardening, P06 translation-averaging, P15 benchmarks, P16 sampson-lm(F-026·F-027), P17 pixel-convention(F-016·F-031 검출 해시), P18 camera-unify(F-023), P19 readme-sync(F-020), N03·N04·N05 T03~T05 실험 노트 보충, P20 ba-hardening(F-034·F-035·F-037·F-039·F-040)
+- 상태: 검토 대기
+- 마지막 갱신: 2026-10-01T14:22Z
+- 이번 묶음 결과(13:45Z 시작, 4 코어 측정 기계에서 동시 빌드):
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | P20 ba-hardening | PR #17 (3de2b47) | PR #33 (→ bundle-adjustment) | F-034·F-035·F-037·F-039 처리, F-040 시간 표(병렬 누적 남음) |
+  | P18 camera-unify | PR #18 (032177a) | PR #34 (→ camera-model) | F-023 단일 정규화 경로, 최신 main 병합 + `undistort.rs` 에 `dist` 한 줄 |
+  | P19 readme-sync | PR #19 (d4804c4) | PR #35 (→ scaffold) | F-020, main 6c0eea7 기준 |
+  | P16 sampson-lm | PR #20 (0cfcd94) | PR #37 (→ ransac-robustness) | F-026 처리, F-027 해석적 야코비안(0.1 s 미달, 열림) |
+  | N03 features-notes | — | PR #27 (→ features) | T03 노트 보충 |
+  | N04 matching-notes | — | PR #36 (→ matching) | T04 노트 보충: 편대 배치 카메라 간 짝 정답 0 인데 53/54 검증 통과 |
+  | N05 two-view-notes | — | PR #28 (→ two-view) | T05 노트 보충: 평면 첫 후보 쌍둥이 해 문제 |
+  - 검증: PR #17·#18·#19·#20 각각 최신 origin/main 과 합친 트리에서 fmt·clippy 경고 0·`cargo test --release` 실패 0 (core 132/128/124/126 통과).
+- 막힌 점:
+  - P17 pixel-convention: 제품 `feat/pixel-convention` 336621f(F-016 화소 중심 규약·`Keypoint::pixel()`, F-031 검출 해시 시험) — 최신 main(1609550 편대 장면)과 two_view.rs 시험에서 충돌해 PR 안 엶. 충돌 해소 필요. 연구 `experiment/pixel-convention` 81b65d3.
+  - P06 translation-averaging: 제품 `feat/translation-averaging` 1aae95a(무잡음 결함 = 초기 최소제곱의 1e-9 대각항, 고침 → 240/240·최대 7e-11 m; 중심·길이 동시 풀기). 잡음+이상치 시험 2개 `#[ignore]` 남음(F 열 끝 74~78 위치 오차, R·L 행 RMS 0.8~0.9 m). 같은 브랜치에 다른 쪽 커밋(e144e46)이 함께 있음. 최신 main 미병합, PR 안 엶.
+  - P03 two-view-hardening: 같은 묶음이 PR #13(133ef34)으로 따로 올라옴. 비교 브랜치 `feat/two-view-hardening-msac` 337c13a(MSAC 순위·다중 시작, 비평면 이상치 0 에서 0.027° vs 0.062°, `refine_relative_pose` 6.9/57.2 ms vs 9.4/86.2 ms). 둘 다 F-033 비평면 이상치 30% 0.245° 미달. 하나를 골라야 함.
+  - P15 benchmarks: 이쪽 커밋 e30537e 가 PR #14 브랜치에 합쳐져 있음(별도 PR 없음).
+  - 시간 단언 시험 `five_point_terminates_on_many_seeds` 는 동시 부하에서 계속 실패(단독 통과) — PR #13 이 구조 단언으로 바꿈.
+- 다음 할 일:
+  1. 감독 검토 결과 반영.
+  2. pixel-convention 충돌 해소 → PR. undistort.rs 주점 변환 `(cx+0.5)·s−0.5` 규약 확인.
+  3. translation-averaging 잡음 경우(시야 겹침 기반 짝, 축척 수축) → `#[ignore]` 해제.
+  4. 매칭 검증이 겹침 없는 짝을 통과시키는 문제(N04) — 최소 정상 수·유의성 검사 피드백 등록 제안.
+  5. 평면 후보 선택(N05, F-033).
 - 검토 요청(제품 PR, `review-requested`, 연구 PR 은 부모 노드 기준):
   | 묶음 | 제품 PR | 제품 커밋 | 연구 PR | 결과 |
   |---|---|---|---|---|
