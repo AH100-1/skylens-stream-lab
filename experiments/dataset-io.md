@@ -8,6 +8,31 @@ SPEC §3.5 구역 분할 `[start−OVL, start+SPAN+OVL) ∩ [0, n)` 을 같은 �
 80위치·SPAN 12·OVL 2 의 경계가 손 계산과 일치한다.
 `skylens-stream run` 은 지금은 위치 수·사진 수·구역 목록을 출력하고 `preview/ refined/ snapshots/` 만 만든다.
 
+## F-038 사진 폴더 구조 (합성 출력을 로더가 그대로 읽기)
+결론: 로더가 두 구조를 모두 읽는다 — 평평한 `images/cam{F,R,L}_{번호:04}.jpg`(합성 출력·README 형식)와
+카메라별 하위 폴더 `images/cam{F,R,L}/cam{F,R,L}_{번호:04}.jpg`. 카메라마다 두 곳을 함께 훑으므로
+섞어 놓아도 된다. 같은 카메라·같은 프레임 사진이 양쪽에 있으면(또는 `camF_3.jpg`·`camF_0003.jpg`
+처럼 같은 번호가 둘이면) `DuplicateImage{first, second}` 오류로 멈춘다 — 어느 쪽을 써야 할지 모르기 때문.
+SPEC §1 은 파일명만 정하므로 두 구조 모두 SPEC 에 맞는다. 합성 생성기와 README 는 그대로 둔다.
+`Position::images` 는 이제 실제로 찾은 경로를 담는다(`image_path` 는 하위 폴더 형식 경로를 만드는 도우미로 남김).
+카메라 하나가 하위 폴더도 없고 평평한 사진도 없으면 전과 같이 `Missing(images/camX)`.
+
+| 검증(통합 시험 `crates/core/tests/dataset_synth.rs`) | 정답(합성 설정) | 결과 |
+|---|---|---|
+| 기본 장면 80 위치(렌더 96×54) `write_dataset` → gps.txt 행 수 | 80 × 3 = 240 | 240 |
+| 같은 폴더를 STRIDE 1 로 읽은 위치·사진 수 | 80 곳, 240 장 | 일치 |
+| 카메라별 사진 수(camF·camR·camL) | 각 80 | 각 80 |
+| 위치 i 의 동-북-위 − (gps_enu[i] − gps_enu[0]) | < 1 cm (기록 정밀도 ≈ 1 mm) | 80곳 모두 통과 |
+| 기본 설정(STRIDE 3, SPAN 12, OVL 2) | 프레임 0,3,…,78 → 27 곳, 81 장, 구역 0..14 / 10..26 / 22..27 | 일치 |
+| 합성 10 위치를 하위 폴더로 옮긴 뒤 다시 읽기 | 평평한 구조와 같은 프레임·좌표, 30 장 | 일치 |
+| 단위: 하위 폴더 / camR 만 평평 / 모두 평평 | 프레임 0,3,6, 9 장, 경로가 실제 위치 | 세 경우 일치 |
+| 단위: `images/camR_0002.jpg` 와 `images/camR/camR_0002.jpg` 동시 존재 | `DuplicateImage` (두 경로) | 일치 |
+| 단위: 평평한 구조에서 camL 사진 0 장 | `Missing(images/camL)` | 일치 |
+
+허용 1 cm 근거: gps.txt 는 위경도 소수 9자리(≈0.1 mm), 고도 1 mm 로 기록되고, 로더 원점(첫 GPS)과
+합성 세계 원점의 접평면 차이는 수 m / 지구 반지름 × 이동 200 m ≈ 0.1 mm. 위치 간격 2.5 m 보다 훨씬 작아
+위치가 하나라도 밀리면 실패한다.
+
 ## 수치
 | 검증 | 손 계산 | 결과 |
 |---|---|---|
@@ -23,6 +48,8 @@ SPEC §3.5 구역 분할 `[start−OVL, start+SPAN+OVL) ∩ [0, n)` 을 같은 �
 | gps.txt 형식 오류(항목 수·수 아님·범위 밖·번호 없음·다른 값 중복) | 해당 줄 번호 | 5경우 모두 일치 |
 
 ## 방법
+- 검사: fmt·clippy 통과, `cargo test --release` 119 통과·0 실패·2 무시(4 코어 측정 기계).
+
 - `crates/core/src/dataset.rs`: `DatasetConfig { stride: 3, span: 12, ovl: 2 }`, `load_dataset(root, cfg)`, `chunk_ranges(n, span, ovl)`, `parse_gps(text)`.
 - 프레임 선택: 세 카메라 폴더 중 어디든 있는 가장 작은 번호 f0 부터 f0, f0+STRIDE, … ; 그중 세 장이 다 있는 것만 위치로 쓴다.
 - GPS 이름은 끝의 숫자를 프레임 번호로 본다(`camF_0003.jpg`, `0003` 모두 3). 빈 줄과 `#` 줄은 건너뛴다.
@@ -30,9 +57,9 @@ SPEC §3.5 구역 분할 `[start−OVL, start+SPAN+OVL) ∩ [0, n)` 을 같은 �
 - 시험용 가짜 데이터셋은 임시 폴더에 만들고(단위 시험은 빈 파일, CLI 시험은 8×8 jpg), 끝나면 지운다.
 
 ## 남은 문제
-- 합성 장면 생성기(`synth`)는 사진을 `images/camF_0000.jpg` 처럼 카메라 폴더 없이 쓴다. SPEC §1 구조와 맞추거나 읽기에서 둘 다 받아야 한다.
+- (F-038 처리) 합성 출력의 평평한 구조를 로더가 그대로 읽는다. README 의 입력 구조 설명은 평평한 구조만 적고 있어, 하위 폴더도 된다는 한 줄은 README 담당 쪽에서 덧붙이면 좋겠다.
 - 한 카메라만 빠진 프레임은 조용히 건너뛴다. 건너뛴 수를 출력에 보이면 좋겠다.
 - jpg 를 해독하지는 않는다(존재만 확인). 깨진 사진은 다음 단계에서 걸린다.
 
 ## 제품 브랜치·커밋
-- `feat/dataset-io` e577cbf
+- `feat/dataset-io` e577cbf (첫 로더), e39c153 (main 합침), c0bf96f (F-038: 두 폴더 구조 읽기·합성 출력 통합 시험)
