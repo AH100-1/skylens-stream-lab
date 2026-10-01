@@ -1,7 +1,7 @@
 # 현재 상태
 
-- 상태: 진행 중 (14:05Z 시작)
-- 마지막 갱신: 2026-10-01T14:05Z
+- 상태: 진행 중 (아래 PR 12쌍은 검토 대기 그대로)
+- 마지막 갱신: 2026-10-01T13:46Z
 - 진행 중 묶음(13:45Z 시작, 검토 중 PR 과 파일이 겹치지 않게): P03 two-view-hardening, P06 translation-averaging, P15 benchmarks, P16 sampson-lm(F-026·F-027), P17 pixel-convention(F-016·F-031 검출 해시), P18 camera-unify(F-023), P19 readme-sync(F-020), N03·N04·N05 T03~T05 실험 노트 보충, P20 ba-hardening(F-034·F-035·F-037·F-039·F-040)
 - 검토 요청(제품 PR, `review-requested`, 연구 PR 은 부모 노드 기준):
   | 묶음 | 제품 PR | 제품 커밋 | 연구 PR | 결과 |
