@@ -1,22 +1,28 @@
 # 현재 상태
 
-- 상태: 쉬는 중
-- 마지막 갱신: 2026-10-02T01:52Z
-- 이번 실행(01:06Z 시작, 4 코어 측정 기계): 계획한 10 묶음 중 5 묶음만 시작했고, 01:49Z 측정 기계가 다시 시작되어 진행 중이던 묶음이 끊겼다. 새 PR 없음.
+- 상태: 검토 대기
+- 마지막 갱신: 2026-10-02T02:12Z (01:35Z 시작)
+- 이번 실행(01:35Z 시작, 4 코어 측정 기계에서 7 묶음 동시 진행 — 부하 평균 13~32, 시간 수치는 부풀려짐):
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
-  | ba-robust | `feat/ba-robust` f908859 (main 병합만, 재검증 전) | experiment/ba-robust 0078057 그대로 | `feat/ba-formation` 합치기·F-036·F-166 미완 |
-  | tracks | 푸시 없음(로컬 main 병합만) | 변화 없음 | F-123 미착수 |
-  | patchmatch | 푸시 없음(로컬 main 병합만) | 변화 없음 | F-048·F-050 미착수 |
-  | dense-prep-followup | 없음 | 없음 | 미착수 |
-  | cross-camera-link | 없음 | 없음 | 마감 뒤라 시작하지 않음(F-197·F-148) |
-  | two-view-hardening·rotation-averaging-followup·dataset-followup·align-followup | — | — | 이번 실행에서 시작하지 못함 |
+  | P05 rotation-averaging-followup | PR #39 (7dc1b11), 라벨 | PR #56 (→ rotation-averaging) | F-047 처리(사슬 상대 오차/공분산 예측 비 0.96~1.005). F-171~F-173·F-138 전체 시험 재검증. 직접 재검증 fmt·clippy·전체 시험 통과(core 247·13 무시). F-148 회전 평균 쪽(성분별 결과·경고)은 결과 구조체 변경 필요로 미착수 |
+  | P13 stream-ghost | PR #40 (44eebfd), 라벨 | PR #57 (→ stream-followup) | 구름별 k-d 트리 색인, F-224·F-223·F-225 처리. F-222·F-175 는 열림 유지: 3구역 40만/10만 시간 비 5.15, 7구역 × 200만 점 1스레드 14.27 s(부하 26~29, 5 s 기준 판정 못 함). F-055 미착수. 직접 재검증 통과(core 249·13 무시) |
+  | P15 benchmarks-timing | PR #41 (4fa8ce1), 라벨 | PR #58 (→ benchmarks-args) | F-132(인자 없는 bench 20 s), F-149 처리, F-128 240장 재측정(E RANSAC 68%, 검증 짝 1556/3663). F-040 미착수. 직접 재검증 통과(core 246·13 무시). README 반영 필요(P04) |
+  | P10 patchmatch | PR #6 갱신 (57bfc21), 라벨 | experiment/patchmatch 5001d49 (기존 PR #20) | main 병합, patchmatch-profile 의 고운 층 이웃 4장·같은 평면 전파 생략 가져옴. F-048 번갈아 측정 시간 비 0.80(정확도 동일, 목표 0.7 s 에는 수십 배 부족), 거친 층이 38%. F-050 메모리 49.4 MB. 법선 시험 2개 미처리(`normal_steps` 효과 없음 — 기본값 재검토 필요). 직접 재검증 통과(core 252·17 무시) |
+  | P02 matching-planar | PR #42 (de10b4b), 라벨 | PR #59 (→ matching-followup) | F-220 처리(오대응 0~50% 평면 표시 60/60), F-196(E 경로 0/21), F-211·F-221 노트 정정. 부작용: 오대응 없는 2~3% 건물 짝 평면 표시 증가(8칸 0/5→3/5). F-003 미착수. 직접 재검증 통과(core 248·12 무시) |
+  | P06 translation-averaging | `feat/translation-averaging` a5cb96e (PR #37 갱신, 라벨 안 붙임) | experiment/translation-averaging be1c7fe | F-216·F-217·F-219 처리, F-215 일부. F-214 되돌림 장치를 넣었으나 `noisy_outliers_register_all_seeds` 80경우 중 3경우 미달(시드 6·9 점 5%·짝 20% 238·239/240, 시드 10 237/240) — 이 시험이 실패하므로 라벨 안 붙임. F-213·F-218·F-210 미착수 |
+  | P11 fusion-tests | (진행 중, 아래 갱신) | | |
+- 시작하지 못한 묶음: P03 two-view-hardening(F-209 원인 표), P20 ba-robust(두 갈래 합치기), P04 io-readme(F-155·F-208·F-212) — 이번 실행에서 작업을 넘기지 못함. 다음 실행에서 우선.
+- 공통 관찰: `verify::tests::nn_median_many_identical_points_is_fast_and_exact` 1 s 시간 단언이 부하 15~32 에서 여러 묶음 실행에서 실패(단독 0.19~0.60 s 통과). 총괄 재검증 빌드에서는 모두 통과.
+- 다음 할 일:
+  1. P03 F-209(474bcf8 대 2bf4795 짝별 E 성공 26짝 표), P20 ba-robust·ba-formation 합치기, P04 README(F-155·F-208·F-212, bench 새 기본값 반영).
+  2. P06 F-214 남은 3경우(짝만 푼 출발 해 정확도), F-213 실측 배치.
+  3. P13 F-222 부하 없는 상태에서 `large_snapshot_speed` 5 s 판정, F-055.
+  4. P10 F-048 거친 층 반복 축소·원 해상도 창 간격, `normal_steps` 기본값.
+  5. P02 F-220 부작용(잡음 꼬리 여유) 완화, F-003.
 - 막힌 점:
-  - 01:43~01:46Z 사이 다른 실행이 `feat/rotation-averaging-followup`(7dc1b11)·`feat/matching-planar`·`feat/benchmarks-timing` 에 푸시하고 main(50fce8a)·감독 기록을 갱신했다 — 실행이 계속 겹친다.
-  - 측정 기계 재시작으로 진행 중 작업이 사라졌다.
-- 다음 할 일: 지난 기록의 다음 할 일 그대로(F-197·F-148 카메라 간 짝 일정, ba 두 갈래 합치기, tracks F-123, patchmatch F-048, P12 F-205·F-206, P08 F-198·F-095·F-199).
-
-## 이전 실행 기록 (00:25Z 시작분)
+  - 시간 기준(F-222 5 s, F-048, F-132 단독 측정)은 부하 없는 기계에서만 판정 가능.
+  - 결정 필요(이전 그대로): F-148/F-197 다른 카메라 연결 방안, SPEC §3.4·§2 report.json.
 
 ## 직전 실행 기록 (00:25Z 시작분)
 - 마지막 갱신: 2026-10-02T01:06Z
