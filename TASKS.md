@@ -33,15 +33,15 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | [x] P02 `matching-hardening` (2026-10-01, 제품 08d5248) | F-030·F-021·F-003·F-031 | `matching.rs` | matching | — |
 | P03 `two-view-hardening` | F-032·F-033·F-026·F-027·F-028 | `two_view.rs` | two-view | — |
 | [x] P04 `io-robustness` (2026-10-01, 제품 3b0fa9c; io-cleanup 2026-10-01 제품 d4432c7) | F-016~F-020·F-022·F-023, README 정리(한·영) | `ply.rs`, `camera.rs`, `features.rs`(from_rgb), CLI 인자, `README.md` | scaffold | — |
-| [x] P05 `rotation-averaging-hardening` (2026-10-01, 제품 9f111f2, F-137·F-138 남음) | F-006~F-009 | `rotation_averaging.rs` | rotation-averaging | — |
+| [x] P05 `rotation-averaging-hardening` (2026-10-01, 제품 9f111f2; rotation-averaging-robust 2026-10-02 제품 ca34c6f, F-047·F-138·F-171~F-173 남음) | F-006~F-009 | `rotation_averaging.rs` | rotation-averaging | — |
 | P06 `translation-averaging` | T07 방향 제약 위치 추정 + 다시점 삼각측량 | 새 `translation_averaging.rs`, `triangulation.rs` | rotation-averaging | — |
 | [x] P07 `bundle-adjustment` (2026-10-01, 제품 04e4d29; ba-hardening 2026-10-01 제품 ec18464, F-036·F-164~F-167 남음) | T08 희소 LM + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터, 트랙 10만 제한 | 새 `ba.rs` | two-view | — |
 | [x] P08 `similarity-align` (2026-10-01, 제품 f87549a, F-094·F-099 높음 남음) | T09 Umeyama 닮음 변환 + 반복 트리밍, GPS→동-북-위 정렬 | 새 `align.rs` | rotation-averaging | — |
 | [x] P09 `view-selection` (2026-10-01, 제품 80f9a86) | T10a 이웃 8장 점수·깊이 범위·왜곡 보정(960px) | 새 `view_selection.rs`, `undistort.rs` | camera-model | — |
 | P10 `patchmatch` | T10b 시점별 PatchMatch 깊이·법선(rayon) | 새 `patchmatch.rs` | camera-model | P09 인터페이스 |
-| [x] P11 `depth-fusion` (2026-10-01, 제품 6c0eea7, F-069~F-074 남음) | T11 왕복 투영 걸러내기 + 3장 동의 합치기 → 점군 | 새 `fusion.rs` | camera-model | P10 인터페이스 |
+| [x] P11 `depth-fusion` (2026-10-01, 제품 6c0eea7; fusion-hardening 2026-10-02 제품 bbd82d8, F-069·F-113·F-178·F-179 남음) | T11 왕복 투영 걸러내기 + 3장 동의 합치기 → 점군 | 새 `fusion.rs` | camera-model | P10 인터페이스 |
 | P12 `dataset-io` | 실제 데이터 읽기(`images/cam{F,R,L}`, `gps.txt`, STRIDE) + `run` 명령 뼈대 | 새 `dataset.rs`, CLI `run` | scaffold | — |
-| [x] P13 `progressive-stream` (2026-10-01, 제품 f2b658b) | T12 구역 분할, 초벌/정밀, 공유 관측 닮음 정렬, 잔상 1.5m 걸러내기, 스냅샷·manifest | 새 `stream.rs` | two-view | P08 인터페이스 |
+| [x] P13 `progressive-stream` (2026-10-01, 제품 f2b658b; stream-hardening 2026-10-02 제품 6f14401, F-055·F-056·F-065·F-066·F-175~F-177 남음) | T12 구역 분할, 초벌/정밀, 공유 관측 닮음 정렬, 잔상 1.5m 걸러내기, 스냅샷·manifest | 새 `stream.rs` | two-view | P08 인터페이스 |
 | P14 `verify` | T13 `verify <폴더>` — SPEC §4 일곱 항목, 실패 시 종료 코드 1 | 새 `verify.rs`, CLI `verify` | scaffold | — |
 | [x] P15 `benchmarks` (2026-10-01, 제품 5f2e886; benchmarks-scale 2026-10-01 제품 dc9bb55, F-040·F-128·F-130~F-132·F-149 남음) | T14 구간별 시간 측정 틀(합성 240장) | 새 `benches/` | fast-matching | — |
 
