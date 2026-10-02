@@ -76,5 +76,7 @@ SPEC §2 출력 목록에 "`report.json`: 등록 사진 수(전체·초벌·정�
 - 구역 1개 출력의 겹침 "해당 없음" 은 PASS 로 센다. 표에서 따로 표시할지 정해야 한다.
 - 겹침 차를 수평 1 m 짝 높이 차로 재는 방식은 경사면이 많은 실제 데이터에서 3D 최근접과 비교가 필요하다.
 
+- f5a9ac2 기준 전체 시험(부하 상태): 169+5+6+4+21 통과, 무시 5(기존). `two_view::tests::five_point_terminates_on_many_seeds`(시간 단언, verify 와 무관)가 전체 실행에서 두 번 실패, 단독 재실행 0.59 s 통과.
+
 ## 제품 브랜치·커밋
 - feat/verify: f79ef29 (verify 명령·시험), e9cb5cf (k-d 트리 최근접·기대 파일 목록·정수 step·구역 간 스케일 차), 8ff9d93 (누락·먼 초벌·경사 지면·문자열 step·빈 정밀 fixture), a327c61 (정리), b9ad45c (main 병합), 0475047 (report.json 없을 때 항목 1~3 판정 불가, 종료 코드 0/1/2), af9e7ff (main 병합, 사용법 줄은 verify 와 --version·--help 를 모두 남김), f5a9ac2 (정렬 기록 구역 집합 대조, final = 정밀 점 수 합, 파일 이름 위치 수 참고값)
