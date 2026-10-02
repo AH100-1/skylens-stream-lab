@@ -15,7 +15,7 @@
   | tracks | PR #15 갱신 (956213a), 라벨 없음 | PR #31 갱신 (cfdc1b8) | F-123 일부: 30% 완전도 1.000, 30%·이상치 1% 순도 0.9672 < 0.99 로 `sparse_recall_keeps_tracks_whole` 실패 |
   | P10 patchmatch | PR #6 갱신 (a1840a5), 라벨 없음 | PR #20 갱신 (3d02b13) | F-151 처리(main 과 컴파일됨). 전체 시험 부하로 미완, F-048·F-050·법선 시험 미착수 |
   | P06 translation-averaging | `feat/translation-averaging` 53b3c78 (PR 없음) | experiment/translation-averaging ce22315 | 퇴행 원인 분리: 점 방향 이상치(5%)가 첫 해를 끌어 6° 거르기에서 그래프가 갈라짐 — 점 제약 없음 237~240, 깨끗한 점 방향 240/240(RMS 0.11~0.14 m). 고침 미완 |
-  | ba-robust (P20 후속) | `feat/ba-robust` bca55eb (PR 없음) | experiment/ba-robust cb4c357 | F-036 편대 시험 추가했으나 무잡음 최소제곱도 100회 미수렴·중심 1.2 m(약한 방향) → 무시. F-034 main 에서 처리 확인 |
+  | ba-robust (P20 후속) | `feat/ba-robust` 995020e (PR 없음, bca55eb 뒤 00:47~00:51 커밋 2개 — 트랙 서로 다른 카메라 2대 요구·관측 카메라 축척 게이지·옵션 검사 등, 재검증 전) | experiment/ba-robust cb4c357 | F-036 편대 시험 추가했으나 무잡음 최소제곱도 100회 미수렴·중심 1.2 m(약한 방향) → 무시. F-034 main 에서 처리 확인 |
 - 검증: 라벨 붙인 PR 머리마다 전용 빌드 폴더에서 fmt·clippy(-D warnings)·`cargo test --release` 전체 통과를 직접 확인. 부하 상태에서 `two_view::tests::five_point_terminates_on_many_seeds` 시간 단언이 여러 묶음 실행에서 실패, 단독 0.5~0.6 s 통과(F-059).
 - 막힌 점:
   - tracks F-123: 단일 간선 결합의 오대응이 순도를 0.967 로 낮춤(다음 안: 단일 간선 결합 마지막·경쟁 시 소수 쪽 버림).
