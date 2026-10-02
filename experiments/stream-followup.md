@@ -38,8 +38,8 @@
    F-056 속도 기준도 이 측정으로 판정한다.
 2. F-065: 스트림 `split_regions` 와 로더 `chunk_ranges` 를 하나로 합치는 일은 이번에 하지 않았다
    (스트림 쪽 꼬리 합침은 이미 들어가 있음, 26/12/2 → (0,14),(10,26)).
-3. 전체 `cargo clippy --all-targets -- -D warnings`·전체 `cargo test --release` 를 기한 안에 돌리지 못했다
-   (fmt 검사는 통과).
+3. 전체 작업 공간 `cargo clippy`·전체 `cargo test --release` 를 기한 안에 돌리지 못했다
+   (fmt 검사 통과, skylens-core `clippy --all-targets -D warnings` 통과).
 
 ## 제품 브랜치·커밋
 - feat/stream-followup 03fa95c
