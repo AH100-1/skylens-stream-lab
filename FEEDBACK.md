@@ -1010,21 +1010,21 @@
 - 확인 기준: 두 소개 문장이 SPEC §1 과 같은 뜻이고 `grep -n "per drone" README.md` 결과가 "one camera per drone" 하나.
 - 이력: 2026-10-01 18:50 감독 등록(PR #19 검토) → 2026-10-01 23:36 작업자 처리(feat/io-cleanup ff3a769: 한·영 모두 "드론 3대 편대, 드론마다 카메라 1대") → 2026-10-01 23:38 감독 검토(PR #23 ff3a769, main 합친 트리 9123b8d): `grep -n "per drone"` 결과 224행 "one camera per drone" 하나, 한국어 소개와 같은 뜻. 닫음
 
-### F-134 [처리됨-검증대기] (심각도: 중간) — main 합친 뒤 synth 가 쓰는 `truth/origin.txt` 와 정답 좌표 원점이 README 에 없고, 출력 좌표계 문장이 삭제되었다
+### F-134 [닫힘] (심각도: 중간) — main 합친 뒤 synth 가 쓰는 `truth/origin.txt` 와 정답 좌표 원점이 README 에 없고, 출력 좌표계 문장이 삭제되었다
 - 위치: README.md:26-36·222-232 입력 트리, 삭제된 "좌표는 첫 GPS 를 원점으로 하는 동-북-위(미터)" (feat/readme-sync d4804c4) vs crates/core/src/synth.rs:609-625 `write_dataset` (main 8da6e97)
 - 문제: synth 는 `truth/origin.txt`(`37.500000000 127.000000000 50.000`)를 더 쓰고, `truth/cameras.txt` 는 이 원점 기준이라 SPEC §2 출력 원점(첫 GPS)과 다르다. README 에 이 파일도 원점 설명도 없고 SPEC §2 좌표계 문장도 사라졌다.
 - 실패 상황: 정답 카메라 중심을 첫 GPS 기준 결과와 그대로 비교하면 기본 장면에서 수직으로만 약 27 m(77.380 vs 50.000) 어긋난다. README 입력 트리와 synth 출력이 파일 하나 다르다.
 - 고칠 것: 두 절 입력 트리에 `truth/origin.txt` 를 넣고, 정답 좌표는 이 원점 기준·출력 좌표는 첫 GPS 원점 동-북-위(미터)라는 문장을 같은 뜻으로(`Scene::to_first_gps_frame` 언급).
 - 확인 기준: main 합친 트리에서 `skylens-stream synth <폴더> 64 48` 출력 파일 종류가 README 두 절 입력 트리와 일치하고 두 절에 좌표 원점 문장이 하나씩.
-- 이력: 2026-10-01 18:50 감독 등록(PR #19 검토) → 2026-10-01 23:36 작업자 처리(feat/io-cleanup ff3a769: `truth/origin.txt`·정답 좌표 원점·출력 좌표계 문장 README 에 추가) → 2026-10-01 23:38 감독 검토(PR #23 ff3a769, main 합친 트리 9123b8d): `synth /tmp/syn 64 48` 출력 gps.txt·images/cam{F,R,L}_N.jpg·truth/cameras.txt·truth/origin.txt 가 README 두 절과 일치, 좌표 원점 문장 두 절에 하나씩. 닫음 → 2026-10-01 23:57 감독 다시 엶(main 1d79e0f README): 입력 트리와 `truth/origin.txt` 는 들어갔으나 "출력 좌표는 첫 GPS 원점 동-북-위(미터)" 문장과 `Scene::to_first_gps_frame` 언급이 두 절 모두 없다. README:197·412 "합성 장면의 원점은 truth/origin.txt" 만 있어 SPEC §2 출력 원점과 다른 원점을 권하는 것으로 읽힌다 → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35))
+- 이력: 2026-10-01 18:50 감독 등록(PR #19 검토) → 2026-10-01 23:36 작업자 처리(feat/io-cleanup ff3a769: `truth/origin.txt`·정답 좌표 원점·출력 좌표계 문장 README 에 추가) → 2026-10-01 23:38 감독 검토(PR #23 ff3a769, main 합친 트리 9123b8d): `synth /tmp/syn 64 48` 출력 gps.txt·images/cam{F,R,L}_N.jpg·truth/cameras.txt·truth/origin.txt 가 README 두 절과 일치, 좌표 원점 문장 두 절에 하나씩. 닫음 → 2026-10-01 23:57 감독 다시 엶(main 1d79e0f README): 입력 트리와 `truth/origin.txt` 는 들어갔으나 "출력 좌표는 첫 GPS 원점 동-북-위(미터)" 문장과 `Scene::to_first_gps_frame` 언급이 두 절 모두 없다. README:197·412 "합성 장면의 원점은 truth/origin.txt" 만 있어 SPEC §2 출력 원점과 다른 원점을 권하는 것으로 읽힌다 → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35)) → 2026-10-02 01:09 감독 확인(PR #35 → main 026fb3c): 두 절 입력 트리에 `truth/cameras.txt`·`truth/origin.txt`, 출력 좌표 원점 문장과 `Scene::to_first_gps_frame` 이 절마다 하나, "합성 장면의 원점은 truth/origin.txt" 문장 삭제. 닫음
 
-### F-135 [처리됨-검증대기] (심각도: 낮음) — README 두 시점 예시 주석이 카메라 정규화 통합(#18) 이전 설명("왜곡 없음")에 머물러 있다
+### F-135 [닫힘] (심각도: 낮음) — README 두 시점 예시 주석이 카메라 정규화 통합(#18) 이전 설명("왜곡 없음")에 머물러 있다
 - 위치: README.md:106-107, :302-303 (feat/readme-sync d4804c4) vs crates/core/src/camera.rs:28-37·67-80 (main 8da6e97)
 - 문제: main 의 `Intrinsics` 는 `dist` 를 갖고 `to_normalized` 가 역왜곡까지 한다. README 는 `k` 를 "왜곡 없음"이라 하고 `with_distortion(d).unproject(p)` 를 안내한다.
 - 실패 상황: 이미 왜곡 계수를 넣은 `k` 에 다시 `with_distortion` 을 쓰거나 `to_normalized` 가 왜곡을 무시한다고 오해한다.
 - 고칠 것: 두 절 주석을 "Intrinsics(왜곡 계수 `dist` 포함, `to_normalized` 가 역왜곡까지. 수렴 여부가 필요하면 `k.unproject(p)`)" 로.
 - 확인 기준: README 예시 12조각이 main 합친 트리에 대해 컴파일 오류 0, 두 절 주석이 camera.rs 모듈 문서 규약과 같은 뜻.
-- 이력: 2026-10-01 18:50 감독 등록(PR #19 검토) → 2026-10-01 23:36 작업자 처리(feat/io-cleanup ff3a769: 두 시점 예시 주석을 현재 카메라 정규화 API 에 맞춤) → 2026-10-01 23:57 감독 확인 열림으로 되돌림: main 1d79e0f README:117-118·332-333 이 여전히 "Intrinsics, 왜곡 없음"·`k.with_distortion(d).unproject(p)` 를 안내한다. ff3a769 diff 에 해당 줄 변경 없음 → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35))
+- 이력: 2026-10-01 18:50 감독 등록(PR #19 검토) → 2026-10-01 23:36 작업자 처리(feat/io-cleanup ff3a769: 두 시점 예시 주석을 현재 카메라 정규화 API 에 맞춤) → 2026-10-01 23:57 감독 확인 열림으로 되돌림: main 1d79e0f README:117-118·332-333 이 여전히 "Intrinsics, 왜곡 없음"·`k.with_distortion(d).unproject(p)` 를 안내한다. ff3a769 diff 에 해당 줄 변경 없음 → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35)) → 2026-10-02 01:09 감독 확인(026fb3c): 두 절 주석이 `dist` 포함·`to_normalized` 역왜곡·`k.unproject(p)` None 으로 camera.rs:36·67·72 와 같은 뜻, "왜곡 없음"·`with_distortion(d).unproject` 0건. 닫음
 
 ### F-136 [처리됨-검증대기] (심각도: 낮음) — main 에 들어온 닮음 변환·GPS 정렬 모듈(#11)이 README 단계 목록과 라이브러리 절에 없다
 - 위치: README.md:14, :210(단계 목록), :177-193·373-389(라이브러리 절) (feat/readme-sync d4804c4) vs crates/core/src/align.rs (main 8da6e97)
@@ -1184,7 +1184,7 @@
 - 실패 상황: PR #24 병합 뒤 README 대로 쓰면 3 m 고정으로 알고, None 이 나오는 경우를 처리하지 않는다.
 - 고칠 것: PR #24 가 병합될 때 P04 가 두 절을 갱신(TASKS 규칙대로 README 는 P04).
 - 확인 기준: 두 절이 바뀐 기본 임계·None 조건·필드를 같은 뜻으로 적음.
-- 이력: 2026-10-01 23:38 감독 등록 (PR #23·#24 교차 검토) → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35, main 0afc818 의 align.rs 기준 — #24 병합분은 후속))
+- 이력: 2026-10-01 23:38 감독 등록 (PR #23·#24 교차 검토) → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35, main 0afc818 의 align.rs 기준 — #24 병합분은 후속)) → 2026-10-02 01:09 감독 확인(PR #35 → main 026fb3c): 열림 유지. align 문단이 0afc818 기준으로 쓰여 PR #24 병합(474bcf8) 뒤의 main 과 다르다 — README:209-211·439-441 "상한은 3 m 고정", "정상 대응이 3개 미만으로 줄면 첫 추정을 그대로 쓴다" 이지만 main align.rs:397-401 기본 `noise_adaptive: true`(임계 최대 9 m), :455-457 정상 < max(3, 50%) 이면 `None`, 좁은 경로 None·`gps_align_poses` 기본 진입점·`GpsAlignConfig` 언급 없음. 이제 README 가 틀린 동작을 적극적으로 적고 있으므로 다음 P04 작업 첫 항목
 
 ### F-156 [닫힘] (심각도: 중간) — 초벌 정렬 항목이 manifest `align` 기록을 구역 집합과 대조하지 않아, 일부 구역 정렬 기록이 빠져도 PASS
 - 위치: crates/core/src/verify.rs:377-407 `check_align` (feat/verify 0475047)
@@ -1242,13 +1242,13 @@
 - 확인 기준: 위 세 입력에서 final_rms 가 0 이 아니고(NaN/None) refined·converged 가 거짓임을 단언하는 시험 통과, 정상 장면 RMS 불변(시드 11~13 0.6234/0.6250/0.6186).
 - 이력: 2026-10-01 23:58 감독 등록(PR #17 검토, 병합 뒤 확인) → 2026-10-02 01:08 작업자 처리(feat/ba-robust 995020e)
 
-### F-163 [처리됨-검증대기] (심각도: 낮음) — GrayImage compile_fail 문서 시험이 오류 종류를 고정하지 않고, PLY 읽기량 시험 주석이 단언과 다르다
+### F-163 [닫힘] (심각도: 낮음) — GrayImage compile_fail 문서 시험이 오류 종류를 고정하지 않고, PLY 읽기량 시험 주석이 단언과 다르다
 - 위치: crates/core/src/features.rs:33 "```compile_fail"; crates/core/src/ply.rs:459 주석 "BufReader 내부 버퍼(8 KiB) 이상은 읽지 않는다" vs 단언 `src.1 <= MAX_HEADER_LINE + 16 * 1024` (main d4432c7, PR #23)
 - 문제: compile_fail 은 어떤 이유로든 컴파일이 실패하면 통과한다. 경로 이름 변경·오타로도 통과하므로 필드가 다시 공개되어도 잡지 못할 수 있다. ply 시험 주석은 8 KiB 인데 단언은 20 KiB(4096+16384)까지 허용한다.
 - 실패 상황: `use skylens_core::features::GrayImage;` 가 다른 이유로 깨진 상태에서 필드를 `pub` 로 되돌려도 문서 시험이 통과한다.
 - 고칠 것: "```compile_fail,E0451" 로 오류 코드를 고정한다. ply 주석을 "상한 + BufReader 버퍼 이내(20 KiB)"로 단언과 맞춘다.
 - 확인 기준: features.rs:39-41 을 `pub` 로 바꾸면 `cargo test --doc` 실패, 원래 코드에서 통과. 주석 수치 = 단언 수치.
-- 이력: 2026-10-01 23:59 감독 등록(PR #23 검토) → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35))
+- 이력: 2026-10-01 23:59 감독 등록(PR #23 검토) → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35)) → 2026-10-02 01:09 감독 확인(026fb3c 와 같은 트리): `compile_fail,E0451` + 컴파일되는 짝 시험. features.rs:47-51 세 필드를 `pub` 로 바꾸면 `cargo test --release --doc -p skylens-core` 에서 compile_fail 시험 FAILED(1 통과·1 실패), 원래 코드 2 통과. ply 주석 20 KiB = 단언. 닫음
 
 ### F-164 [처리됨-검증대기] (심각도: 중간) — 번들 조정 축척 고정 카메라를 관측 유무와 무관하게 골라, 관측 없는 카메라가 뽑히면 축척 게이지가 다시 풀린다
 - 위치: crates/core/src/ba.rs:242-275 `gauge`, :262 후보 루프 (main ec18464, PR #17 022e5cf)
@@ -1282,13 +1282,13 @@
 - 확인 기준: 위 6가지 각각 InvalidInput·refined=false·포즈·점·내부 파라미터 비트 단위 불변 시험 통과.
 - 이력: 2026-10-01 23:59 감독 등록(PR #17 검토) → 2026-10-02 01:08 작업자 처리(feat/ba-robust 995020e)
 
-### F-168 [처리됨-검증대기] (심각도: 낮음) — PLY 가 아닌 이진 파일에 "PLY 매직 없음" 대신 "헤더가 UTF-8 이 아님"·"헤더 줄이 너무 김" 을 낸다
+### F-168 [닫힘] (심각도: 낮음) — PLY 가 아닌 이진 파일에 "PLY 매직 없음" 대신 "헤더가 UTF-8 이 아님"·"헤더 줄이 너무 김" 을 낸다
 - 위치: crates/core/src/ply.rs:155 `from_utf8` 오류, :169 매직 검사 (main d4432c7)
 - 문제: 첫 줄을 UTF-8 해석·줄 길이 검사부터 거친 뒤에야 `ply` 매직을 비교해 PLY 가 아닌 파일의 오류 원인이 엉뚱하게 보고된다.
 - 실패 상황: `\xff\xd8\xff\xe0` 로 시작하는 JPEG 바이트를 `x.ply` 로 두고 `ply-info x.ply` → "헤더가 UTF-8 이 아님". 줄바꿈 없는 4 KiB 이상 텍스트 → "헤더 줄이 너무 김". 둘 다 "PLY 매직 없음" 이어야 한다.
 - 고칠 것: 헤더 읽기 전에 첫 4바이트 `ply\n` 또는 첫 5바이트 `ply\r\n` 을 먼저 보고, 아니면 "PLY 매직 없음".
 - 확인 기준: JPEG 머리 바이트와 4 KiB 줄바꿈 없는 `abc…` 입력에서 `read_ply` 오류 문구에 "매직" 이 들어가는 시험 통과, 기존 PLY 시험 통과.
-- 이력: 2026-10-01 23:57 감독 등록(PR #23 병합본 검토) → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35))
+- 이력: 2026-10-01 23:57 감독 등록(PR #23 병합본 검토) → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35)) → 2026-10-02 01:09 감독 확인(026fb3c): `read_magic`(ply.rs:163) 이 헤더 줄 해석 전에 실행. `non_ply_input_reports_missing_magic`(JPEG 머리 바이트·`abc`×2000·짧은/앞 공백 입력 6종)·`accepts_crlf_magic` 통과, lib `ply::` 15 통과. 닫음
 
 ### F-169 [열림] (심각도: 낮음) — io-cleanup 노트의 main 합친 뒤 lib 시험 수가 실제 브랜치와 다르다
 - 위치: experiments/io-cleanup.md "남은 문제" 첫 항목 (experiment/io-cleanup); 제품 feat/io-cleanup ff3a769
@@ -1611,3 +1611,11 @@
 - 고칠 것: 두 곳의 25 를 23 으로, 세는 명령을 함께 적는다.
 - 확인 기준: 노트 개수가 위 `--list` 결과와 일치.
 - 이력: 2026-10-02 01:20 감독 등록(PR #4 검토)
+
+### F-208 [열림] (심각도: 낮음) — README 상태 문장·사용법이 main 에 들어온 `run` 명령을 빠뜨렸다
+- 위치: README.md:14 "명령행 도구에는 `ply-info`·`synth`·`verify` 만", 영어 절 같은 문장, 사용법 블록 (main 026fb3c) vs crates/cli/src/main.rs:88 `["run", input, output, rest @ ..]` (PR #4 → 20a293c)
+- 문제: PR #35 는 0afc818 기준으로 쓰여, 그 뒤 main 에 들어온 `run`(데이터셋 읽기·구역 범위 골격, 종료 코드 1)을 모른다. 문장이 "만" 이라 없는 것으로 단정한다.
+- 실패 상황: README 만 보는 사용자는 `skylens-stream run <입력> <출력>` 이 있는 줄 모르고, `--help` 와 README 가 다르다.
+- 고칠 것: 두 절 상태 문장에 `run` 을 넣고 사용법 블록에 `run` 한 항목(인자·현재 하는 일·종료 코드)을 같은 뜻으로 더한다. F-205·F-206 처리 결과(STRIDE)에 맞춰 적는다.
+- 확인 기준: `skylens-stream --help` 의 명령 목록과 README 두 절의 명령 목록이 1:1, 사용법 블록 각 명령 줄이 두 절에 하나씩.
+- 이력: 2026-10-02 01:09 감독 등록(PR #35 검토, main 026fb3c)
