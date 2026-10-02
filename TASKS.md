@@ -30,14 +30,14 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | 묶음 | 내용 | 맡는 파일 | 부모 노드 | 선행 |
 |---|---|---|---|---|
 | [x] P01 `formation-scene` (2026-10-01, 제품 1609550; formation-scene-check 2026-10-01 제품 e9f7187) | F-029·F-024 합성 장면을 실측 편대 배치로 | `synth.rs` | synthetic-scene | — |
-| [x] P02 `matching-hardening` (2026-10-01, 제품 08d5248) | F-030·F-021·F-003·F-031 | `matching.rs` | matching | — |
-| P03 `two-view-hardening` | F-032·F-033·F-026·F-027·F-028 | `two_view.rs` | two-view | — |
+| [x] P02 `matching-hardening` (2026-10-01, 제품 08d5248; matching-followup 2026-10-02 제품 506b9d4, F-139·F-148·F-196·F-197 남음) | F-030·F-021·F-003·F-031 | `matching.rs` | matching | — |
+| [x] P03 `two-view-hardening` (2026-10-02, 제품 2bf4795 — two-view-twin 에 포함되어 병합, F-033·F-145·F-148·F-191~F-195 남음) | F-032·F-033·F-026·F-027·F-028 | `two_view.rs` | two-view | — |
 | [x] P04 `io-robustness` (2026-10-01, 제품 3b0fa9c; io-cleanup 2026-10-01 제품 d4432c7) | F-016~F-020·F-022·F-023, README 정리(한·영) | `ply.rs`, `camera.rs`, `features.rs`(from_rgb), CLI 인자, `README.md` | scaffold | — |
 | [x] P05 `rotation-averaging-hardening` (2026-10-01, 제품 9f111f2; rotation-averaging-robust 2026-10-02 제품 ca34c6f, F-047·F-138·F-171~F-173 남음) | F-006~F-009 | `rotation_averaging.rs` | rotation-averaging | — |
 | P06 `translation-averaging` | T07 방향 제약 위치 추정 + 다시점 삼각측량 | 새 `translation_averaging.rs`, `triangulation.rs` | rotation-averaging | — |
 | [x] P07 `bundle-adjustment` (2026-10-01, 제품 04e4d29; ba-hardening 2026-10-01 제품 ec18464, F-036·F-164~F-167 남음) | T08 희소 LM + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터, 트랙 10만 제한 | 새 `ba.rs` | two-view | — |
-| [x] P08 `similarity-align` (2026-10-01, 제품 f87549a, F-094·F-099 높음 남음) | T09 Umeyama 닮음 변환 + 반복 트리밍, GPS→동-북-위 정렬 | 새 `align.rs` | rotation-averaging | — |
-| [x] P09 `view-selection` (2026-10-01, 제품 80f9a86) | T10a 이웃 8장 점수·깊이 범위·왜곡 보정(960px) | 새 `view_selection.rs`, `undistort.rs` | camera-model | — |
+| [x] P08 `similarity-align` (2026-10-01, 제품 f87549a; align-robust 2026-10-02 제품 474bcf8, F-095·F-153·F-198~F-200 남음) | T09 Umeyama 닮음 변환 + 반복 트리밍, GPS→동-북-위 정렬 | 새 `align.rs` | rotation-averaging | — |
+| [x] P09 `view-selection` (2026-10-01, 제품 80f9a86; dense-prep 2026-10-02 제품 60cbc2d, F-201~F-204 남음) | T10a 이웃 8장 점수·깊이 범위·왜곡 보정(960px) | 새 `view_selection.rs`, `undistort.rs` | camera-model | — |
 | P10 `patchmatch` | T10b 시점별 PatchMatch 깊이·법선(rayon) | 새 `patchmatch.rs` | camera-model | P09 인터페이스 |
 | [x] P11 `depth-fusion` (2026-10-01, 제품 6c0eea7; fusion-hardening 2026-10-02 제품 bbd82d8, F-069·F-113·F-178·F-179 남음) | T11 왕복 투영 걸러내기 + 3장 동의 합치기 → 점군 | 새 `fusion.rs` | camera-model | P10 인터페이스 |
 | P12 `dataset-io` | 실제 데이터 읽기(`images/cam{F,R,L}`, `gps.txt`, STRIDE) + `run` 명령 뼈대 | 새 `dataset.rs`, CLI `run` | scaffold | — |
