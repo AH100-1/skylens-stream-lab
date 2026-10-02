@@ -98,7 +98,7 @@ n∈[1,200] × SPAN∈{4,12} × OVL∈{0,2}, 800 경우에서 `lo..hi` 목록이
 |---|---|---|---|
 | F-043 | 비표준 자릿수(`camF_3.jpg`·`camF_00003.jpg`·`camF_012.jpg`) → `BadImageName`, 5자리 `12345` 는 받고 모든 경로 exists | dataset 단위 시험 | 통과(`non_four_digit_names_rejected`) |
 | F-044 | 빈 gps.txt → `GpsEmpty` "gps.txt 기록 없음" / n=2·SPAN 1·OVL 5 → 0..2 하나 / 프레임 0·4000000000 → 1 초 안 | `empty_gps_message` 외 | 통과(`empty_gps_message`·`chunk_tail_always_adds_new_positions`·`huge_frame_gap_is_fast`, dataset 단위 25개 0.40 초) |
-| F-064 | camR 6 누락 → `skipped == [6]`·CLI `skipped 1` / camL 20..39 누락 → `SkipRun` 종료 코드 1 | dataset 단위·CLI 시험 | 단위 통과(`missing_camera_frames_reported_or_rejected`), CLI 는 아래 방법 절 |
+| F-064 | camR 6 누락 → `skipped == [6]`·CLI `skipped 1` / camL 20..39 누락 → `SkipRun` 종료 코드 1 | dataset 단위·CLI 시험 | 단위 통과(`missing_camera_frames_reported_or_rejected`). CLI `skipped 1` 시험(tests/run.rs)은 전체 시험 결과 미기록 |
 | F-041 | 드론별 위도 1e-4° 차 → 카메라 간 ENU 11.09·22.18 m ±0.1 m | dataset 단위 시험 | 통과(`per_camera_gps_accepted`) |
 
 ## F-038 사진 폴더 구조 (합성 출력을 로더가 그대로 읽기)
@@ -141,7 +141,7 @@ SPEC §1 은 파일명만 정하므로 두 구조 모두 SPEC 에 맞는다. 합
 | gps.txt 형식 오류(항목 수·수 아님·범위 밖·번호 없음·다른 값 중복) | 해당 줄 번호 | 5경우 모두 일치 |
 
 ## 방법
-- 검사(main 합친 1f7a601, 4 코어 측정 기계 부하 상태): fmt 통과, dataset 단위 시험 25 통과·0 실패·0 무시. clippy·전체 시험은 이 기록 시점에 도는 중(결과는 아래 줄에 덧붙임).
+- 검사(main 합친 1f7a601, 4 코어 측정 기계 부하 상태): fmt 통과, dataset 단위 시험 25 통과·0 실패·0 무시. clippy(`--all-targets -D warnings`) 통과(3bbf74b). 전체 `cargo test --release` 는 부하 상태 측정 기계에서 01:00 까지 빌드가 끝나지 않아 결과를 적지 못함 — 다음 확인 때 숫자 기록.
 - 검사(main 합친 214d40a): fmt·clippy 통과, `cargo test --release` 207 통과·0 실패·5 무시(무시 5개는 main 쪽 시험, 부하 상태 측정 기계). 이전(합치기 전): 119 통과·2 무시.
 
 - `crates/core/src/dataset.rs`: `DatasetConfig { stride: 3, span: 12, ovl: 2 }`, `load_dataset(root, cfg)`, `chunk_ranges(n, span, ovl)`, `parse_gps(text)`.
@@ -151,6 +151,7 @@ SPEC §1 은 파일명만 정하므로 두 구조 모두 SPEC 에 맞는다. 합
 - 시험용 가짜 데이터셋은 임시 폴더에 만들고(단위 시험은 빈 파일, CLI 시험은 8×8 jpg), 끝나면 지운다.
 
 ## 남은 문제
+- main 합친 트리의 전체 `cargo test --release` 숫자(통과·실패·무시)와 CLI `run` 시험 결과 기록.
 - (F-038 처리) 합성 출력의 평평한 구조를 로더가 그대로 읽는다. README 의 입력 구조 설명은 평평한 구조만 적고 있어, 하위 폴더도 된다는 한 줄은 README 담당 쪽에서 덧붙이면 좋겠다.
 - (F-064 처리) 한 카메라만 빠진 프레임은 `skipped` 로 보고하고 연속 3곳 이상이면 오류.
 - (F-065) 로더·스트림 규칙은 같아졌지만 함수는 두 벌이다(`dataset::chunk_ranges`, `stream::split_regions`). 하나로 줄이는 일 남음.
@@ -161,4 +162,4 @@ SPEC §1 은 파일명만 정하므로 두 구조 모두 SPEC 에 맞는다. 합
 - `feat/dataset-io` e577cbf (첫 로더), e39c153 (main 합침), c0bf96f (F-038: 두 폴더 구조 읽기·합성 출력 통합 시험),
   4d390d5 (main 합침), 618abea (F-041·042·043·064·065·044), ab1fcef (가지 합침, `image_geo`·`image_enu` 이름 맞춤),
   494edd4 (main 합침 — USAGE 에 run·--help 둘 다 남김, F-065 다시: 구역 분할을 스트림 규칙과 같게), 214d40a (clippy 맞춤),
-  d54ffdb (main 6f14401 합침 — USAGE·명령 연결에 run·verify 둘 다 남김), 1f7a601 (F-065 경계 표·스트림 구역 일치 시험)
+  d54ffdb (main 6f14401 합침 — USAGE·명령 연결에 run·verify 둘 다 남김), 1f7a601 (F-065 경계 표·스트림 구역 일치 시험), 3bbf74b (clippy 맞춤)
