@@ -68,8 +68,8 @@
 ## 남은 문제
 1. 부하 없는 때(부하 평균 < 2) 다시 잴 것: 인자 없는 bench(2 분 기준 판정), `--full`(시간·코어·부하), `--positions 80 --width 320
    --height 180`(F-128 C 표, 검증 통과 짝 수 일치 확인), `--mode detect`, `--mode ba-scale --ba-iters 2 --repeat 1`.
-3. 이번 브랜치 4b4e869 의 전체 `cargo test --release` 대상별 통과·실패·무시 개수 기록.
 2. F-040 구간 분해(선형화·슈어·촐레스키)는 `ba.rs` 내부 계측이 필요하다(이 묶음 파일 밖).
+3. 이번 브랜치 4b4e869 의 전체 `cargo test --release` 대상별 통과·실패·무시 개수 기록.
 
 ## 제품 브랜치·커밋
 - `feat/benchmarks-args` (origin/main 474bcf8 에서) — `crates/core/benches/pipeline.rs`, `crates/core/benches/support/args.rs`,
