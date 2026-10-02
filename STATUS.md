@@ -1,8 +1,9 @@
 # 현재 상태
 
 - 상태: 진행 중
-- 마지막 갱신: 2026-10-02T02:47Z (02:46Z 시작, 이전 기록 아래 표는 01:35Z 실행분)
-- 이번 실행(01:35Z 시작, 4 코어 측정 기계에서 7 묶음 동시 진행 — 부하 평균 13~32, 시간 수치는 부풀려짐):
+- 마지막 갱신: 2026-10-02T02:51Z (02:46Z 시작; 아래 표는 01:35Z 실행분)
+- 진행 중 묶음(02:46Z~): tracks, tracks-alt, translation-averaging, translation-averaging-formation, patchmatch, patchmatch-fast, pipeline, pipeline-sparse, pipeline-dense, two-view-regression
+- 직전 실행(01:35Z 시작, 4 코어 측정 기계에서 7 묶음 동시 진행 — 부하 평균 13~32, 시간 수치는 부풀려짐):
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
   | P05 rotation-averaging-followup | PR #39 (7dc1b11), 라벨 | PR #56 (→ rotation-averaging) | F-047 처리(사슬 상대 오차/공분산 예측 비 0.96~1.005). F-171~F-173·F-138 전체 시험 재검증. 직접 재검증 fmt·clippy·전체 시험 통과(core 247·13 무시). F-148 회전 평균 쪽(성분별 결과·경고)은 결과 구조체 변경 필요로 미착수 |
