@@ -74,6 +74,33 @@ n=15·16(12/2)에서 [0..15]·[0..16] 을 만들어 스트림 쪽 `split_regions
   `split_regions` 가 `chunk_ranges` 를 불러 Region 을 만들도록 하나로 줄이는 일이 남는다. 지금 main 의
   `split_regions` 는 아직 꼬리를 버리지 않는다(26/12/2 → 세 구역, 마지막 22..26 새 위치 0).
 
+## F-065 경계 표·두 함수 일치 (main 합친 뒤 다시 확인)
+결론: 로더 쪽 처리 유지. main(6f14401)에 스트림 쪽 꼬리 합침이 들어와 `stream::split_regions` 와
+`dataset::chunk_ranges` 가 같은 규칙이 되었고, 이를 시험으로 묶었다(`chunks_match_stream_regions`:
+n∈[1,200] × SPAN∈{4,12} × OVL∈{0,2}, 800 경우에서 `lo..hi` 목록이 같음). 한쪽 규칙만 바뀌면 이 시험이 깨진다.
+80 곳 전후 경계 위치 수 정답 표(`chunks_boundary_table_12_2`, SPEC §3.5 범위식 손 계산):
+
+| n (SPAN 12, OVL 2) | 정답 구역 | 구역 수 | 근거 |
+|---|---|---|---|
+| 72 | 0..14, 10..26, 22..38, 34..50, 46..62, 58..72 | 6 | start 72 = n 이라 없음 |
+| 73 | … 46..62, 58..73 | 6 | start 72: 72+2 ≥ 73 → 꼬리 70..73 은 58..73 안 |
+| 74 | … 46..62, 58..74 | 6 | 72+2 ≥ 74 → 꼬리 70..74 는 58..74 안 |
+| 75 | … 58..74, 70..75 | 7 | 72+2 < 75, 새 위치 74 하나 |
+| 80 | … 58..74, 70..80 | 7 | 기존 정답 그대로 |
+| 84 | … 58..74, 70..84 | 7 | start 84 = n 이라 없음 |
+| 85 | … 58..74, 70..85 | 7 | start 84: 84+2 ≥ 85 → 꼬리 82..85 는 70..85 안 |
+
+모든 표에서 각 구역 끝이 앞 구역 끝보다 뒤(새 위치 0 인 구역 없음). 함수는 여전히 두 벌이며
+(`stream.rs` 는 이 묶음 파일이 아님), 하나로 줄이는 대신 일치 시험으로 고정했다.
+
+## 처리됨-검증대기 항목 다시 돌림 (main 합친 트리)
+| 항목 | 확인 기준 | 시험 | 결과 |
+|---|---|---|---|
+| F-043 | 비표준 자릿수(`camF_3.jpg`·`camF_00003.jpg`·`camF_012.jpg`) → `BadImageName`, 5자리 `12345` 는 받고 모든 경로 exists | dataset 단위 시험 | 통과(`non_four_digit_names_rejected`) |
+| F-044 | 빈 gps.txt → `GpsEmpty` "gps.txt 기록 없음" / n=2·SPAN 1·OVL 5 → 0..2 하나 / 프레임 0·4000000000 → 1 초 안 | `empty_gps_message` 외 | 통과(`empty_gps_message`·`chunk_tail_always_adds_new_positions`·`huge_frame_gap_is_fast`, dataset 단위 25개 0.40 초) |
+| F-064 | camR 6 누락 → `skipped == [6]`·CLI `skipped 1` / camL 20..39 누락 → `SkipRun` 종료 코드 1 | dataset 단위·CLI 시험 | 단위 통과(`missing_camera_frames_reported_or_rejected`), CLI 는 아래 방법 절 |
+| F-041 | 드론별 위도 1e-4° 차 → 카메라 간 ENU 11.09·22.18 m ±0.1 m | dataset 단위 시험 | 통과(`per_camera_gps_accepted`) |
+
 ## F-038 사진 폴더 구조 (합성 출력을 로더가 그대로 읽기)
 결론: 로더가 두 구조를 모두 읽는다 — 평평한 `images/cam{F,R,L}_{번호:04}.jpg`(합성 출력·README 형식)와
 카메라별 하위 폴더 `images/cam{F,R,L}/cam{F,R,L}_{번호:04}.jpg`. 카메라마다 두 곳을 함께 훑으므로
@@ -114,6 +141,7 @@ SPEC §1 은 파일명만 정하므로 두 구조 모두 SPEC 에 맞는다. 합
 | gps.txt 형식 오류(항목 수·수 아님·범위 밖·번호 없음·다른 값 중복) | 해당 줄 번호 | 5경우 모두 일치 |
 
 ## 방법
+- 검사(main 합친 1f7a601, 4 코어 측정 기계 부하 상태): fmt 통과, dataset 단위 시험 25 통과·0 실패·0 무시. clippy·전체 시험은 이 기록 시점에 도는 중(결과는 아래 줄에 덧붙임).
 - 검사(main 합친 214d40a): fmt·clippy 통과, `cargo test --release` 207 통과·0 실패·5 무시(무시 5개는 main 쪽 시험, 부하 상태 측정 기계). 이전(합치기 전): 119 통과·2 무시.
 
 - `crates/core/src/dataset.rs`: `DatasetConfig { stride: 3, span: 12, ovl: 2 }`, `load_dataset(root, cfg)`, `chunk_ranges(n, span, ovl)`, `parse_gps(text)`.
@@ -132,4 +160,5 @@ SPEC §1 은 파일명만 정하므로 두 구조 모두 SPEC 에 맞는다. 합
 ## 제품 브랜치·커밋
 - `feat/dataset-io` e577cbf (첫 로더), e39c153 (main 합침), c0bf96f (F-038: 두 폴더 구조 읽기·합성 출력 통합 시험),
   4d390d5 (main 합침), 618abea (F-041·042·043·064·065·044), ab1fcef (가지 합침, `image_geo`·`image_enu` 이름 맞춤),
-  494edd4 (main 합침 — USAGE 에 run·--help 둘 다 남김, F-065 다시: 구역 분할을 스트림 규칙과 같게), 214d40a (clippy 맞춤)
+  494edd4 (main 합침 — USAGE 에 run·--help 둘 다 남김, F-065 다시: 구역 분할을 스트림 규칙과 같게), 214d40a (clippy 맞춤),
+  d54ffdb (main 6f14401 합침 — USAGE·명령 연결에 run·verify 둘 다 남김), 1f7a601 (F-065 경계 표·스트림 구역 일치 시험)
