@@ -1,29 +1,29 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-02T04:06Z (2026-10-02T04:06Z 시작)
-- 진행 중 묶음(03:49Z~): pipeline, pipeline-sparse, pipeline-dense, tracks, tracks-alt, translation-averaging, translation-averaging-formation, patchmatch, patchmatch-fast (+ 밀집·포즈 단계 알고리즘 정리)
-- 직전 실행(01:35Z 시작, 4 코어 측정 기계에서 7 묶음 동시 진행 — 부하 평균 13~32, 시간 수치는 부풀려짐):
+- 상태: 진행 중(마무리)
+- 마지막 갱신: 2026-10-02T04:25Z (03:49Z 시작, 4 코어 측정 기계, 9 묶음 동시 — 부하 평균 13~25, 시간 수치는 부풀려짐)
+- 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
-  | P05 rotation-averaging-followup | PR #39 (7dc1b11), 라벨 | PR #56 (→ rotation-averaging) | F-047 처리(사슬 상대 오차/공분산 예측 비 0.96~1.005). F-171~F-173·F-138 전체 시험 재검증. 직접 재검증 fmt·clippy·전체 시험 통과(core 247·13 무시). F-148 회전 평균 쪽(성분별 결과·경고)은 결과 구조체 변경 필요로 미착수 |
-  | P13 stream-ghost | PR #40 (44eebfd), 라벨 | PR #57 (→ stream-followup) | 구름별 k-d 트리 색인, F-224·F-223·F-225 처리. F-222·F-175 는 열림 유지: 3구역 40만/10만 시간 비 5.15, 7구역 × 200만 점 1스레드 14.27 s(부하 26~29, 5 s 기준 판정 못 함). F-055 미착수. 직접 재검증 통과(core 249·13 무시) |
-  | P15 benchmarks-timing | PR #41 (4fa8ce1), 라벨 | PR #58 (→ benchmarks-args) | F-132(인자 없는 bench 20 s), F-149 처리, F-128 240장 재측정(E RANSAC 68%, 검증 짝 1556/3663). F-040 미착수. 직접 재검증 통과(core 246·13 무시). README 반영 필요(P04) |
-  | P10 patchmatch | PR #6 갱신 (57bfc21), 라벨 | experiment/patchmatch 5001d49 (기존 PR #20) | main 병합, patchmatch-profile 의 고운 층 이웃 4장·같은 평면 전파 생략 가져옴. F-048 번갈아 측정 시간 비 0.80(정확도 동일, 목표 0.7 s 에는 수십 배 부족), 거친 층이 38%. F-050 메모리 49.4 MB. 법선 시험 2개 미처리(`normal_steps` 효과 없음 — 기본값 재검토 필요). 직접 재검증 통과(core 252·17 무시) |
-  | P02 matching-planar | PR #42 (de10b4b), 라벨 | PR #59 (→ matching-followup) | F-220 처리(오대응 0~50% 평면 표시 60/60), F-196(E 경로 0/21), F-211·F-221 노트 정정. 부작용: 오대응 없는 2~3% 건물 짝 평면 표시 증가(8칸 0/5→3/5). F-003 미착수. 직접 재검증 통과(core 248·12 무시) |
-  | P06 translation-averaging | `feat/translation-averaging` a5cb96e (PR #37 갱신, 라벨 안 붙임) | experiment/translation-averaging be1c7fe | F-216·F-217·F-219 처리, F-215 일부. F-214 되돌림 장치를 넣었으나 `noisy_outliers_register_all_seeds` 80경우 중 3경우 미달(시드 6·9 점 5%·짝 20% 238·239/240, 시드 10 237/240) — 이 시험이 실패하므로 라벨 안 붙임. F-213·F-218·F-210 미착수 |
-  | P11 fusion-tests | PR #32 갱신 (aa49121), 라벨 | experiment/fusion-tests 0cb9ec0 (기존 PR #49) | 두 갈래 비교: 3d9eb00 유지(e9fe7ae 는 이상치 10% 8장에서 0.3 m 초과 85, 자기 편대 시험 실패). F-188 처리(이웃 8장+무리+기본 설정 391670점·최대 0.0696 m·0.3 m 초과 0, 다른 드론 사진 동의 확인 규칙, `same_group_views` 6). F-190 처리. F-226 미해결(편대에서 다른 드론이 같은 곳을 거의 안 봄 — F 깊이 ×1.2 에서 1 m 초과 126670점, 시험 무시). F-113 미착수. 직접 재검증 통과(core 251·13 무시) |
-- 시작하지 못한 묶음: P03 two-view-hardening(F-209 원인 표), P20 ba-robust(두 갈래 합치기), P04 io-readme(F-155·F-208·F-212) — 이번 실행에서 작업을 넘기지 못함. 다음 실행에서 우선.
-- 공통 관찰: `verify::tests::nn_median_many_identical_points_is_fast_and_exact` 1 s 시간 단언이 부하 15~32 에서 여러 묶음 실행에서 실패(단독 0.19~0.60 s 통과). 총괄 재검증 빌드에서는 모두 통과.
+  | E01 pipeline | `feat/pipeline` 69a6363 | experiment/pipeline 6ea812e | 편대 겹침에 맞춘 카메라 간 짝 일정(F(p)–R(p+12..40), F(p)–L(p+16..40), 간격 4)으로 합성 40위치 × 3대 320×180 에서 **등록 120/120**(이전 18/54). 중심 오차 중앙 3.82 m·최대 12.76 m, 점→정답 표면 중앙 4.95 m, 재투영 초벌 2.05→정밀 0.24 px, `run` 80 s. verify 7항목 중 5 통과(preview_align 잔차 중앙 6.16 m > 6, preview_vs_refined 높이 차 중앙 6.18 m 실패; refined_overlap 은 구역 1개라 해당 없음). 총괄 재검증 fmt·clippy 통과, 전체 시험 진행 중 |
+  | pipeline-sparse | `feat/pipeline-sparse` 560c063 | experiment/pipeline-sparse b39aeda | 짝 일정 설정화(F-197 기본값), 44위치 132/132 등록·그래프 연결 1개. 단계별 오차 표(위치 초기 4.55 m → BA 후 닮음 1.22 m → GPS 정렬 중앙 1.28 m·최대 3.01 m), 점 중앙 0.95 m — 목표(1 m·3 m·0.5 m) 미달. 초벌/정밀 분리, `refine_positions` 한 함수로 |
+  | pipeline-dense | `feat/pipeline-dense` 4d66fe1 | experiment/pipeline-dense d0cb6fa | 깊이 추정기 교체 지점(`DepthEstimator`), 평면 스윕 rayon·창 통계 캐시·상위 2 집계·거친→고운 2단. 48장 480×270 462442점·표면 중앙 0.027 m·90% 0.090 m·58~64 s(부하 15~21). 960 px 12장 5.2 s/장(시험 없음). 30 s 목표 미확인 |
+  | tracks (PR #15) | `feat/tracks` c31c759, 라벨 | experiment/tracks fad7351 | F-123 처리: 짝 내 국소 변위 중앙값 거르기(40 px, 96 px 칸). 유지 50·30% × 오대응 0·1% 순도 ≥ 0.9992·완전도 ≥ 0.9976. 총괄 재검증 fmt·clippy·`tracks` 시험 10 통과. F-127 Split 16.75 s(부하) 열림 |
+  | tracks-alt | `feat/tracks-alt` df3b1c3 | experiment/tracks-alt e02cf18 | 삼각 순환 지지도 순 합치기: 240장 4.17 s(F-127 기준 5 s 안, 부하). 30%·1% 순도 0.9673 로 미달 — tracks 쪽 방식이 정확도 우위 |
+  | translation-averaging (PR #37) | `feat/translation-averaging` bd271ab | (변경 없음) | CI 실패 원인: clippy `needless_range_loop`(c5dae23 의 채우기 반복) — 수정, 총괄 재확인 fmt·clippy 통과. F-214 80경우 표는 부하로 시험이 끝나지 않아 미측정, 라벨 안 붙임 |
+  | translation-averaging-formation | 진행 결과 아래 | | F-213 |
+  | patchmatch (PR #6) | 커밋 없음 | | 거친 층 이웃 4장 축소 실험(960×540 이웃 8장 22.15→13.53 s, 부하 18~20) 작업 트리에만 있음, 시험을 다 돌리지 못해 커밋 안 함 |
+  | patchmatch-fast | 커밋 없음 | | 고운 시점 재사용·고운 층 전파만·4단 피라미드로 표본 870M→367M, 1스레드 16.5→9.5 s(부하). 정확도 시험 통과했으나 커밋하지 못함 |
+- 끝까지 흐름 진척: 합성 장면에서 synth → run → verify 가 돌고 PLY·스냅샷·manifest 가 나온다. 세 카메라 모두 등록(120/120). 남은 것: GPS 고정항 없는 BA 로 초벌/정밀 높이 차(6 m), `sparse::reconstruct`·`dense::region_cloud`·tracks·위치 평균을 pipeline 에 연결(현재 pipeline 은 자체 희소 초기화·보간 깊이 사용), 위치 단위 차례 처리(초벌 즉시·정밀 병렬·sim3 재정렬).
 - 다음 할 일:
-  1. P03 F-209(474bcf8 대 2bf4795 짝별 E 성공 26짝 표), P20 ba-robust·ba-formation 합치기, P04 README(F-155·F-208·F-212, bench 새 기본값 반영).
-  2. P06 F-214 남은 3경우(짝만 푼 출발 해 정확도), F-213 실측 배치.
-  3. P13 F-222 부하 없는 상태에서 `large_snapshot_speed` 5 s 판정, F-055.
-  4. P10 F-048 거친 층 반복 축소·원 해상도 창 간격, `normal_steps` 기본값.
-  5. P02 F-220 부작용(잡음 꼬리 여유) 완화, F-003.
+  1. pipeline 에 pipeline-sparse(짝 목록 인자 추가)·pipeline-dense(main 융합 필드 반영) 합치기, BA 에 GPS 사전항.
+  2. F-214 80경우 표를 부하 없는 때 측정, F-215·F-218.
+  3. patchmatch 두 갈래 커밋·측정, F-048.
+  4. tracks Split 속도(F-127).
 - 막힌 점:
-  - 시간 기준(F-222 5 s, F-048, F-132 단독 측정)은 부하 없는 기계에서만 판정 가능.
-  - 결정 필요(이전 그대로): F-148/F-197 다른 카메라 연결 방안, SPEC §3.4·§2 report.json.
+  - 시간 기준(F-048·F-127·밀집 30 s)은 부하 없는 기계에서만 판정 가능.
+  - patchmatch·patchmatch-fast 변경은 이번 실행에서 커밋하지 못하고 작업 트리에만 남음(다음 실행에서 다시 해야 함).
+  - 결정 필요: SPEC §3.2 카메라 간 짝 일정 개정(F-197, 실측 겹침 기준 F(p)–R(p+12..40)·F(p)–L(p+16..40)).
 
 ## 직전 실행 기록 (00:25Z 시작분)
 - 마지막 갱신: 2026-10-02T04:06Z (2026-10-02T04:06Z 시작)
