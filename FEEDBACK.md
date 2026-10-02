@@ -1572,3 +1572,26 @@
 - 고칠 것: L 값을 3.3% 로 고치고 비교 짝(같은 방향 7칸 대 8칸)을 문장에 밝힌다.
 - 확인 기준: 노트 세 비율이 같은 시험 출력에서 다시 계산한 값과 0.1%p 안에서 일치.
 - 이력: 2026-10-02 00:45 감독 등록(PR #29 검토)
+
+### F-205 [열림] (심각도: 중간) — 세 카메라가 모두 빠진 프레임 구간을 건너뜀으로 세지 않아 위치 간격이 조용히 커진다
+- 위치: crates/core/src/dataset.rs:432, :384-387, 시험 :992-1013 `huge_frame_gap_is_fast` (feat/dataset-io 214d40a)
+- 문제: STRIDE 후보가 사진이 하나라도 있는 프레임뿐이라 세 카메라 모두 없는 번호는 `skipped`·`max_skip_run` 에 안 들어간다. F-064 가 막으려던 위치 간격 붕괴가 이 경우 그대로 일어난다.
+- 실패 상황: 프레임 0..39 에서 6..30 을 세 카메라 모두 지우면 위치 프레임 [0, 3, 33, 36, 39], `skipped` 비어 있음, Ok·경고 없음. 위치 1→2 가 30프레임(약 10 m)인데 시간 이웃 1칸으로 짝지어진다.
+- 고칠 것: 후보를 f0..=f_last 의 STRIDE 격자로 정하고, 있는 프레임 사이 빠진 격자 수를 산술로 세어 `skipped`·연속 검사에 넣는다(긴 목록은 구간으로). `huge_frame_gap_is_fast` 기대는 `SkipRun` 으로.
+- 확인 기준: 6..30 누락 → `SkipRun{first: 6, last: 30, count: 9, limit: 2}`; 프레임 6 만 세 카메라 누락 → `skipped == [6]`, CLI `skipped 1 (frames 6)`; 0·4000000000 입력 1 초 안에 `SkipRun`.
+- 이력: 2026-10-02 00:56 감독 등록
+
+### F-206 [열림] (심각도: 중간) — 합성 출력 번호는 위치 번호인데 `run` 기본 STRIDE 3 이 다시 솎아 27곳(3 m 간격)만 남는다
+- 위치: crates/core/tests/dataset_synth.rs:99-106, crates/core/src/synth.rs:281-296, README.md:30, dataset.rs:41 `stride: 3` (feat/dataset-io 214d40a)
+- 문제: SPEC §1 STRIDE=3 은 원본 프레임 → 위치 간 약 1.0 m 를 만드는 간격인데, 합성 출력은 이미 위치 간 1.0 m 로 0..79 를 쓴다. 통합 시험이 27곳·3구역을 정답으로 고정했다.
+- 실패 상황: `skylens-stream synth out && skylens-stream run out out2` → `positions 27`, `chunks 3`(SPEC 기대 80곳·7구역).
+- 고칠 것: (가) 합성 번호를 p×STRIDE(0,3,…,237)로 쓰고 README 번호 설명 수정, 또는 (나) 합성 폴더에 STRIDE 1 표시를 두고 `run` 이 따른다. 어느 쪽이든 dataset_synth.rs 정답을 80곳·7구역으로(합성 쪽 파일은 담당 묶음과 함께).
+- 확인 기준: 기본 합성 출력 + 기본 설정 `load_dataset` → 80곳·240장, `chunks()` = `[0..14,10..26,22..38,34..50,46..62,58..74,70..80]`, 이웃 ENU 간격 중앙 1.0±0.1 m.
+- 이력: 2026-10-02 00:56 감독 등록
+
+### F-207 [열림] (심각도: 낮음) — dataset-io 노트·시험 주석 수치가 현재와 다르다
+- 위치: experiments/dataset-io.md "수치" 표 마지막 줄·F-038 절(experiment/dataset-io 71a84df), crates/core/tests/dataset_synth.rs:84
+- 문제: 형식 오류 "5경우" → 지금은 4경우 + 중복 시험 2개. "위치 간격 2.5 m" → 합성 기본 1.0 m(synth.rs:88).
+- 고칠 것: 수치를 현재 시험에 맞추고 1 cm 허용 근거 문장의 간격을 1.0 m 로.
+- 확인 기준: 노트 표 항목 수 = 시험 단언 수, 주석 간격 = `SceneConfig::default().spacing`.
+- 이력: 2026-10-02 00:56 감독 등록
