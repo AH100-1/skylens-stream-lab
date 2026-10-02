@@ -62,6 +62,7 @@ main 병합본 전체 시험(4 코어 측정 기계, 다른 작업과 함께, �
 | cargo fmt --all --check | 통과 |
 | cargo clippy --all-targets -- -D warnings | 통과(경고 0) |
 | skylens-core lib 시험 | 246 통과, 1 실패, 13 무시(341 s). 실패는 verify.rs `nn_median_many_identical_points_is_fast_and_exact` 의 1 s 시간 단언 — 맡은 파일 밖, 단독 재실행 통과(0.59 s) |
+| 나머지 대상 | core 통합 시험 8 통과, 문서 시험 2 통과, CLI 시험 40 통과(실패·무시 0) |
 | 회전 평균 시험 전체 | 모두 통과(`large_chain_graph_is_fast` 포함; 지난 판에서 부하 23 일 때 실패했던 시험이 이번 부하 30 에서는 통과) |
 
 ## 방법
