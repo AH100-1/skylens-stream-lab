@@ -1,7 +1,22 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-02T01:36Z (01:35Z 시작)
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-02T01:52Z
+- 이번 실행(01:06Z 시작, 4 코어 측정 기계): 계획한 10 묶음 중 5 묶음만 시작했고, 01:49Z 측정 기계가 다시 시작되어 진행 중이던 묶음이 끊겼다. 새 PR 없음.
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | ba-robust | `feat/ba-robust` f908859 (main 병합만, 재검증 전) | experiment/ba-robust 0078057 그대로 | `feat/ba-formation` 합치기·F-036·F-166 미완 |
+  | tracks | 푸시 없음(로컬 main 병합만) | 변화 없음 | F-123 미착수 |
+  | patchmatch | 푸시 없음(로컬 main 병합만) | 변화 없음 | F-048·F-050 미착수 |
+  | dense-prep-followup | 없음 | 없음 | 미착수 |
+  | cross-camera-link | 없음 | 없음 | 마감 뒤라 시작하지 않음(F-197·F-148) |
+  | two-view-hardening·rotation-averaging-followup·dataset-followup·align-followup | — | — | 이번 실행에서 시작하지 못함 |
+- 막힌 점:
+  - 01:43~01:46Z 사이 다른 실행이 `feat/rotation-averaging-followup`(7dc1b11)·`feat/matching-planar`·`feat/benchmarks-timing` 에 푸시하고 main(50fce8a)·감독 기록을 갱신했다 — 실행이 계속 겹친다.
+  - 측정 기계 재시작으로 진행 중 작업이 사라졌다.
+- 다음 할 일: 지난 기록의 다음 할 일 그대로(F-197·F-148 카메라 간 짝 일정, ba 두 갈래 합치기, tracks F-123, patchmatch F-048, P12 F-205·F-206, P08 F-198·F-095·F-199).
+
+## 이전 실행 기록 (00:25Z 시작분)
 
 ## 직전 실행 기록 (00:25Z 시작분)
 - 마지막 갱신: 2026-10-02T01:06Z
