@@ -39,7 +39,7 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | [x] P08 `similarity-align` (2026-10-01, 제품 f87549a; align-robust 2026-10-02 제품 474bcf8, F-095·F-153·F-198~F-200 남음) | T09 Umeyama 닮음 변환 + 반복 트리밍, GPS→동-북-위 정렬 | 새 `align.rs` | rotation-averaging | — |
 | [x] P09 `view-selection` (2026-10-01, 제품 80f9a86; dense-prep 2026-10-02 제품 60cbc2d, F-201~F-204 남음) | T10a 이웃 8장 점수·깊이 범위·왜곡 보정(960px) | 새 `view_selection.rs`, `undistort.rs` | camera-model | — |
 | P10 `patchmatch` | T10b 시점별 PatchMatch 깊이·법선(rayon) | 새 `patchmatch.rs` | camera-model | P09 인터페이스 |
-| [x] P11 `depth-fusion` (2026-10-01, 제품 6c0eea7; fusion-hardening 2026-10-02 제품 bbd82d8, F-069·F-113·F-178·F-179 남음) | T11 왕복 투영 걸러내기 + 3장 동의 합치기 → 점군 | 새 `fusion.rs` | camera-model | P10 인터페이스 |
+| [x] P11 `depth-fusion` (2026-10-01, 제품 6c0eea7; fusion-hardening 2026-10-02 제품 bbd82d8; fusion-tests 2026-10-02 제품 05ac3ac, F-113·F-226·F-229·F-240~F-242 남음) | T11 왕복 투영 걸러내기 + 3장 동의 합치기 → 점군 | 새 `fusion.rs` | camera-model | P10 인터페이스 |
 | [x] P12 `dataset-io` (2026-10-02, 제품 20a293c, F-206 남음) | 실제 데이터 읽기(`images/cam{F,R,L}`, `gps.txt`, STRIDE) + `run` 명령 뼈대 | 새 `dataset.rs`, CLI `run` | scaffold | — |
 | [x] P13 `progressive-stream` (2026-10-01, 제품 f2b658b; stream-hardening 2026-10-02 제품 6f14401; stream-followup 2026-10-02 제품 c7b7287, F-055·F-056·F-065·F-066·F-175~F-177 남음) | T12 구역 분할, 초벌/정밀, 공유 관측 닮음 정렬, 잔상 1.5m 걸러내기, 스냅샷·manifest | 새 `stream.rs` | two-view | P08 인터페이스 |
 | [x] P14 `verify` (2026-10-02, 제품 0afc818; verify-followup 2026-10-02 제품 50fce8a, F-089·F-180·F-181·F-187 남음) | T13 `verify <폴더>` — SPEC §4 일곱 항목, 실패 시 종료 코드 1 | 새 `verify.rs`, CLI `verify` | scaffold | — |
