@@ -63,11 +63,12 @@
   `bench_args_default_is_quick_scale`(인자 없음 = `--quick` = 위치 8·480×270, `--full` 만 위치 80).
   시험은 `#[path]` 로 같은 해석 파일을 읽으므로 bench 와 시험이 다른 해석을 쓸 수 없다.
 - 시간은 `cargo bench` 전체(빌드 끝난 뒤) 벽시계 시간과 시작·끝 `uptime` 부하 평균을 함께 적었다.
-- 검사 결과(4b4e869): `cargo fmt --all --check`·`cargo clippy --all-targets -- -D warnings` 통과, `cargo test --release --test perf_structure` 6 통과·0 실패·0 무시(--list 로 새 시험 두 개 이름 확인). 전체 `cargo test --release` 대상별 개수는 TESTS_ALL
+- 검사 결과(4b4e869): `cargo fmt --all --check`·`cargo clippy --all-targets -- -D warnings` 통과, `cargo test --release --test perf_structure` 6 통과·0 실패·0 무시(`--list` 로 6 개 이름 확인: 새 시험 `bench_args_default_is_quick_scale`·`bench_args_preset_order_does_not_matter`). 전체 `cargo test --release` 는 부하 평균 약 38 에서 시간 안에 끝나지 않아 대상별 개수를 적지 못했다(남은 문제 3)
 
 ## 남은 문제
 1. 부하 없는 때(부하 평균 < 2) 다시 잴 것: 인자 없는 bench(2 분 기준 판정), `--full`(시간·코어·부하), `--positions 80 --width 320
    --height 180`(F-128 C 표, 검증 통과 짝 수 일치 확인), `--mode detect`, `--mode ba-scale --ba-iters 2 --repeat 1`.
+3. 이번 브랜치 4b4e869 의 전체 `cargo test --release` 대상별 통과·실패·무시 개수 기록.
 2. F-040 구간 분해(선형화·슈어·촐레스키)는 `ba.rs` 내부 계측이 필요하다(이 묶음 파일 밖).
 
 ## 제품 브랜치·커밋
