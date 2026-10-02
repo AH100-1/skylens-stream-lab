@@ -33,3 +33,34 @@ report.json, poses.txt 까지 끝까지 돈다. 합성 장면(18위치, 320x180)
 
 ## 제품 브랜치·커밋
 feat/pipeline (마지막 커밋은 제품 저장소 로그 참고).
+
+## 갱신: 카메라 사이 짝 일정 (구역 40위치)
+### 결론
+짝 목록을 편대 겹침에 맞춰 바꿨다(F(p)–R(p+12..40), F(p)–L(p+16..40), 간격 4 표본, 같은 위치 ±2, 같은 카메라 1..5).
+합성 장면 40위치 x 3대(320x180, `--stride 2 --span 48 --ovl 2`)에서 등록이 18/54 → 120/120 으로 늘었고
+verify 는 7항목 중 5항목 통과(이전 3). 구역 길이가 12 위치보다 짧으면 카메라 사이 짝이 서지 않으므로 구역을 40위치 이상으로 잡아야 한다.
+
+### 수치 (4코어 측정 기계, 부하 평균 12~23 상태에서 측정, 특징 800개, 깊이 폭 96)
+| 항목 | 이전 | 이번 |
+|---|---|---|
+| 등록 | 18/54 | 120/120 |
+| 카메라 중심 오차 중앙·최대 | 1.62 m·3.72 m (18장) | 3.82 m·12.76 m (120장) |
+| 점군→정답 표면 수직 거리 중앙 | 3.67 m | 4.95 m (최종 정밀 6935점) |
+| 재투영(초벌→정밀) | 1.46→0.19 px | 2.05→0.24 px |
+| 시간 | 합계 약 30 s | 특징 6 s, 매칭 81 s, 희소 0.1 s, BA+밀집 7 s, 합계 94 s |
+| verify | registered FAIL, region_images PASS, refined_reprojection PASS, preview_align FAIL, preview_vs_refined FAIL, refined_overlap FAIL, snapshots PASS | registered PASS, region_images PASS, refined_reprojection PASS, preview_align FAIL (잔차 중앙 6.16 m, 기준 < 6 m, 점쌍 1513), preview_vs_refined FAIL (최근접 중앙 3.68 m, 높이 차 중앙 6.18 m), refined_overlap PASS(구역 1개라 해당 없음), snapshots PASS |
+
+### 방법
+`pipeline.rs` 의 `formation_pairs` 가 짝 목록을 만든다(matching.rs 는 그대로). 시험은 합성 장면 기본 80위치를 stride 2 로 읽어
+40위치, 구역 하나. 정답 대비 값은 시험이 숫자로 단언한다(등록 120/120, 중심 오차 중앙 < 5 m·최대 < 15 m, 표면 중앙 < 6 m, verify 통과 >= 5).
+
+### 남은 문제
+- 중심·표면 오차가 18장 때보다 큼: 좌표계 맞춤은 GPS 잡음(1.5 m/축)과 직선에 가까운 비행에서 정해지며, 카메라 사이 짝이 들어와 가로 방향 제약이 생겼는데도 중앙 3.8 m. 초벌→정밀(BA) 사이 높이 차 중앙 6 m 가 남아 preview_align·preview_vs_refined 가 실패한다. BA 가 자유 좌표계에서 움직이는 것이 원인으로 보이며 GPS 고정 항이 필요하다.
+- `sparse::reconstruct` 는 짝 목록을 인자로 받지 않고 내부에서 `candidate_pairs(PAIR_TEMPORAL, PAIR_CROSS, PAIR_POW2_MAX)` 를 고정으로 부른다. 그래서 pipeline.rs 는 자체 희소 경로(`sparse_init`)를 계속 쓰고, sparse.rs 는 병합만 해 두었다(호출 안 함). 짝 목록 인자가 생기면 한 줄로 바꿀 수 있다.
+- `dense::region_cloud` 가 담긴 feat/pipeline-dense 는 main 의 융합 변경(FusionView.group, FusionConfig.min_groups·same_group_views)과 맞지 않아 빌드가 깨져 병합하지 못했다. 그 브랜치가 main 을 합친 뒤 병합한다. 밀집은 계속 희소 점 보간 대체 구현을 쓴다.
+- feat/tracks, feat/translation-averaging 은 시간이 모자라 병합하지 못했고 `stand_in` 이 대신한다.
+- 구역 병렬·즉시 초벌 방출·최신 정밀 모델 위 다음 등록·sim3 재정렬 순서는 구현하지 못했다(구역 하나라 지금 시험에서는 순차).
+- 매칭 81 s 가 시간 대부분. 부하가 큰 기계에서 측정했다.
+
+## 제품 브랜치·커밋
+feat/pipeline 69a6363
