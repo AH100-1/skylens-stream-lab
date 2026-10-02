@@ -114,7 +114,7 @@ SPEC §1 은 파일명만 정하므로 두 구조 모두 SPEC 에 맞는다. 합
 | gps.txt 형식 오류(항목 수·수 아님·범위 밖·번호 없음·다른 값 중복) | 해당 줄 번호 | 5경우 모두 일치 |
 
 ## 방법
-- 검사: fmt·clippy 통과, `cargo test --release` 119 통과·0 실패·2 무시(4 코어 측정 기계).
+- 검사(main 합친 214d40a): fmt·clippy 통과, `cargo test --release` 207 통과·0 실패·5 무시(무시 5개는 main 쪽 시험, 부하 상태 측정 기계). 이전(합치기 전): 119 통과·2 무시.
 
 - `crates/core/src/dataset.rs`: `DatasetConfig { stride: 3, span: 12, ovl: 2 }`, `load_dataset(root, cfg)`, `chunk_ranges(n, span, ovl)`, `parse_gps(text)`.
 - 프레임 선택: 세 카메라 폴더 중 어디든 있는 가장 작은 번호 f0 부터 f0, f0+STRIDE, … ; 그중 세 장이 다 있는 것만 위치로 쓴다.
@@ -132,4 +132,4 @@ SPEC §1 은 파일명만 정하므로 두 구조 모두 SPEC 에 맞는다. 합
 ## 제품 브랜치·커밋
 - `feat/dataset-io` e577cbf (첫 로더), e39c153 (main 합침), c0bf96f (F-038: 두 폴더 구조 읽기·합성 출력 통합 시험),
   4d390d5 (main 합침), 618abea (F-041·042·043·064·065·044), ab1fcef (가지 합침, `image_geo`·`image_enu` 이름 맞춤),
-  494edd4 (main 합침 — USAGE 에 run·--help 둘 다 남김, F-065 다시: 구역 분할을 스트림 규칙과 같게)
+  494edd4 (main 합침 — USAGE 에 run·--help 둘 다 남김, F-065 다시: 구역 분할을 스트림 규칙과 같게), 214d40a (clippy 맞춤)
