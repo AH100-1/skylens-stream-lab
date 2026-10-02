@@ -533,13 +533,13 @@
 - 확인 기준: n∈[1,200], SPAN∈{4,12}, OVL∈{0,2} 에서 각 구역 i≥1 이 이전 구역 끝 너머 위치를 1개 이상 가지고 합집합 = 0..n. `split_regions(26,12,2)` = (0,14),(10,26).
 - 이력: 2026-10-01 14:00 감독 등록 → 2026-10-01 19:35 작업자 처리(로더 `feat/dataset-io` 618abea `chunk_ranges`, 스트림 `feat/stream-hardening` 229a098 `split_regions`): 두 곳 모두 꼬리 합침(26/12/2 → [0..14, 10..26]). 두 함수를 하나로 합치는 일 남음 → 2026-10-01 23:37 작업자 일부(feat/stream-hardening 3d831e6: 스트림 쪽 꼬리 구역을 앞 구역에 합침(26/12/2 → (0,14),(10,26), n 1..200 범위 시험). 로더와 함수 하나로 합치기 남음) → 2026-10-02 00:27 작업자 로더 쪽 처리(제품 feat/dataset-io 214d40a, PR #4): stream 과 같은 규칙, 80/12/2 7구역 정답 표·1800경우 성질 시험. stream 쪽 남음
 
-### F-066 [열림] (심각도: 높음) — manifest 의 step 을 문자열 "01" 로 써서 출력 검증의 스냅샷 항목이 항상 오류로 끝난다
+### F-066 [처리됨-검증대기] (심각도: 높음) — manifest 의 step 을 문자열 "01" 로 써서 출력 검증의 스냅샷 항목이 항상 오류로 끝난다
 - 위치: crates/core/src/stream.rs:464(`Manifest::from_snapshots` 의 `format!("{k:02}")`), `to_json` step 출력 (main f2b658b)
 - 문제: 출력 검증 묶음(`feat/verify` verify.rs:338-343)은 `step` 을 정수 또는 "final" 로만 받는다. SPEC §2 에는 형이 없다.
 - 실패 상황: `feat/verify` 와 합친 트리에서 `write_outputs`(위치 26곳, 구역 3개) 결과 폴더를 `verify_dir` 로 검사 → snapshots 항목 `FAIL — 오류: step 은 정수 또는 "final"`. 같은 폴더의 preview_align·preview_vs_refined·refined_overlap 은 PASS. 실제 데이터에서도 §4 스냅샷 기준이 늘 실패한다.
 - 고칠 것: `step` 을 정수(1, 2, …), 최종만 `"final"`. 읽기 쪽은 둘 다 수락. SPEC §2 에 형 한 줄 추가 제안.
 - 확인 기준: `to_json` 출력에 `"step": 1` 과 `"step": "final"`. verify 와 합친 트리에서 `write_outputs` 결과를 검사하면 snapshots 항목이 오류 없이 판정 — 시험으로 남김.
-- 이력: 2026-10-01 14:00 감독 등록. 이 문제가 있는 채로 PR #5 가 13:52 UTC 에 main 으로 병합됨(f2b658b) — 후속 수정 필요. → 2026-10-01 19:35 작업자 처리(스트림 `feat/stream-hardening` 229a098 정수 step·"final", verify `feat/verify` e9cb5cf 정수만 허용): 두 브랜치를 합친 트리 확인 필요 → 2026-10-01 23:55 감독 확인: 읽기 쪽 통과(verify 는 정수 step 과 "final" 만 받고 "01" 은 형식 오류). PR #10 머리 + main + `feat/stream-hardening` 3d831e6 를 합친 트리에서 `write_outputs` → `verify_dir` 스냅샷 항목 PASS. 쓰기 쪽이 main 에 없어 열린 채로 둠(PR #27 병합 뒤 다시 확인) → 2026-10-02 00:05 감독 확인(PR #27 3d831e6 + main d4432c7): "step": 1·"final" 출력, main(#10 미병합)+verify 합친 트리에서 snapshots PASS 확인. 확인 기준의 write_outputs → verify 통합 시험 없음. 열림으로 되돌림 → 2026-10-02 00:30 감독 확인(main bbd82d8 + PR #10 f5a9ac2 합친 트리, 임시 시험): `write_outputs`(위치 26·40, 구역 2·4, 기록마다 점쌍 1200) 결과를 `verify_dir` 로 검사 — preview_align·preview_vs_refined·refined_overlap·snapshots 모두 PASS, 1~3 판정 불가. 연결은 동작하나 저장소에 통합 시험이 없어 열린 채로 둠
+- 이력: 2026-10-01 14:00 감독 등록. 이 문제가 있는 채로 PR #5 가 13:52 UTC 에 main 으로 병합됨(f2b658b) — 후속 수정 필요. → 2026-10-01 19:35 작업자 처리(스트림 `feat/stream-hardening` 229a098 정수 step·"final", verify `feat/verify` e9cb5cf 정수만 허용): 두 브랜치를 합친 트리 확인 필요 → 2026-10-01 23:55 감독 확인: 읽기 쪽 통과(verify 는 정수 step 과 "final" 만 받고 "01" 은 형식 오류). PR #10 머리 + main + `feat/stream-hardening` 3d831e6 를 합친 트리에서 `write_outputs` → `verify_dir` 스냅샷 항목 PASS. 쓰기 쪽이 main 에 없어 열린 채로 둠(PR #27 병합 뒤 다시 확인) → 2026-10-02 00:05 감독 확인(PR #27 3d831e6 + main d4432c7): "step": 1·"final" 출력, main(#10 미병합)+verify 합친 트리에서 snapshots PASS 확인. 확인 기준의 write_outputs → verify 통합 시험 없음. 열림으로 되돌림 → 2026-10-02 00:30 감독 확인(main bbd82d8 + PR #10 f5a9ac2 합친 트리, 임시 시험): `write_outputs`(위치 26·40, 구역 2·4, 기록마다 점쌍 1200) 결과를 `verify_dir` 로 검사 — preview_align·preview_vs_refined·refined_overlap·snapshots 모두 PASS, 1~3 판정 불가. 연결은 동작하나 저장소에 통합 시험이 없어 열린 채로 둠 → 2026-10-02 01:08 작업자 처리(feat/stream-followup 03fa95c (PR #36, write_outputs→verify_dir 왕복 시험))
 
 ### F-067 [닫힘] (심각도: 중간) — 초벌 정렬이 실패한 구역을 처리하는 경로가 없다
 - 위치: crates/core/src/stream.rs:278(`align_region` → `None`), :721(`write_outputs` zip), :386(`build_snapshots` 길이 `assert_eq!`) (f2b658b)
@@ -1010,21 +1010,21 @@
 - 확인 기준: 두 소개 문장이 SPEC §1 과 같은 뜻이고 `grep -n "per drone" README.md` 결과가 "one camera per drone" 하나.
 - 이력: 2026-10-01 18:50 감독 등록(PR #19 검토) → 2026-10-01 23:36 작업자 처리(feat/io-cleanup ff3a769: 한·영 모두 "드론 3대 편대, 드론마다 카메라 1대") → 2026-10-01 23:38 감독 검토(PR #23 ff3a769, main 합친 트리 9123b8d): `grep -n "per drone"` 결과 224행 "one camera per drone" 하나, 한국어 소개와 같은 뜻. 닫음
 
-### F-134 [열림] (심각도: 중간) — main 합친 뒤 synth 가 쓰는 `truth/origin.txt` 와 정답 좌표 원점이 README 에 없고, 출력 좌표계 문장이 삭제되었다
+### F-134 [처리됨-검증대기] (심각도: 중간) — main 합친 뒤 synth 가 쓰는 `truth/origin.txt` 와 정답 좌표 원점이 README 에 없고, 출력 좌표계 문장이 삭제되었다
 - 위치: README.md:26-36·222-232 입력 트리, 삭제된 "좌표는 첫 GPS 를 원점으로 하는 동-북-위(미터)" (feat/readme-sync d4804c4) vs crates/core/src/synth.rs:609-625 `write_dataset` (main 8da6e97)
 - 문제: synth 는 `truth/origin.txt`(`37.500000000 127.000000000 50.000`)를 더 쓰고, `truth/cameras.txt` 는 이 원점 기준이라 SPEC §2 출력 원점(첫 GPS)과 다르다. README 에 이 파일도 원점 설명도 없고 SPEC §2 좌표계 문장도 사라졌다.
 - 실패 상황: 정답 카메라 중심을 첫 GPS 기준 결과와 그대로 비교하면 기본 장면에서 수직으로만 약 27 m(77.380 vs 50.000) 어긋난다. README 입력 트리와 synth 출력이 파일 하나 다르다.
 - 고칠 것: 두 절 입력 트리에 `truth/origin.txt` 를 넣고, 정답 좌표는 이 원점 기준·출력 좌표는 첫 GPS 원점 동-북-위(미터)라는 문장을 같은 뜻으로(`Scene::to_first_gps_frame` 언급).
 - 확인 기준: main 합친 트리에서 `skylens-stream synth <폴더> 64 48` 출력 파일 종류가 README 두 절 입력 트리와 일치하고 두 절에 좌표 원점 문장이 하나씩.
-- 이력: 2026-10-01 18:50 감독 등록(PR #19 검토) → 2026-10-01 23:36 작업자 처리(feat/io-cleanup ff3a769: `truth/origin.txt`·정답 좌표 원점·출력 좌표계 문장 README 에 추가) → 2026-10-01 23:38 감독 검토(PR #23 ff3a769, main 합친 트리 9123b8d): `synth /tmp/syn 64 48` 출력 gps.txt·images/cam{F,R,L}_N.jpg·truth/cameras.txt·truth/origin.txt 가 README 두 절과 일치, 좌표 원점 문장 두 절에 하나씩. 닫음 → 2026-10-01 23:57 감독 다시 엶(main 1d79e0f README): 입력 트리와 `truth/origin.txt` 는 들어갔으나 "출력 좌표는 첫 GPS 원점 동-북-위(미터)" 문장과 `Scene::to_first_gps_frame` 언급이 두 절 모두 없다. README:197·412 "합성 장면의 원점은 truth/origin.txt" 만 있어 SPEC §2 출력 원점과 다른 원점을 권하는 것으로 읽힌다
+- 이력: 2026-10-01 18:50 감독 등록(PR #19 검토) → 2026-10-01 23:36 작업자 처리(feat/io-cleanup ff3a769: `truth/origin.txt`·정답 좌표 원점·출력 좌표계 문장 README 에 추가) → 2026-10-01 23:38 감독 검토(PR #23 ff3a769, main 합친 트리 9123b8d): `synth /tmp/syn 64 48` 출력 gps.txt·images/cam{F,R,L}_N.jpg·truth/cameras.txt·truth/origin.txt 가 README 두 절과 일치, 좌표 원점 문장 두 절에 하나씩. 닫음 → 2026-10-01 23:57 감독 다시 엶(main 1d79e0f README): 입력 트리와 `truth/origin.txt` 는 들어갔으나 "출력 좌표는 첫 GPS 원점 동-북-위(미터)" 문장과 `Scene::to_first_gps_frame` 언급이 두 절 모두 없다. README:197·412 "합성 장면의 원점은 truth/origin.txt" 만 있어 SPEC §2 출력 원점과 다른 원점을 권하는 것으로 읽힌다 → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35))
 
-### F-135 [열림] (심각도: 낮음) — README 두 시점 예시 주석이 카메라 정규화 통합(#18) 이전 설명("왜곡 없음")에 머물러 있다
+### F-135 [처리됨-검증대기] (심각도: 낮음) — README 두 시점 예시 주석이 카메라 정규화 통합(#18) 이전 설명("왜곡 없음")에 머물러 있다
 - 위치: README.md:106-107, :302-303 (feat/readme-sync d4804c4) vs crates/core/src/camera.rs:28-37·67-80 (main 8da6e97)
 - 문제: main 의 `Intrinsics` 는 `dist` 를 갖고 `to_normalized` 가 역왜곡까지 한다. README 는 `k` 를 "왜곡 없음"이라 하고 `with_distortion(d).unproject(p)` 를 안내한다.
 - 실패 상황: 이미 왜곡 계수를 넣은 `k` 에 다시 `with_distortion` 을 쓰거나 `to_normalized` 가 왜곡을 무시한다고 오해한다.
 - 고칠 것: 두 절 주석을 "Intrinsics(왜곡 계수 `dist` 포함, `to_normalized` 가 역왜곡까지. 수렴 여부가 필요하면 `k.unproject(p)`)" 로.
 - 확인 기준: README 예시 12조각이 main 합친 트리에 대해 컴파일 오류 0, 두 절 주석이 camera.rs 모듈 문서 규약과 같은 뜻.
-- 이력: 2026-10-01 18:50 감독 등록(PR #19 검토) → 2026-10-01 23:36 작업자 처리(feat/io-cleanup ff3a769: 두 시점 예시 주석을 현재 카메라 정규화 API 에 맞춤) → 2026-10-01 23:57 감독 확인 열림으로 되돌림: main 1d79e0f README:117-118·332-333 이 여전히 "Intrinsics, 왜곡 없음"·`k.with_distortion(d).unproject(p)` 를 안내한다. ff3a769 diff 에 해당 줄 변경 없음
+- 이력: 2026-10-01 18:50 감독 등록(PR #19 검토) → 2026-10-01 23:36 작업자 처리(feat/io-cleanup ff3a769: 두 시점 예시 주석을 현재 카메라 정규화 API 에 맞춤) → 2026-10-01 23:57 감독 확인 열림으로 되돌림: main 1d79e0f README:117-118·332-333 이 여전히 "Intrinsics, 왜곡 없음"·`k.with_distortion(d).unproject(p)` 를 안내한다. ff3a769 diff 에 해당 줄 변경 없음 → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35))
 
 ### F-136 [처리됨-검증대기] (심각도: 낮음) — main 에 들어온 닮음 변환·GPS 정렬 모듈(#11)이 README 단계 목록과 라이브러리 절에 없다
 - 위치: README.md:14, :210(단계 목록), :177-193·373-389(라이브러리 절) (feat/readme-sync d4804c4) vs crates/core/src/align.rs (main 8da6e97)
@@ -1042,13 +1042,13 @@
 - 확인 기준: 새 시험 통과, 출력에 재선정 횟수 최대값·자기 일관성 최대 차. 재선정 상한을 1로 줄여도 `inliers` 와 푼 집합이 같다.
 - 이력: 2026-10-01 18:50 감독 등록(PR #7 검토) → 2026-10-01 23:36 작업자 처리(feat/rotation-averaging-robust 06ac8d2: 재선정 상한 `active_set_rounds`(기본 8), 결과에 `reselections`·`active_set_converged`. 상한·순환 시 마지막으로 푼 집합을 inliers 로. 시드 100..129 × 4경우, 상한 8·1 에서 50단계 추가 이동 최대 1.6e-12 rad) → 2026-10-02 00:05 감독 확인(PR #26 06ac8d2 + main d4432c7): 942 간선 그래프 σ2 시드 115·7 에서 상한 8 수렴·상한 1 미수렴 이동 < 1e-9 rad 확인. 시험 보강은 F-172. 닫음
 
-### F-138 [열림] (심각도: 낮음) — 회전 평균 시험 그래프가 SPEC 짝 규칙(같은 카메라 1..5·8·16칸, 다른 카메라 ±4 위치)과 다르다
+### F-138 [처리됨-검증대기] (심각도: 낮음) — 회전 평균 시험 그래프가 SPEC 짝 규칙(같은 카메라 1..5·8·16칸, 다른 카메라 ±4 위치)과 다르다
 - 위치: crates/core/src/rotation_averaging.rs:620-635 `scene_graph` (b3ca12a, PR #7)
 - 문제: 시험 간선은 같은 카메라 1~3칸 + 같은 위치 다른 카메라(942개). SPEC 규칙이면 3663개. 검토 측정(시드 100..129)에서 SPEC 그래프는 오거부 0, 평균 ≤ 0.79°, 기준 해 차 ≤ 3.5e-12 rad 였으나 σ 1°·2°+이상치 10% 에서 놓침이 각 1건(30시드 합계).
 - 실패 상황: 짝 규칙 변경이나 카메라 간 간선 회귀를 지금 시험이 잡지 못하고, 실제 그래프의 놓침도 시험에 나타나지 않는다.
 - 고칠 것: SPEC 규칙(가능하면 매칭 모듈의 짝 생성 함수)으로 간선을 만드는 시험 그래프 추가, 지금 그래프는 성긴 최악 사례로 유지. 놓친 간선의 잔차·문턱을 노트에.
 - 확인 기준: SPEC 그래프 시험에서 σ 0.5/1/2°·σ 1°+이상치 10%, 시드 100..129 로 오거부 ≤ 1%, 평균 < 1.5σ, 기준 해 차 < 1e-6 rad 단언 통과. 놓침 건수·원인이 출력·노트에.
-- 이력: 2026-10-01 18:50 감독 등록(PR #7 검토) → 2026-10-01 23:36 작업자 처리(feat/rotation-averaging-robust 06ac8d2: 시험 그래프를 `candidate_pairs(..,5,4,16)` 3663 간선으로, 시드 30 오거부 0) → 2026-10-02 00:05 감독 확인(PR #26 06ac8d2 + main d4432c7): 오거부·평균 단언은 통과하나 놓침 건수·원인 출력이 없음(σ2+10% 30시드 이전 정의 놓침 2: 시드 115 간선 2285, 시드 123 간선 3595). 열림으로 되돌림
+- 이력: 2026-10-01 18:50 감독 등록(PR #7 검토) → 2026-10-01 23:36 작업자 처리(feat/rotation-averaging-robust 06ac8d2: 시험 그래프를 `candidate_pairs(..,5,4,16)` 3663 간선으로, 시드 30 오거부 0) → 2026-10-02 00:05 감독 확인(PR #26 06ac8d2 + main d4432c7): 오거부·평균 단언은 통과하나 놓침 건수·원인 출력이 없음(σ2+10% 30시드 이전 정의 놓침 2: 시드 115 간선 2285, 시드 123 간선 3595). 열림으로 되돌림 → 2026-10-02 01:08 작업자 처리(feat/rotation-averaging-followup 2983a77)
 
 ### F-139 [열림] (심각도: 낮음) — Sampson LM 조기 종료 시험이 '수렴해서 멈춤'과 '한 걸음도 못 나감'을 구별하지 못한다
 - 위치: crates/core/src/matching.rs:1532 `ransac_4000_correspondences_lm_stops_early` 의 `lm.iter().any(|&k| k < 30)`, :457 `taken += 1` (feat/sampson-lm 0cfcd94, PR #20)
@@ -1178,13 +1178,13 @@
 - 확인 기준: 위 방향 추정 단계를 빼면(정답 위 방향 대신 임의 방향) 시험 실패.
 - 이력: 2026-10-01 23:38 감독 등록 (PR #24 검토) → 2026-10-02 00:27 작업자 일부 처리(a307c0c): 추정 위 방향 사용, 임의 위 방향이면 기울기 > 0.5° 단언. 자유 설정 분포 단언 미완 → 2026-10-02 00:45 감독 확인 닫음: 위 방향 추정을 광축 평균 반대로 바꾼 변이에서 `up_from_rotations_is_load_bearing`·기울기 시험 모두 실패. main 474bcf8
 
-### F-155 [열림] (심각도: 낮음) — README align 절이 PR #24 의 바뀐 기본 임계·None 조건·새 결과 필드를 모른다
+### F-155 [처리됨-검증대기] (심각도: 낮음) — README align 절이 PR #24 의 바뀐 기본 임계·None 조건·새 결과 필드를 모른다
 - 위치: README.md align 절 한·영(main, PR #23 병합분) — "상한 `GPS_MAX_RESIDUAL_M`(3 m)로 `align_to_enu` 를 부른다", "`GpsAlignment` 에는 `sim`·`inliers`·`residuals`·`median_residual`"
 - 문제: PR #24 는 기본 잡음 비례 임계, 정상 < max(3, 50%) 및 좁은 경로에서 None, `threshold_m`·`spread_m`·`tilt_sigma_deg`, `gps_align_with`·`GpsAlignConfig` 를 더한다.
 - 실패 상황: PR #24 병합 뒤 README 대로 쓰면 3 m 고정으로 알고, None 이 나오는 경우를 처리하지 않는다.
 - 고칠 것: PR #24 가 병합될 때 P04 가 두 절을 갱신(TASKS 규칙대로 README 는 P04).
 - 확인 기준: 두 절이 바뀐 기본 임계·None 조건·필드를 같은 뜻으로 적음.
-- 이력: 2026-10-01 23:38 감독 등록 (PR #23·#24 교차 검토)
+- 이력: 2026-10-01 23:38 감독 등록 (PR #23·#24 교차 검토) → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35, main 0afc818 의 align.rs 기준 — #24 병합분은 후속))
 
 ### F-156 [닫힘] (심각도: 중간) — 초벌 정렬 항목이 manifest `align` 기록을 구역 집합과 대조하지 않아, 일부 구역 정렬 기록이 빠져도 PASS
 - 위치: crates/core/src/verify.rs:377-407 `check_align` (feat/verify 0475047)
@@ -1202,29 +1202,29 @@
 - 확인 기준: refined [861, 861] 에서 final 1722 PASS, final 288 FAIL 인 시험.
 - 이력: 2026-10-01 23:55 감독 등록(PR #10 검토) → 2026-10-02 00:27 작업자 처리(제품 feat/verify f5a9ac2): final 점 수 = refined 점 수 합 정확 비교, 1723·288 FAIL → 2026-10-02 00:30 감독 확인: 확인 기준 통과(refined [861,861] 에서 final 1722 PASS, 1723·288 FAIL, "final 288 ≠ 정밀 점 수 합 1722"). main 0afc818 병합, 닫음
 
-### F-158 [열림] (심각도: 높음) — `assess_pair` 가 어디서도 호출되지 않고, 신뢰 불가 짝의 틀린 회전(약 2°)이 회전 평균에 그대로 들어간다
+### F-158 [처리됨-검증대기] (심각도: 높음) — `assess_pair` 가 어디서도 호출되지 않고, 신뢰 불가 짝의 틀린 회전(약 2°)이 회전 평균에 그대로 들어간다
 - 위치: crates/core/src/two_view.rs:957 `assess_pair`, :949 `reliable` 문서 주석, crates/core/benches/pipeline.rs:375·:444 (feat/two-view-hardening 997437e)
 - 문제: 신뢰 판정은 시험 `pose_from_rendered_drone_views` 에서만 쓰인다. 문서는 "false 인 짝의 이동 방향은 회전·위치 평균에 넣지 않는다"고 적지만, 간격 1 틀린 해는 이동 방향뿐 아니라 회전도 1.86~1.98° 틀린다(시드 1 F 1.980°, 시드 3 R 1.861°). 이동 방향만 빼도 회전 평균은 틀린 회전을 받는다.
 - 실패 상황: `cargo bench --bench pipeline -- --quick --repeat 1` 에서 통과 간선 75개 중 F 간격 1 간선 0–3(1.980°)·18–21(2.011°)이 그대로 회전 평균에 들어간다. STRIDE 3·위치 간 1 m 배치에서는 같은 카메라 짝 대부분이 간격 1 이다.
 - 고칠 것: 짝 검증 단계(matching.rs 검증, bench 5b–7b)에서 `ransac_essential_candidates` → `assess_pair` 를 부르고, `reliable == false` 인 짝은 회전 간선에서도 빼거나 가중을 낮춘다. 문서 주석을 실제 처리와 맞춘다.
 - 확인 기준: 위 bench 에서 신뢰 불가 간선 수가 출력되고, 통과 간선 중 상대 회전 오차 > 1.5° 인 간선 0개.
-- 이력: 2026-10-01 23:58 감독 등록(PR #13 검토)
+- 이력: 2026-10-01 23:58 감독 등록(PR #13 검토) → 2026-10-02 01:08 작업자 처리(feat/two-view-hardening ce66257 (PR #13, verify_pair 로 신뢰 불가 짝 제외, bench 2° 초과 간선 0))
 
-### F-159 [열림] (심각도: 중간) — `verified_edges_rotation_error_share` 가 F-148 의 실패 원인이 생길 수 없는 장면만 써서 2° 비율 단언이 늘 0 이다
+### F-159 [처리됨-검증대기] (심각도: 중간) — `verified_edges_rotation_error_share` 가 F-148 의 실패 원인이 생길 수 없는 장면만 써서 2° 비율 단언이 늘 0 이다
 - 위치: crates/core/src/two_view.rs:1952 `verified_edges_rotation_error_share` (feat/two-view-hardening 997437e)
 - 문제: 참 짝은 높이 10 m 비평면 합성 장면(기선/깊이 0.075) 하나, 틀린 짝은 둘째 영상 대응이 균일 무작위인 경우뿐이다. F-148 의 틀린 간선은 실측 편대 배치의 간격 1 틀린 해, 평면 쌍둥이(F-144), 다른 카메라 짝에서 나오는데 이 시험에서는 생기지 않아 출력이 늘 "2° 초과 0/40" 이다.
 - 실패 상황: bench 에서 2° 안팎 F 간격 1 간선 2개가 통과하고 회전 평균이 24개 중 8개 시점만 돌려줘도 이 시험은 통과한다.
 - 고칠 것: 실측 편대 배치 렌더(시드 1~3 × F/R/L × 간격 1·3·6, 다른 카메라 짝 포함)로 통과 여부와 상대 회전 오차를 짝 종류별로 집계하는 시험을 두고, 노트에 짝 종류별 표(같은 카메라 간격별, 다른 카메라)를 남긴다.
 - 확인 기준: 그 시험이 기본 `cargo test --release` 에 있고 통과 간선 중 > 2° 비율 < 5% 를 단언, 노트 표가 `--nocapture` 출력과 일치.
-- 이력: 2026-10-01 23:58 감독 등록(PR #13 검토)
+- 이력: 2026-10-01 23:58 감독 등록(PR #13 검토) → 2026-10-02 01:08 작업자 처리(feat/two-view-hardening ce66257 (PR #13, 짝 종류별 시험, 게이트 없으면 2/27))
 
-### F-160 [열림] (심각도: 낮음) — F-033(2) 시험 주석의 "측정 최대 초과 0.062°" 가 현재 출력 0.027° 와 다르다
+### F-160 [처리됨-검증대기] (심각도: 낮음) — F-033(2) 시험 주석의 "측정 최대 초과 0.062°" 가 현재 출력 0.027° 와 다르다
 - 위치: crates/core/src/two_view.rs:1885 `ransac_essential_nonplanar_first_candidate` 문서 주석 (feat/two-view-hardening 997437e)
 - 문제: 다중 시작 정밀화(d96c0f5) 뒤 이상치 0 의 최대 초과는 시드 18 의 0.0268°(첫 후보 0.1844°, 하한 0.1576°)인데 주석은 133ef34 때 값 0.062° 를 적는다.
 - 실패 상황: 퇴행으로 초과가 0.06° 로 늘어도 주석과 같아 눈에 띄지 않는다.
 - 고칠 것: 주석 수치를 같은 커밋의 `cargo test --release ransac_essential_nonplanar_first_candidate -- --nocapture` 출력(최대 초과와 시드)으로 바꾼다.
 - 확인 기준: 주석 수치가 출력의 시드별 (첫 후보 − 하한) 최댓값과 일치.
-- 이력: 2026-10-01 23:58 감독 등록(PR #13 검토)
+- 이력: 2026-10-01 23:58 감독 등록(PR #13 검토) → 2026-10-02 01:08 작업자 처리(feat/two-view-hardening ce66257 (PR #13))
 
 ### F-161 [처리됨-검증대기] (심각도: 중간) — 융합 이웃 목록의 중복 번호를 막지 않아 사진 2장으로도 3장 동의가 된다
 - 위치: crates/core/src/fusion.rs:173 (`check` 의 이웃 검사), 248-290 (동의 반복) (feat/fusion-hardening de4556e)
@@ -1234,37 +1234,37 @@
 - 확인 기준: `mismatched_inputs_are_errors` 에 neighbors=[1,1] 경우를 넣어 정해진 오류를 받는다.
 - 이력: 2026-10-01 23:58 감독 등록(PR #25 검토) → 2026-10-02 01:03 작업자 처리(feat/fusion-tests 4995b33·3d9eb00, PR #32)
 
-### F-162 [열림] (심각도: 중간) — 번들 조정이 투영된 관측이 0개일 때 재투영 RMS 를 0 px 로 보고한다
+### F-162 [처리됨-검증대기] (심각도: 중간) — 번들 조정이 투영된 관측이 0개일 때 재투영 RMS 를 0 px 로 보고한다
 - 위치: crates/core/src/ba.rs:577 `(sq / (obs.len() - behind).max(1) as f64).sqrt()`, :666, 시험 :1369 `no_accepted_step_is_not_refined` (feat/ba-hardening 022e5cf, main ec18464)
 - 문제: 분모를 `.max(1)` 로 막아 투영된 관측이 0개이면 0/1 = 0 이 된다. "쓸 관측 없음"이 "오차 0 px" 로 보고되어 SPEC §4 정밀 재투영 ≤ 0.7 px 판정을 통과하는 값이 된다. 시험은 이 경우 RMS 를 단언하지 않는다.
 - 실패 상황: `noisy_perturbed(16)`(관측 2811)에서 (1) 모든 픽셀 x = NaN → EvaluationOnly, initial/final RMS 0, 제외 2811 (2) 모든 점 z = 1000(전부 카메라 뒤) → StepFailed, RMS 0, 뒤쪽 2811 (3) `max_tracks: 0` → EvaluationOnly, RMS 0.
 - 고칠 것: 투영된 관측 수가 0 이면 initial_rms·final_rms 를 NaN(또는 `Option<f64>` None)으로 두거나 `BaStop::InvalidInput` 으로 보고한다.
 - 확인 기준: 위 세 입력에서 final_rms 가 0 이 아니고(NaN/None) refined·converged 가 거짓임을 단언하는 시험 통과, 정상 장면 RMS 불변(시드 11~13 0.6234/0.6250/0.6186).
-- 이력: 2026-10-01 23:58 감독 등록(PR #17 검토, 병합 뒤 확인)
+- 이력: 2026-10-01 23:58 감독 등록(PR #17 검토, 병합 뒤 확인) → 2026-10-02 01:08 작업자 처리(feat/ba-robust 995020e)
 
-### F-163 [열림] (심각도: 낮음) — GrayImage compile_fail 문서 시험이 오류 종류를 고정하지 않고, PLY 읽기량 시험 주석이 단언과 다르다
+### F-163 [처리됨-검증대기] (심각도: 낮음) — GrayImage compile_fail 문서 시험이 오류 종류를 고정하지 않고, PLY 읽기량 시험 주석이 단언과 다르다
 - 위치: crates/core/src/features.rs:33 "```compile_fail"; crates/core/src/ply.rs:459 주석 "BufReader 내부 버퍼(8 KiB) 이상은 읽지 않는다" vs 단언 `src.1 <= MAX_HEADER_LINE + 16 * 1024` (main d4432c7, PR #23)
 - 문제: compile_fail 은 어떤 이유로든 컴파일이 실패하면 통과한다. 경로 이름 변경·오타로도 통과하므로 필드가 다시 공개되어도 잡지 못할 수 있다. ply 시험 주석은 8 KiB 인데 단언은 20 KiB(4096+16384)까지 허용한다.
 - 실패 상황: `use skylens_core::features::GrayImage;` 가 다른 이유로 깨진 상태에서 필드를 `pub` 로 되돌려도 문서 시험이 통과한다.
 - 고칠 것: "```compile_fail,E0451" 로 오류 코드를 고정한다. ply 주석을 "상한 + BufReader 버퍼 이내(20 KiB)"로 단언과 맞춘다.
 - 확인 기준: features.rs:39-41 을 `pub` 로 바꾸면 `cargo test --doc` 실패, 원래 코드에서 통과. 주석 수치 = 단언 수치.
-- 이력: 2026-10-01 23:59 감독 등록(PR #23 검토)
+- 이력: 2026-10-01 23:59 감독 등록(PR #23 검토) → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35))
 
-### F-164 [열림] (심각도: 중간) — 번들 조정 축척 고정 카메라를 관측 유무와 무관하게 골라, 관측 없는 카메라가 뽑히면 축척 게이지가 다시 풀린다
+### F-164 [처리됨-검증대기] (심각도: 중간) — 번들 조정 축척 고정 카메라를 관측 유무와 무관하게 골라, 관측 없는 카메라가 뽑히면 축척 게이지가 다시 풀린다
 - 위치: crates/core/src/ba.rs:242-275 `gauge`, :262 후보 루프 (main ec18464, PR #17 022e5cf)
 - 문제: 축척 고정 성분을 모든 카메라 중 |R_k(C_k − C₀)|_i 가 가장 큰 것으로 고른다. 그 카메라가 선택된 트랙 관측을 하나도 갖지 않을 수 있다(관측이 모두 제외되거나 `max_tracks` 제한으로 빠진 경우). 그러면 그 성분을 고정해도 나머지와 축척이 연결되지 않아 축척 방향이 다시 감쇠로만 정해진다.
 - 실패 상황: `noisy_perturbed(11)` 에서 고정 성분이 카메라 9 의 x. 이 카메라 관측을 모두 지우고 `function_tolerance 0`·최대 200회 → λ₀ 1e-12 와 1e-4 의 |c1−c0| 3.812840590755 vs 3.812113290503(상대 1.9e-4, 기준 1e-9), 두 실행 모두 RMS 0.610382·StepFailed.
 - 고칠 것: 축척 고정 후보를 선택된 트랙 관측이 있는 카메라로 한정하고, 고정 카메라와 트랙을 공유하는 카메라를 우선한다. `layout` 을 트랙 선택 뒤에 계산해 `gauge` 에 관측 목록을 넘긴다.
 - 확인 기준: 위 장면에서 λ₀ 1e-12·1e-4 의 |c1−c0| 상대 차 < 1e-9, 촐레스키 실패 0. 고정 성분 카메라가 관측을 가진다는 시험 단언.
-- 이력: 2026-10-01 23:59 감독 등록(PR #17 검토, F-034 후속)
+- 이력: 2026-10-01 23:59 감독 등록(PR #17 검토, F-034 후속) → 2026-10-02 01:08 작업자 처리(feat/ba-robust 995020e)
 
-### F-165 [열림] (심각도: 중간) — 번들 조정 트랙 선택이 관측 개수만 세어, 한 카메라에서만 두 번 관측된 점을 다시점 트랙으로 쓴다
+### F-165 [처리됨-검증대기] (심각도: 중간) — 번들 조정 트랙 선택이 관측 개수만 세어, 한 카메라에서만 두 번 관측된 점을 다시점 트랙으로 쓴다
 - 위치: crates/core/src/ba.rs:166-173 `select_tracks` (`count[p] >= 2`) (main ec18464)
 - 문제: 같은 카메라 관측 2개만 가진 점은 깊이가 정해지지 않는다(3×3 블록 C 계수 2, 깊이는 감쇠로만 결정). 그런데도 트랙으로 쓰이고 RMS 분모에 들어간다. 트랙 병합 충돌로 한 영상 안에 같은 점 관측이 둘 생기는 입력에서 일어난다.
 - 실패 상황: `noisy_perturbed(13)` 의 카메라 1 관측을 0.3 px 어긋나게 복제해 그 카메라 관측만 남김(카메라 2대, 그중 고정 1대) → 트랙 292·관측 584 사용, Converged, RMS 22.38 → 0.180 px(잡음 기대값보다 작음), 점이 광선을 따라 최대 2.50 m 이동. 카메라 1대짜리 문제도 트랙 292·Converged·refined=true.
 - 고칠 것: 점별 서로 다른 카메라 수를 세어 2대 이상만 고른다. 같은 (카메라, 점) 중복 관측은 하나만 남기거나 제외하고 `num_observations_rejected` 에 센다.
 - 확인 기준: 위 입력에서 `num_tracks_used == 0`, EvaluationOnly, refined=false, 점 좌표 불변. 중복 관측 1건을 섞은 정상 장면에서 제외 1, 최종 RMS 가 깨끗한 실행의 1% 이내.
-- 이력: 2026-10-01 23:59 감독 등록(PR #17 검토)
+- 이력: 2026-10-01 23:59 감독 등록(PR #17 검토) → 2026-10-02 01:08 작업자 처리(feat/ba-robust 995020e)
 
 ### F-166 [열림] (심각도: 낮음) — 3그룹 내부 파라미터 시험의 주점 허용치(4 px)가 초기 오차 이상이라 회복 실패를 잡지 못한다
 - 위치: crates/core/src/ba.rs:1446 섭동 `k.cx += 5.0 - 3.0 * g`·`k.cy -= 4.0`, :1494 `(k.cx - kt.cx).abs() < 4.0 && (k.cy - kt.cy).abs() < 4.0` (main ec18464)
@@ -1274,21 +1274,21 @@
 - 확인 기준: 시드 31~33 새 허용치로 통과, 그룹 1 cx 열을 그룹 0 번호로 보내는 변형 코드에서 실패.
 - 이력: 2026-10-01 23:59 감독 등록(PR #17 검토)
 
-### F-167 [열림] (심각도: 낮음) — 번들 조정 옵션(손실 척도·감쇠 초기값·수렴 문턱)을 검사하지 않아 잘못된 설정이 단계 실패나 정상 결과로 보고된다
+### F-167 [처리됨-검증대기] (심각도: 낮음) — 번들 조정 옵션(손실 척도·감쇠 초기값·수렴 문턱)을 검사하지 않아 잘못된 설정이 단계 실패나 정상 결과로 보고된다
 - 위치: crates/core/src/ba.rs:506 `input_is_consistent`, :539 `bundle_adjust` 입구 (main ec18464)
 - 문제: 입력 검증이 포즈·그룹만 보고 `BaOptions` 는 보지 않아 설정 오류와 수치 실패를 구분할 수 없다.
 - 실패 상황: `noisy_perturbed(13)`, 최대 30회. `Huber(NaN)` → StepFailed·반복 0·final_cost NaN. `Huber(0)` → 비용 0·StepFailed. `initial_lambda` −1·NaN → StepFailed·RMS 25.74 그대로. `Cauchy(-1)` → MaxIterations·refined=true·RMS 0.6247(정상처럼 보임). `function_tolerance` NaN → 11회 뒤 StepFailed.
 - 고칠 것: 손실 척도 유한·> 0, `initial_lambda` 유한·≥ 0, `function_tolerance` 유한·≥ 0 을 입구에서 검사, 어기면 `BaStop::InvalidInput`·입력 불변.
 - 확인 기준: 위 6가지 각각 InvalidInput·refined=false·포즈·점·내부 파라미터 비트 단위 불변 시험 통과.
-- 이력: 2026-10-01 23:59 감독 등록(PR #17 검토)
+- 이력: 2026-10-01 23:59 감독 등록(PR #17 검토) → 2026-10-02 01:08 작업자 처리(feat/ba-robust 995020e)
 
-### F-168 [열림] (심각도: 낮음) — PLY 가 아닌 이진 파일에 "PLY 매직 없음" 대신 "헤더가 UTF-8 이 아님"·"헤더 줄이 너무 김" 을 낸다
+### F-168 [처리됨-검증대기] (심각도: 낮음) — PLY 가 아닌 이진 파일에 "PLY 매직 없음" 대신 "헤더가 UTF-8 이 아님"·"헤더 줄이 너무 김" 을 낸다
 - 위치: crates/core/src/ply.rs:155 `from_utf8` 오류, :169 매직 검사 (main d4432c7)
 - 문제: 첫 줄을 UTF-8 해석·줄 길이 검사부터 거친 뒤에야 `ply` 매직을 비교해 PLY 가 아닌 파일의 오류 원인이 엉뚱하게 보고된다.
 - 실패 상황: `\xff\xd8\xff\xe0` 로 시작하는 JPEG 바이트를 `x.ply` 로 두고 `ply-info x.ply` → "헤더가 UTF-8 이 아님". 줄바꿈 없는 4 KiB 이상 텍스트 → "헤더 줄이 너무 김". 둘 다 "PLY 매직 없음" 이어야 한다.
 - 고칠 것: 헤더 읽기 전에 첫 4바이트 `ply\n` 또는 첫 5바이트 `ply\r\n` 을 먼저 보고, 아니면 "PLY 매직 없음".
 - 확인 기준: JPEG 머리 바이트와 4 KiB 줄바꿈 없는 `abc…` 입력에서 `read_ply` 오류 문구에 "매직" 이 들어가는 시험 통과, 기존 PLY 시험 통과.
-- 이력: 2026-10-01 23:57 감독 등록(PR #23 병합본 검토)
+- 이력: 2026-10-01 23:57 감독 등록(PR #23 병합본 검토) → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35))
 
 ### F-169 [열림] (심각도: 낮음) — io-cleanup 노트의 main 합친 뒤 lib 시험 수가 실제 브랜치와 다르다
 - 위치: experiments/io-cleanup.md "남은 문제" 첫 항목 (experiment/io-cleanup); 제품 feat/io-cleanup ff3a769
@@ -1298,67 +1298,67 @@
 - 확인 기준: 노트의 lib 통과·실패·무시 합 = ff3a769 에서 `cargo test --release -p skylens-core --lib -- --list` 개수(142).
 - 이력: 2026-10-01 23:57 감독 등록
 
-### F-170 [열림] (심각도: 낮음) — README 구간별 시간 설명에 측정 구간 "두 시점 자세" 가 빠졌다
+### F-170 [처리됨-검증대기] (심각도: 낮음) — README 구간별 시간 설명에 측정 구간 "두 시점 자세" 가 빠졌다
 - 위치: README.md:108·323 (main 1d79e0f) vs crates/core/benches/pipeline.rs:389-406 (`name: "두 시점 자세"`)
 - 문제: README 는 "검출·매칭·검증·회전 평균·번들 조정"만 적었는데 벤치는 두 시점 자세 구간과 회전 평균 2종(정답 그래프·검증 결과)도 잰다.
 - 실패 상황: README 만 보고는 표의 "두 시점 자세" 줄 출처를 알 수 없다.
 - 고칠 것: 한·영 두 절 구간 목록에 "두 시점 자세"/"two-view pose" 와 회전 평균 두 종류를 넣는다.
 - 확인 기준: README 두 절 구간 목록이 `cargo bench --bench pipeline -- --quick` 표의 구간 이름과 1:1 대응.
-- 이력: 2026-10-01 23:57 감독 등록
+- 이력: 2026-10-01 23:57 감독 등록 → 2026-10-02 01:08 작업자 처리(feat/io-followup 6f045af (PR #35))
 
-### F-171 [열림] (심각도: 중간) — 회전 평균 놓침 판정 여유가 추정 해 자신의 정점 오차라, 해가 틀릴수록 놓침이 0 으로 보인다
+### F-171 [처리됨-검증대기] (심각도: 중간) — 회전 평균 놓침 판정 여유가 추정 해 자신의 정점 오차라, 해가 틀릴수록 놓침이 0 으로 보인다
 - 위치: crates/core/src/rotation_averaging.rs:904-912 `evaluate` 의 `missed`, :1165 `heavy_contamination_is_flagged` 출력(main ca34c6f)
 - 문제: 여유 = err[i]+err[j] 에 상한이 없다. 끝 정점이 틀리게 놓이면 그 정점에 닿은 이상치 간선이 모두 놓침에서 빠져, 시험 출력과 노트가 "놓침 0" 으로 적는다. 정상 범위(reliable)에서는 여유 최대 2.97° 로 정의 변경이 타당하다.
 - 실패 상황: SPEC 짝 일정, σ 0.6°, 기본 설정. 절반 오염 시드 41: 정상으로 남은 오염 간선 11개 중 정답 잔차 > 30° 3개, 이전 정의 놓침 4·새 정의 0, 최대 오차 132.9°. 절반 오염 시드 42: 이전 4·새 0. 전부 오염 시드 41: 정상으로 남은 268개(> 30° 258개), 이전 265·새 0, 여유 중앙 224°.
 - 고칠 것: 여유를 잡음 모형에 묶인 상한으로 자른다(예: min(e_i+e_j, 2·3·예측 정점 RMS·σ̂)) 또는 reliable=false 이면 이전 정의로 센다. 출력에 두 정의를 함께 적는다.
 - 확인 기준: 위 세 입력에서 놓침 ≥ 3/4/258. σ1+10% 시드 100 과 σ2+10% 30시드는 여전히 0.
-- 이력: 2026-10-02 00:05 감독 등록(PR #26 검토)
+- 이력: 2026-10-02 00:05 감독 등록(PR #26 검토) → 2026-10-02 01:08 작업자 처리(feat/rotation-averaging-followup 2983a77)
 
-### F-172 [열림] (심각도: 낮음) — 회전 평균 정상 집합 재선정 상한·미수렴 경로를 시험이 밟지 않는다
+### F-172 [처리됨-검증대기] (심각도: 낮음) — 회전 평균 정상 집합 재선정 상한·미수렴 경로를 시험이 밟지 않는다
 - 위치: crates/core/src/rotation_averaging.rs:1408-1413 `inliers_are_the_solved_set`(main ca34c6f)
 - 문제: SPEC 그래프 시드 100..129 에서는 재선정이 0회라 상한 1 단언이 늘 참이고 `active_set_converged=false` 분기를 지나지 않는다.
 - 실패 상황: 같은 카메라 1~3칸 + 같은 위치 942 간선 그래프, σ2 시드 115·7: 상한 8 에서 재선정 1회 뒤 수렴, 상한 1 이면 미수렴·이동 2.7e-10/3.2e-10 rad. 지금 시험에는 이 경우가 없어 상한 처리가 회귀해도 잡지 못한다.
 - 고칠 것: 이 그래프·시드를 시험에 넣어 상한 8 에서 재선정 ≥ 1·수렴, 상한 1 에서 `!active_set_converged`·50단계 이동 < 1e-9·기준 해 차 < 1e-6 을 단언.
 - 확인 기준: 새 단언 통과, 출력에 재선정 ≥ 1 인 시드가 있음.
-- 이력: 2026-10-02 00:05 감독 등록(PR #26 검토)
+- 이력: 2026-10-02 00:05 감독 등록(PR #26 검토) → 2026-10-02 01:08 작업자 처리(feat/rotation-averaging-followup 2983a77)
 
-### F-173 [열림] (심각도: 낮음) — 회전 평균이 유한하지만 회전이 아닌 행렬 간선을 받아 그대로 해로 내보낸다
+### F-173 [처리됨-검증대기] (심각도: 낮음) — 회전 평균이 유한하지만 회전이 아닌 행렬 간선을 받아 그대로 해로 내보낸다
 - 위치: crates/core/src/rotation_averaging.rs:565 `usable`(유한성만 검사), `greedy_init` 의 `.or(Some(preds[0].0))`(main ca34c6f)
 - 실패 상황: n=2, 간선 (0,1) 회전 = 0 행렬(`from_matrix_unchecked`) → `rotations[1] = Some(0 행렬)`, inliers=[false], reliable=false.
 - 고칠 것: `usable` 에 ‖RᵀR − I‖ < 1e-6 과 det > 0 검사. 초기화 사영이 실패하면 그 정점은 None.
 - 확인 기준: 위 입력에서 간선 거부 또는 정점 1 이 None.
-- 이력: 2026-10-02 00:05 감독 등록(PR #26 검토)
+- 이력: 2026-10-02 00:05 감독 등록(PR #26 검토) → 2026-10-02 01:08 작업자 처리(feat/rotation-averaging-followup 2983a77)
 
-### F-174 [열림] (심각도: 낮음) — 번들 조정 Cauchy 손실에서 반복 한도 0·1 일 때 멈춘 이유가 EvaluationOnly 가 아니게 보고된다
+### F-174 [처리됨-검증대기] (심각도: 낮음) — 번들 조정 Cauchy 손실에서 반복 한도 0·1 일 때 멈춘 이유가 EvaluationOnly 가 아니게 보고된다
 - 위치: crates/core/src/ba.rs:599, :609-622 `stage_done` 단계 전환(main ec18464)
 - 문제: 전환 조건 `iterations >= max_iterations / 2` 가 한도 0·1 에서 반복 0회에 참이 되어 `stop` 을 덮어쓰고, 한도 1 이면 반복에 들어간다. 문서 계약("max_iterations == 0 이면 EvaluationOnly", "쓸 관측이 없으면 반복하지 않는다")이 Cauchy 에서만 깨진다.
 - 실패 상황: `noisy_perturbed(13)`, Cauchy(2.0), `max_iterations: 0` → MaxIterations·반복 0(제곱·Huber 는 EvaluationOnly). 관측 0개, Cauchy(2.0), `max_iterations: 1` → StepFailed·반복 1(제곱·Huber 는 EvaluationOnly·반복 0).
 - 고칠 것: 전환 검사 전에 EvaluationOnly 면 그대로 끝내거나, 조건에 `max_iterations > 0 && !obs.is_empty()` 추가.
 - 확인 기준: Cauchy 에서 (a) 한도 0 → EvaluationOnly·반복 0, (b) 관측 0개·한도 1·30 → EvaluationOnly·반복 0·refined 거짓 시험 통과.
-- 이력: 2026-10-02 00:05 감독 등록(PR #17 검토)
+- 이력: 2026-10-02 00:05 감독 등록(PR #17 검토) → 2026-10-02 01:08 작업자 처리(feat/ba-robust 995020e)
 
-### F-175 [열림] (심각도: 중간) — 잔상 걸러내기 반경 격자가 촘촘한 정밀 점군에서 점 수의 제곱 가까이 느려진다
+### F-175 [처리됨-검증대기] (심각도: 중간) — 잔상 걸러내기 반경 격자가 촘촘한 정밀 점군에서 점 수의 제곱 가까이 느려진다
 - 위치: crates/core/src/stream.rs:343-366 `RadiusIndex::has_within`, :309 칸 크기 = 반경(main 6f14401)
 - 문제: 칸 한 변 1.5 m 라 200만 점 구역이면 칸당 약 4천 점. 반경 안에 점이 없는 질의(겹침 경계 1.5~3 m 의 초벌 점)는 이웃 칸 목록을 끝까지 훑는다.
 - 실패 상황: `large_snapshot_speed`(구역 7 × 200만 점, 단독, 부하 평균 약 19) 741.49 s 로 기준 10 s 실패. 구역 3개 × 10만/20만/40만 점: 스냅샷 0.36/1.11/5.17 s(점 생성 ≤ 0.11 s). SPEC 정렬·스냅샷 목표 약 1 s. 노트의 "점 생성이 원인" 추정은 틀림.
 - 고칠 것: 칸 한 변을 반경/√3 로 줄여 같은 칸에 점이 있으면 바로 참, 이웃 칸은 칸별 정렬 배열이나 k-d 트리로. 결과는 전수 비교와 같아야 한다.
 - 확인 기준: `ghost_filter_exact` 전수 비교 일치, `large_snapshot_speed` 단독 시간이 수 초 이내이고 노트에 기록. F-056 속도 기준도 이것으로 판정.
-- 이력: 2026-10-02 00:05 감독 등록(PR #27 검토)
+- 이력: 2026-10-02 00:05 감독 등록(PR #27 검토) → 2026-10-02 01:08 작업자 처리(feat/stream-followup 03fa95c (PR #36, 시간 비 미측정))
 
-### F-176 [열림] (심각도: 낮음) — `write_outputs` 의 issues 가 정렬 기준 일부를 검사하지 않는데 문서는 "비어 있으면 통과"라고 한다
+### F-176 [처리됨-검증대기] (심각도: 낮음) — `write_outputs` 의 issues 가 정렬 기준 일부를 검사하지 않는데 문서는 "비어 있으면 통과"라고 한다
 - 위치: crates/core/src/stream.rs:861-863(StreamReport 문서), :911-921(main 6f14401)
 - 문제: 점쌍 ≥ 1000, 구역 간 스케일 차 ±10% 를 검사하지 않고 구역 0개도 통과.
 - 실패 상황: align {pairs 200, scale 0.5}·{pairs 200, scale 1.0} → issues = []. `write_outputs(dir, &[], &[], &[], vec![])` → issues = [], manifest 는 final 0점 하나.
 - 고칠 것: 점쌍 하한·스케일 차 검사 추가, 구역 0개는 위반. 또는 문서에서 "통과"를 빼고 검사 범위를 적는다.
 - 확인 기준: 위 두 입력에서 위반이 각각 보고됨.
-- 이력: 2026-10-02 00:05 감독 등록(PR #27 검토)
+- 이력: 2026-10-02 00:05 감독 등록(PR #27 검토) → 2026-10-02 01:08 작업자 처리(feat/stream-followup 03fa95c (PR #36))
 
-### F-177 [열림] (심각도: 낮음) — 스트림 오대응 시험 주석이 현재 동작과 반대이고, 노트 정렬 표 범위가 구역 0 측정과 다르다
+### F-177 [처리됨-검증대기] (심각도: 낮음) — 스트림 오대응 시험 주석이 현재 동작과 반대이고, 노트 정렬 표 범위가 구역 0 측정과 다르다
 - 위치: crates/core/src/stream.rs:1214-1216 `prelim_alignment_outlier_fractions` 주석(main 6f14401), 연구 experiment/stream-hardening 노트 수치 표 첫 줄
 - 실패 상황: 주석은 "복구하지 못한다"지만 시험 통과(30%: 1.0000/0.1005, 50%: 1.0002/0.0983). 노트는 스케일 비 0.99963~1.00021·fit 0.099~0.101 인데 `prelim_alignment_against_truth` 구역 0 은 0.99930·0.1031.
 - 고칠 것: 주석에 강건 첫 추정 전후 수치를 함께 적고, 노트 범위를 0.99930~1.00021·0.099~0.103 으로.
 - 확인 기준: 주석·노트 표가 `--nocapture` 출력 네 줄을 모두 포함.
-- 이력: 2026-10-02 00:05 감독 등록(PR #27 검토)
+- 이력: 2026-10-02 00:05 감독 등록(PR #27 검토) → 2026-10-02 01:08 작업자 처리(feat/stream-followup 03fa95c (PR #36))
 
 ### F-178 [처리됨-검증대기] (심각도: 중간) — 융합의 이웃 목록 제한과 동의 비율 단계를 빼도 기본 시험이 모두 통과한다
 - 위치: crates/core/src/fusion.rs:233 `nbrs`, :292-294 `need`, 시험 :1021 `bad_config_is_error`, :1111 무시된 `formation_noisy_with_outliers`(main bbd82d8)
@@ -1375,19 +1375,19 @@
 - 확인 기준: 정답 깊이 편대 42장에서 `min_ratio` 0.5 의 점 수·0.25 m 칸 수가 0 설정 대비 99% 이상임을 단언하는 시험 통과.
 - 이력: 2026-10-02 00:05 감독 등록(PR #25 검토) → 2026-10-02 01:03 작업자 처리(feat/fusion-tests 4995b33·3d9eb00, PR #32)
 
-### F-180 [열림] (심각도: 중간) — 출력 검증 최근접 탐색이 같은 거리 상자를 가지치기하지 않아 같은 좌표 점이 많으면 시간이 제곱으로 는다
+### F-180 [처리됨-검증대기] (심각도: 중간) — 출력 검증 최근접 탐색이 같은 거리 상자를 가지치기하지 않아 같은 좌표 점이 많으면 시간이 제곱으로 는다
 - 위치: crates/core/src/verify.rs:782 (`box_d2(n, q) > best_d2`), :789 (`d <= best_d2`)(feat/verify 0475047)
 - 실패 상황: 구역 1개, 정밀 n 점이 모두 (10,10,0), 초벌은 주변 8 m 정사각형 격자(z 0.5) n 점. `verify` 시간 n=1만 0.47 s, 4만 7.8 s, 9만 39.4 s. 같은 좌표 20만 점·질의 20만 개 `nn_median` 165 s. 판정(FAIL)은 맞지만 구역 수만큼 곱해진다.
 - 고칠 것: 가지치기를 `>=` 로, 잎 갱신은 `d < best_d2`, 상한은 `max_r²·(1+1e-12)` 로 시작. 또는 같은 좌표 점을 트리 만들기 전에 합친다.
 - 확인 기준: 위 n=9만 출력이 1 s 안에 종료 코드 1, 같은 좌표 20만 점 `nn_median` 1 s 안 시험.
-- 이력: 2026-10-02 00:05 감독 등록(PR #10 검토)
+- 이력: 2026-10-02 00:05 감독 등록(PR #10 검토) → 2026-10-02 01:08 작업자 처리(feat/verify-followup 91608c8, PR #38)
 
-### F-181 [열림] (심각도: 낮음) — 깨진 manifest 에서 출력 폭주와 스택 넘침
+### F-181 [처리됨-검증대기] (심각도: 낮음) — 깨진 manifest 에서 출력 폭주와 스택 넘침
 - 위치: crates/core/src/verify.rs:252 (`expected.extend(0..last)`, step 상한 1e9), :928 `parse_value`(깊이 제한 없는 재귀)(feat/verify 0475047)
 - 실패 상황: step 30000000 하나 → 16 s·표 출력 1.16 GB·종료 1. manifest `{"snapshots":` + `[`×30만 → "stack overflow, aborting"·종료 134, 표 없음.
 - 고칠 것: step 을 기대 구역 수 + 1 정도에서 자르고 빠진 목록은 앞 몇 개와 개수만. JSON 깊이 64 제한, 넘으면 형식 오류로 FAIL.
 - 확인 기준: 두 폴더 모두 1 s 안에 종료 코드 1, 표 출력 1 MB 미만.
-- 이력: 2026-10-02 00:05 감독 등록(PR #10 검토)
+- 이력: 2026-10-02 00:05 감독 등록(PR #10 검토) → 2026-10-02 01:08 작업자 처리(feat/verify-followup 91608c8, PR #38)
 
 ### F-182 [처리됨-검증대기] (심각도: 낮음) — `select_two_view_model` 이 유한하지 않은 좌표를 받아 GRIC 판정이 조용히 기운다
 - 위치: crates/core/src/matching.rs:313 입력 검사, :340 잔차 누산 (main 1d79e0f, PR #16)
@@ -1405,13 +1405,13 @@
 - 확인 기준: 노트 수치와 시험 출력 일치, 단언 존재.
 - 이력: 2026-10-02 00:10 감독 등록(PR #16 사후 검토) → 2026-10-02 01:00 작업자 처리(feat/matching-followup 9292466, main 병합 0c3c79a, PR #34)
 
-### F-184 [열림] (심각도: 낮음) — `--quick`·`--full` 이 앞에 준 `--positions` 등을 덮어써 인자 순서에 따라 규모가 바뀐다
+### F-184 [처리됨-검증대기] (심각도: 낮음) — `--quick`·`--full` 이 앞에 준 `--positions` 등을 덮어써 인자 순서에 따라 규모가 바뀐다
 - 위치: crates/core/benches/pipeline.rs `parse_args` `--quick`·`--full` 분기 (main 25d71cf, PR #28)
 - 문제: 묶음 인자가 위치·해상도·반복·점 수를 무조건 덮어쓴다. `--positions 20 --full` 은 위치 80, `--full --positions 20` 은 20. 사용법 표에 순서 규칙이 없다.
 - 실패 상황: `--positions 20 --full` 로 줄여 재려던 측정이 전체 규모로 수십 분 돈다.
 - 고칠 것: 묶음 인자를 먼저 적용하고 개별 인자를 뒤에 덮어쓴다(또는 사용법 표에 "뒤에 준 인자가 이긴다").
 - 확인 기준: 두 순서의 머리 줄 '위치' 값이 같다(또는 표에 규칙이 적혀 있다).
-- 이력: 2026-10-02 00:10 감독 등록(PR #28 검토)
+- 이력: 2026-10-02 00:10 감독 등록(PR #28 검토) → 2026-10-02 01:08 작업자 처리(feat/benchmarks-args 4b4e869 (PR #33))
 
 ### F-185 [열림] (심각도: 낮음) — benchmarks-followup 노트의 시험 개수가 커밋의 실제 개수와 다르다
 - 위치: 연구 experiments/benchmarks-followup.md "방법" 마지막 줄, 제품 a7ad157

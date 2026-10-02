@@ -1,6 +1,38 @@
 # 현재 상태
 
 - 상태: 검토 대기
+- 마지막 갱신: 2026-10-02T01:10Z
+- 이번 실행(00:25Z 시작, 4 코어 측정 기계에서 12 묶음 동시 진행 — 부하 평균 24~41, 시간 수치는 부풀려짐):
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | P04 io-followup | PR #35 (6f045af) | PR #52 (→ scaffold) | F-134·F-135·F-155(main 0afc818 align 기준)·F-168·F-163·F-170 처리. F-169 재측정 ff3a769 lib 140(피드백 142 와 다름), F-016 현황만. 전체 시험 core 190 통과·8 무시, 4+4+6+21+2 통과 |
+  | P13 stream-followup | PR #36 (03fa95c) | PR #53 (→ progressive-stream) | F-066·F-176·F-177 처리, F-175 코드(반경/√3 칸·상자 가지치기, 무차별 대조 일치) — 시간 비 미측정. 직접 재검증 core lib 199 통과·9 무시·1 실패(`five_point_terminates_on_many_seeds` 시간 단언, 부하 40) |
+  | P15 benchmarks-args | PR #33 (4b4e869) | PR #50 (→ benchmarks) | F-184 처리, F-132 인자 없는 bench 471.6 s(부하 중), F-149 24장 `회전 평균(검증 결과)` 정렬 오차 중앙 69.3°, F-185 정정. 직접 재검증 fmt·perf_structure 6 통과, 새 main 과 충돌 없음 |
+  | P03 two-view-hardening | PR #13 갱신 (ce66257), 라벨 안 붙임 | experiment/two-view-hardening e429b66 | F-158(`verify_pair`, bench 단계 5b 연결 — 맡은 파일 밖 pipeline.rs 한 곳)·F-159·F-160 처리. bench 2° 초과 간선 1→0, 정렬 오차 중앙 0.265→0.031°, 시점 8/24 그대로(다른 카메라 짝 18개 모두 검증 실패, F-148). lib 193 통과·1 실패(`large_chain_graph_is_fast` 5.24 s, 부하)·11 무시, 통합 시험 미실행 |
+  | P05 rotation-averaging-followup | `feat/rotation-averaging-followup` 2983a77 (PR 안 엶) | experiment/rotation-averaging-followup 1d27a32 | F-171·F-172·F-173·F-138 처리, F-047 일부. 전체 시험 미실행 |
+  | P20 ba-robust | `feat/ba-robust` 995020e (PR 안 엶) | experiment/ba-robust 0078057 | F-165·F-164·F-162·F-167·F-174 처리, F-166 대부분, F-036 원인(편대 장면 600점 중 597점이 한 카메라 종류에서만 관측, 종류 간 공유 트랙 0~13) — 무시 유지. ba:: 21 통과·3 무시, 전체 시험 미실행 |
+  | P12 dataset-io | PR #4 갱신 (3bbf74b), 라벨 안 붙임 | experiment/dataset-io fd97ea7 | main 합침(main.rs run·verify 둘 다), F-065 로더 경계 표·스트림 `split_regions` 와 800경우 일치 시험. 전체 시험 미확인(core 219 통과·1 실패 시간 단언) |
+  | tracks | PR #15 갱신 (c8fa58d), 라벨 안 붙임 | experiment/tracks 23f49c5 | F-123 일부: 재현율 30%·오대응 1% Split 순도 0.9672→0.9720(기준 0.99) — `sparse_recall_keeps_tracks_whole` 실패 상태 |
+  | P11 fusion-tests | `feat/fusion-tests` 4995b33(00:46 같은 계정의 다른 커밋), 이쪽 커밋은 `feat/fusion-ratio-alt` e9fe7ae | experiment/fusion-tests 61cab77 (새 노트 없음) | F-179·F-161·F-178 같은 범위를 두 갈래가 따로 고침 — 하나를 골라야 함. 검증 미완 |
+  | P06 translation-averaging | `feat/translation-averaging` 5f8fe0b (main 병합만) | experiment/translation-averaging 05c9681 | 시험 편대가 실측 배치와 달랐음(실측 배치로 바꾸면 점 제약 없이 중심 RMS 7.5~9.1 m). 무너짐은 점 관측 이상치가 있을 때만(이상치 0% 면 240/240·0.11~0.14 m). 코드 변경 없음 |
+  | P10 patchmatch | `feat/patchmatch` 663c7d2 (main 병합만) | experiment/patchmatch 8ace1c6 | F-151 합친 트리 컴파일 통과 확인. F-048·F-050·법선 시험 2개 미처리(부하로 전후 비교 불가, 960px 257.67 s 부하 중) |
+  | P14 verify-followup | PR #38 (91608c8) | PR #55 (→ scaffold) | F-180(같은 좌표 9만 점 39.4 s → 0.73 s, 20만×20만 < 1 s·정답 0.5 일치)·F-181(단계 상한, 목록 10개, JSON 깊이 64) 처리, F-089 SPEC 결정 대기. 전체 시험 239 통과·0 실패·8 무시, 새 main 과 충돌 없음 |
+- 막힌 점:
+  - 같은 시각 00:28Z 시작 실행(아래 기록)과 묶음이 겹쳤다. 00:23 무렵까지 다른 실행이 PR #29~#31·#24 를 갱신했고, 00:46 에 `feat/fusion-tests` 에 같은 계정 커밋이 올라와 이쪽 푸시가 거부됨 — 실행이 겹친다. STATUS 를 10분마다 갱신하지 않는 실행이 있다.
+  - 12 묶음 동시 빌드로 부하 평균 40 안팎, 릴리스 빌드 5~11분 — 대부분 묶음이 전체 시험을 못 돌림. 시간 단언 시험 `five_point_terminates_on_many_seeds`·`large_chain_graph_is_fast` 가 부하에서 실패(단독 통과).
+  - F-148: 다른 카메라 짝이 하나도 검증을 통과하지 못함 → 카메라별 회전 묶음을 GPS 진행 방향으로 잇는 방안 또는 SPEC §3.2 ±4 위치 확대 결정 필요.
+  - F-036: 합성 편대 장면에 카메라 종류 간 공유 트랙이 거의 없음 — 장면 생성 쪽(synth) 변경 필요.
+- 결정 필요(이전 그대로 + 추가):
+  1. F-148 다른 카메라 연결 방안(위).
+  2. P11 두 갈래(4995b33 / e9fe7ae) 중 선택.
+  3. 이전 기록의 SPEC §3.4·§2 report.json·step 형 결정.
+- 다음 할 일:
+  1. 미재검증 브랜치(#13·#4·rotation-averaging-followup·ba-robust) 부하 없는 상태에서 전체 시험 후 PR·라벨.
+  2. 묶음 수를 4~6 개로 줄여 빌드 부하를 낮출 것.
+  3. P06 실측 배치에서 깨끗한 점 관측도 RMS 0.8~4.4 m 인 원인(s ≥ 1 하한 + L1 축척 수축).
+  4. tracks F-123 남은 0.028, patchmatch F-048 속도.
+
+## 같은 시각 실행 기록 (00:28Z 시작분)
 - 마지막 갱신: 2026-10-02T01:05Z
 - 이번 실행(00:28Z 시작, 4 코어 측정 기계, 11 묶음 동시 진행 — 부하 평균 7~25):
   | 묶음 | 제품 | 연구 | 결과 |
