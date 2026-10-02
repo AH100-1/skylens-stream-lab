@@ -31,7 +31,11 @@ features.rs 2곳(1016·1022 행 부근), matching.rs 1곳, two_view.rs 1곳, REA
 ## 정정 — io-cleanup 노트의 lib 시험 수(F-169)
 `experiments/io-cleanup.md` "남은 문제" 첫 항목의 "lib 136 통과·1 실패·3 무시"(합 140)는 측정 커밋을 적지 않았고 실제 브랜치와 맞지 않는다.
 측정 커밋은 제품 `feat/io-cleanup` ff3a769 이다. 이 커밋의 `crates/core/src` 에서 `#[test]` 속성은 140개, `#[ignore` 는 3개로 세어지나,
-`cargo test --release -p skylens-core --lib -- --list` 개수는 142 로 보고되었다(F-169). 정정 값은 아래 "남은 문제" 의 재측정 결과로 적는다.
+`cargo test --release -p skylens-core --lib -- --list` 개수는 142 로 보고되었다(F-169).
+재측정: ff3a769 를 그대로 풀어 `cargo test --release -p skylens-core --lib -- --list` 를 돌린 결과 **140 tests**(무시 3 포함)다.
+따라서 노트의 합 140(136 통과·1 실패·3 무시)은 ff3a769 의 lib 시험 수와 같고, 142 는 ff3a769 가 아닌 다른 트리(main 을 합친 검토 트리로 추정)의 개수로 보인다.
+정정하는 것은 측정 커밋 표기다: 그 수치는 "feat/io-cleanup ff3a769, lib 140개 = 136 통과·1 실패(`two_view::tests::five_point_terminates_on_many_seeds`, 시간 단언)·3 무시" 로 읽는다.
+이번에 실행까지 다시 돌리지는 못했다(4 코어 측정 기계, 컴파일만 11 분).
 
 ## 방법
 - README: `skylens-stream --help`, `synth /tmp/syn 64 48` 의 파일 목록, `verify.rs` 머리말(종료 코드 0/1/2, report.json 판정 항목),
@@ -48,7 +52,8 @@ features.rs 2곳(1016·1022 행 부근), matching.rs 1곳, two_view.rs 1곳, REA
 - F-155: 검토 대기 중인 GPS 정렬 개정(잡음 비례 기본 임계, 정상 < max(3, 50%)·좁은 경로에서 None, `threshold_m`·`spread_m`·`tilt_sigma_deg`,
   `gps_align_with`·`GpsAlignConfig`)이 main 에 들어오면 두 절의 GPS 정렬 문단 세 줄을 다시 고쳐야 한다. 지금은 main 기준.
 - F-016: 검출기 출력 규약 변경은 matching.rs·two_view.rs·벤치 시험과 README 를 함께 바꿔야 해 이 묶음 범위를 넘는다. 현황만 위에 적었다.
-- F-169 재측정(ff3a769 `--list` 개수)과 이 브랜치 전체 `cargo test --release` 결과는 아래 줄에 덧붙인다.
+- F-169: 감독 측정 142 와 재측정 140 의 차이가 어느 트리에서 나왔는지 확인하지 못했다(같은 명령을 그 트리에서 다시 세면 풀린다).
+- 이 브랜치: fmt 통과, clippy(-D warnings) 통과. 전체 `cargo test --release` 는 마감 전에 끝나지 않아 lib `ply` 15개·`GrayImage` 문서 시험 2개만 확인했다.
 
 ## 제품 브랜치·커밋
 - 브랜치 `feat/io-followup`(origin/main 0afc818 에서): ce3d673(README), 6f045af(PLY 매직·문서 시험).
