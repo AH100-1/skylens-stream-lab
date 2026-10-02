@@ -58,7 +58,7 @@
 - A 와 B 는 같은 바이너리. B 는 같은 기계에서 다른 묶음 빌드와 이 브랜치의 clippy·시험 빌드가 함께 돈 동안 쟀다.
 - 시험: `cargo fmt --all --check` 통과, `cargo clippy --all-targets -- -D warnings` 통과. `cargo test --release` 는
   lib 의 `verify::tests::nn_median_many_identical_points_is_fast_and_exact`(1.0 s 시간 단언)가 부하 평균 32 에서 실패했고,
-  단독 재실행(부하 평균 31)에서 0.60 s 로 통과했다. 전체 결과는 아래 남은 문제.
+  단독 재실행(부하 평균 31)에서 0.60 s 로 통과했다. 855a05f 의 `cargo test --release --no-fail-fast` 전체: 통과 295·실패 1(위 시간 단언, 부하 평균 26)·무시 13.
 
 ## 남은 문제
 - 부하 평균 < 2 단독 실행 값(F-149·F-128 확인 기준)이 없다.
@@ -67,4 +67,4 @@
 - F-040: `--full` 에 카메라 240·트랙 10만 번들 조정과 선형화·슈어·촐레스키 구간 분해(ba.rs 내부 계측 필요).
 
 ## 제품 브랜치·커밋
-- feat/benchmarks-timing 855a05f (crates/core/benches/support/args.rs 기본 반복 1·짝 상한 40, `--full` 짝 상한 0; pipeline.rs 사용법 표)
+- feat/benchmarks-timing 855a05f·4fa8ce1 (사용법 표 예상 시간을 위 측정값으로; crates/core/benches/support/args.rs 기본 반복 1·짝 상한 40, `--full` 짝 상한 0; pipeline.rs 사용법 표)
