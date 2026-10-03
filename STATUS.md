@@ -13,7 +13,7 @@
   | patchmatch (#6, F-048) | `feat/patchmatch` 672f548 | experiment/patchmatch ee68e64 | 원 해상도 건너뜀 비용 0 → 0.08: 960×540 이웃 8장 CPU 4.17 → 1.79 s(CPU/4 0.45 s), 벽시계 2.72 s(부하 21~25). 깊이 기준 통과(중앙 0.187%, 1% 이내 94.8%)이나 960 시험 법선 중앙 2.85 → 5.85°. 총괄 재확인 못 함, 라벨 없음 |
   | pipeline-regions-ba (F-272·F-273) | `feat/pipeline-regions-ba` d7981e7 | experiment/pipeline-regions-ba a0d62d0 | `region_link` Off/Points/Centers(겹치는 사진 포즈 고정). 3구역 62/78: 겹침 4.20/4.48/4.20 m, 스케일 차 177.8/374.5/177.8% — 개선 없음, 기본 Off. `pipeline_regions` 2 실패(가운데 구역 건너뜀 기록·정지 구간 이슈) |
   | pipeline-stream-order (F-055 등 관련) | `feat/pipeline-stream-order` 6de27fc | experiment/pipeline-stream-order bd4fee2 | 위치 단위 도착 사건, 시점별 스냅샷 `snapshots/live/`, manifest `events`. 2구역 사건 순서 시험 통과, 스트림 41.6 s / 순차 51.5 s 수치 동일. `pipeline_regions` 2 실패(위와 같은 두 시험) |
-  | pipeline-pm (F-271) | `feat/pipeline-pm` | experiment/pipeline-pm | 마감 시점 결과 미수신 — 브랜치 상태만, 총괄 확인 못 함 |
+  | pipeline-pm (F-271) | `feat/pipeline-pm` f34be87 | experiment/pipeline-pm 1a8d46f | densify + patchmatch 합침, `PipelineConfig::dense_method`(Sweep 기본 / PatchMatch: 이웃 8장 `select_neighbors`·`depth_range` → `patchmatch::estimate` → `fusion::fuse`). 단구역 폭 96 px: 스윕 점→표면 0.333/1.523 m(중앙/95%)·12.0 s, 패치매치 0.319/2.619 m·66.1 s, 둘 다 verify 5/7(시험 하한 6 → 5 로 낮춤). fmt 통과, `--test pipeline` 2 통과, clippy·전체 시험 미실행. 총괄 확인 못 함 |
   | pipeline-accuracy (F-273·F-066) | `feat/pipeline-accuracy` | experiment/pipeline-accuracy | 마감 시점 결과 미수신 — 브랜치 상태만, 총괄 확인 못 함 |
 - 끝까지 흐름 진척: `feat/pipeline` 단구역 synth → run → verify 가 PLY·스냅샷·manifest 까지 나오고, 초벌 BA 가지(#48)에서 단구역 7/7. 남은 것: #48 을 `feat/pipeline` 에 합치기(preview 충돌 정리 먼저), 2구역 스케일 차(12.7%), 밀집을 PatchMatch 로.
 - 다음 할 일:
