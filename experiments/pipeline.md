@@ -6,8 +6,7 @@
 feat/pipeline 에 regions, tracks, ta, height 를 순서대로 합쳐 푸시했다. main 은 이미 들어 있었다.
 충돌은 regions(시험 파일 한 곳, 양쪽 줄 유지), ta(lib.rs 모듈 선언), height(PipelineConfig 필드·기본값·sparse_init 인자·시험 설정)에서 났고
 모두 양쪽 기능을 살렸다(위치 방식 `position` 과 삼각측량·GPS σ 설정을 함께 둠, sparse_init 은 두 인자 모두 받음).
-preview 는 합치지 못했다: 구역 차례 처리 쪽 구조(파이프 단계 run_ba 인자, sparse_init 반환형, 구역 반복 본문)와 4곳에서 겹쳐 시간 안에 풀지 못했다.
-preview-ba 합치기는 이 작업 환경에서 권한 거부로 실행하지 못했다. 둘 다 남은 일이다(preview 가 먼저여야 한다).
+preview, preview-ba 는 이 절 작성 당시 합치지 못했으나 이후 모두 feat/pipeline 에 합쳐졌다(머리 e0438ca). 현재 머리 기준 수치는 experiments/pipeline-preview-split.md 의 표(기본 설정: 단구역 verify 6/7·높이 차 2.657 m, 2구역 5/7)를 따른다.
 빌드 --all-targets·fmt·clippy(-D warnings) 통과. 끝까지 시험 `pipeline`(2개)은 regions 합친 시점에 1 통과·1 실패(`synthetic_two_region_end_to_end`, 단언 249행:
 점쌍 최소 143, 구역 간 스케일 차 12.71%, 잔차 9.813 m). tracks·ta·height 합친 뒤에는 시험이 12분 걸려 돌리지 못했다. 시험 단언은 느슨하게 바꾸지 않았다.
 
