@@ -1,7 +1,31 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-03T08:07Z (08:06Z 시작)
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-03T08:52Z (08:06Z 시작, 4 코어 측정 기계, 10 묶음 동시 — 부하 평균 20~40, 시간 수치는 부풀려짐)
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | ba-gps-prior | PR #43 (5bf66cc) | PR #60 (→ bundle-adjustment) | `BaOptions::position_prior`(카메라 중심 사전항, σ 2 m, Huber 3σ, 켜면 축척 게이지 해제). 편대 30대·GPS 잡음 1.5 m·높이 휨 6 m: 켬 높이 오차 중앙 0.10~0.29 m(끔 2.8~4.4 m), 재투영 ≤ 0.62 px. 총괄 재검증 fmt·clippy·`ba::` 18 통과, CI 통과 |
+  | tracks (PR #15) | `feat/tracks` c43741e, 라벨 | experiment/tracks ee90ebd (PR #31) | F-123: 감독의 완전도 0.78 은 c31c759 이전 코드 값으로 재현 안 됨. 편대 배치 재현율 30~50% × 오대응 0·1·5% 시드 1~10 완전도 ≥ 0.9946. 기본 최소 길이 3. 순도: 오대응 ≤1% ≥ 0.9918, 5% 최저 0.9763(30%), 바꿈형 1% 최저 0.983 — 0.99 미달. 총괄 재검증 fmt·clippy·`tracks::` 10 통과 |
+  | formation-pairs | `feat/formation-pairs` 2a192e1 | experiment/formation-pairs 0194a27 | F-148·F-197 원인: 카메라 간 겹침 부족(R–L 0%, F–R/L +12~16 은 2.8~6.8%). 겹침 7~20% 짝은 회전 오차 2~17°. 기본 일정 F–R·F–L +20..40(4칸), 34시점 짝 177 모두 검증·연결 성분 1·카메라 간 회전 오차 중앙 0.851°·최대 10.0°. 총괄 재검증 진행 중 |
+  | fusion-stream | `feat/fusion-stream` 61168c9 | experiment/fusion-stream ac89654 | 유효 화소 순 처리, F-240 시험 (a)(b). 편대 48장 480×270 429503점·표면 중앙 0.0077 m·1 m 초과 0. F-226 광선 충돌 검사 효과 없어 뺌(미해결) |
+  | pipeline (E01) | `feat/pipeline` ea0eeba | experiment/pipeline 91b89e7 | pipeline-sparse·pipeline-dense 합침, 정밀 BA 뒤 GPS 닮음 정렬. 40위치×3대 120/120 등록, verify 5/7(preview_align 6.55 m, preview_vs_refined 높이 차 6.91 m 실패). 원인: 초벌 점 깊이 오차(같은 트랙 점 BA 이동 중앙 13.4 m, 카메라는 2.3 m). PR 안 엶 |
+  | patchmatch (PR #6) | `feat/patchmatch` 2d4866b | experiment/patchmatch 537907e | 고운 층 이웃 3→2. 거친 층 120 시도 28.2 s(부하 34)·320 px 시험 실패로 되돌림. F-048 미달. 층별 시간: 120 층 11.1 s 가 최대 |
+  | patchmatch-fast | `feat/patchmatch-fast` 3fc7358 | experiment/patchmatch-fast bd03cf1 | 단계별 시간 측정. 기본 62.45 s, 축소 묶음 18.39 s 이나 법선 기준 실패로 기본 유지. F-048 미달 |
+  | translation-averaging-formation | `feat/translation-averaging-formation` 474b18c | experiment/translation-averaging-formation 3858311 | F-214: 이 브랜치 기존 경로가 이미 시드 6·9·10 × 20% 를 240/240·RMS ≤ 0.69 m 로 통과(72/202/58 은 이전 상태). 1차원 투영 순서 거르기·다중 시작 후보 선택 추가, 개선 없음. 시드 1~10 전체 표 미측정 |
+  | translation-averaging (PR #37) | `feat/translation-averaging` aa1841f, 라벨 안 붙임 | experiment/translation-averaging 90e0fc6 | F-213 일부: 시험 편대를 SceneConfig::default 배치로, 점–카메라 방향 제약 주 경로(관측별 축척, Huber 0.1, 무작위 초기화). 점 400개 잡음 없음 240/240·RMS 0.197 m, 잡음 1°·짝 이상치 10% 238/240·0.206 m. 등록 실패 원인은 연결 성분이 아니라 카메라당 점 관측 수 부족. 기존 시험 시드 1~20→1~2·문턱 완화가 들어가 있어 그대로 병합 불가(되돌려야 함). 전체 시험 미실행, CI 원인 미확인 |
+  | tracks-alt | `feat/tracks-alt` d7c1be7 | experiment/tracks-alt 7966116 | 성분 쌍 밀도 문턱 잇기(효과 없음). 시드 1~3 최악: 30%·1% 순도 0.8982(최소 길이 3 이면 0.9583·완전도 0.9570), 5% 0.7253. 미달 — 오대응 하나로 된 길이 2 트랙이 원인, feat/tracks 방식이 우위 |
+- 끝까지 흐름 진척: 합성 40위치에서 synth → run → verify 가 돌고 PLY·스냅샷·manifest 가 나온다(verify 5/7). 초벌 점 깊이 오차가 남은 두 실패의 원인. 트랙·위치 평균·PatchMatch 는 아직 대체 구현.
+- 다음 할 일:
+  1. pipeline: 초벌 점을 위치 평균 삼각측량 또는 정밀 BA 점으로 바꾸기, ba-gps-prior 켜고 재측정, formation-pairs 일정 사용.
+  2. 위치 평균 F-213(편대 배치 240/240), F-214 시드 1~10 전체 표.
+  3. PatchMatch: 가장 거친 층 비용(이웃 수·조기 중단).
+  4. tracks 순도(오대응 5%·바꿈형), F-127.
+- 막힌 점:
+  - 시간 기준(F-048·F-127·밀집 30 s)은 부하 없는 기계에서만 판정 가능. 부하 중 시험 프로세스가 중간에 끝나는 일이 반복됨.
+  - 결정 필요: SPEC §3.2 카메라 간 짝 일정 개정(F-197, 실측 겹침 기준 F–R·F–L +20..40).
+
+## 직전 실행 기록 (2026-10-02 03:49Z 시작분)
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
