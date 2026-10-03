@@ -12,7 +12,7 @@
   | pipeline-height (F-268·F-270) | `feat/pipeline-height` 6724181 | experiment/pipeline-height 763e15e | 삼각측량 문턱·GPS σ 수평/수직을 설정으로, synth 기체별 GPS 치우침 옵션. 끝까지 단구역 수치 변화 없음(verify 5/7, preview_align 6.97 m, 높이 차 4.62 m). 높이 차는 초벌 점 깊이 쪽으로 추정. 전체 시험 중 `sparse::formation_scene_registers_all_and_meets_floors` 실패(중심 2.50/5.09 m, 부하 20, 원인 미확인) |
   | pipeline-regions | `feat/pipeline-regions` 07c48d5 | experiment/pipeline-regions f75bc59 | 정밀 구역 재정렬을 이웃 따라 연쇄 합성: 3구역 겹침 차 3.04 → 2.40 m, 스케일 차 6.49%, verify 4/7. 남은 차이는 구역별 정밀 모델 자체(스케일·높이) — 구역 경계 묶는 BA 필요 |
   | rotation-coverage (F-209·F-148) | `feat/rotation-coverage` 4fa2bc6 | experiment/rotation-coverage 3ae6d09 | main 에서도 기본 bench 8/24: 8위치 bench 는 카메라 간 짝이 구조적으로 안 겹침(원인은 평면 순위 아님). 겹치는 편대 시험: 16/16, 2° 초과 3.9%, 정렬 중앙 0.141°. bench 에 짝 종류별 성공 수·성분 수 출력 |
-  | pipeline-ta | `feat/pipeline-ta` 2e18bd8 | 노트 미확인 | feat/pipeline + #37 합침, 위치 평균을 선택 가능한 초벌 위치로 연결(기본값 그대로). 결과 보고 전 회차 종료 |
+  | pipeline-ta | `feat/pipeline-ta` 2e18bd8 | experiment/pipeline-ta 8786b03 | feat/pipeline + #37 합침(충돌 없음), `PipelineConfig::position`(기존 GPS 최소제곱 기본 / 위치 평균 선택, 3시점 이상 트랙 최대 3000개, 실패 시 기존 방식). 위치 평균 쪽 끝까지 수치는 마감 안에 못 냄(기존 쪽 120/120, verify 6/8 — preview_align 6.97 m·높이 차 4.62 m 실패, 119 s). fmt·clippy·전체 시험 미실행. 측정: `PIPE_POSITION=ta cargo test --release -p skylens-stream --test pipeline synthetic_single_region -- --nocapture` |
   | pipeline (#46, E01 합치기) | `feat/pipeline` ee9eb18(변경 없음) | | regions 합치기 충돌 해결·빌드까지 했으나 커밋 단계가 이 측정 기계 권한 설정에서 막혀 진행 못 함 |
   | fusion-consistency | 시작 못 함 | | 권한 설정에서 막힘 |
 - 끝까지 흐름 진척: 지난 회차와 같음 — `feat/pipeline` 단구역 synth → run → verify 5/7, PLY·스냅샷·manifest 출력. 위치 평균 연결(pipeline-ta)·높이 설정(pipeline-height)·구역 연쇄 재정렬(pipeline-regions)이 각자 브랜치에 있고 아직 하나로 모이지 않음.
