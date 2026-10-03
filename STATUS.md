@@ -1,5 +1,32 @@
 # 현재 상태
 
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-03T12:50Z (12:06Z 시작분)
+- 이번 회차 결론: PR 로 넘긴 묶음 없음. 측정 기계(4 코어)가 부하 평균 17~26 으로 포화돼 모든 묶음이 전체 시험을 끝내지 못함. 끝까지 흐름에서 실제 진척은 2구역 등록 붕괴 해결(210 → 240/240) 하나.
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | pipeline-tests (F-273) | `feat/pipeline-tests` dbe3aa0 | experiment/pipeline-tests 824c1e6 | 원인: 구역 앞쪽 R·L 은 F(p−40..p−20) 와만 겹치는데 그 F 사진이 구역에 없어 카메라 간 짝이 끊김. 희소 복원에 구역 앞쪽 F(lo−40..lo−20)를 보조 사진으로 넣음(등록 수·출력에서 제외). 2구역: 등록 210 → 240/240(구역 1 68 → 102/102), 스케일 차 13.08 → 1.06%, 정밀 겹침 차 14.4 → 3.98 m(기준 0.3 m 미달), 중심 1.66/9.61 m, 표면 3.51 m. 시간 423 → 633 s. 고친 단언은 재실행 못 함, clippy·전체 시험 미실행 |
+  | pipeline (#46, F-268·F-274) | `feat/pipeline` c11f4cf | experiment/pipeline c456a30 | 초벌 점 문턱 0.7/1.5/3×중앙 비교: 셋 다 verify 5/7, 높이 차 4.2~5.2 m 로 문턱과 무관 → 문턱 원인설 기각. 3×중앙 유지(점쌍 ≥1000 유일). F-274 주석 이동. 단언을 5/7 실측(실패는 preview_align·preview_vs_refined)으로. fmt·clippy 통과, 전체 시험 미완. PR #46 라벨 안 붙임 |
+  | pipeline-densify (F-271 후속) | `feat/pipeline-densify` 9ce9992 | experiment/pipeline-densify 81c696b | 점 감소 원인: 초벌 자세(재투영 2.54 px)로 도는 밀집의 융합 문턱 — 상대 깊이 0.01 통과 1413/31033(정밀 자세 301474). 융합 문턱에 BA 재투영 비례 배수(최대 6). 초벌 밀집 점 2802 → 5986, 정밀 61003 → 63895. 끝까지 시험이 verify 5/7 에서 먼저 실패해 표면 단언 미측정. clippy·전체 시험 미실행 |
+  | pipeline-regions | `feat/pipeline-regions` 58df43f | experiment/pipeline-regions 7a6df38 | feat/pipeline 합침, `pipeline_stream.rs` 분리, 새 정밀 모델이 나오면 겹치는 이전 정밀 구역을 공유 3D 점 닮음 변환으로 재정렬(잔차 중앙 0.083 m, 56쌍). 3구역 등록 30/78 그대로 — 구역마다 카메라 한 대만 남음(카메라 간 짝 끊김, pipeline-tests 의 보조 사진 방식과 같은 원인으로 보임). 새 정밀 모델 위 다음 등록은 아직. fmt·clippy 통과, 새 시험 재실행 못 함 |
+  | patchmatch (#6, F-048) | `feat/patchmatch` f36c82d | experiment/patchmatch 0127356 | patchmatch-fast 를 합침(상위 3·법선 단계). 960×540 이웃 8장 9.6~11.4 s(부하 21~25). 합친 기본값에서 경사 5.47°·계단 5.36°(기준 5°) 실패 → coarse 240·fine 이웃 4 로 바꿨으나 결과 미확인. **현재 feat/patchmatch 머리는 시험 실패 가능성 있음.** 체커보드 행 병렬·창 통계 캐시·조기 중단은 미착수 |
+  | patchmatch-fast | `feat/patchmatch-fast` 1f38c8a(변경 없음) | experiment/patchmatch-fast f922cd8 | 빌드가 부하로 끝나지 않아 실험 못 함 |
+  | translation-averaging-formation (F-214) | `feat/translation-averaging-formation` 8b6bf12(변경 없음) | experiment/translation-averaging-formation 5ad3f70 | 짝만 푼 후보(1단계·투영 거르기·무작위 3개) 중 절단 비용 최소를 시작값으로 — 점 이상치 5% 시드 1 에서 효과 없음(후보 모두 RMS 2.8~3.9 m), 되돌림 |
+  | translation-averaging (#37) | `feat/translation-averaging` 머리 확인 필요 | experiment/translation-averaging | 회차 끝까지 결과 보고 없음 — 다음 회차에 브랜치 상태부터 확인 |
+  | two-view-cross (F-251) | `feat/two-view-cross` 579a81a | experiment/two-view-cross e584b56 | `refine_relative_pose` 가 F–R·F–L 짝에서 25~32° 틀리던 원인: 다중 시작 중 비용 최소가 좁은 겹침에서 틀린 골짜기(비용 10~15% 낮음). 선형 해를 기준으로, 10° 넘게 벗어난 해는 비용이 절반 이하일 때만 채택. 36짝(시드 1~3, +20..+40): 정제 후 중앙 0.772°·2° 초과 3/36(8.3%)·최대 5.86°(전 최대 32.2°). 기준(중앙 <0.5°, <5%) 미달 — 남은 3짝은 선형 해도 같은 오차(RANSAC 정상 집합 쪽). 전체 시험·clippy 미실행 |
+  | tracks (F-125·F-127) | 미착수 | | 이번 회차에 배정하지 못함. #15 는 감독 통과·병합 대기 그대로 |
+- 끝까지 흐름 진척: 구역 하나(40위치)는 synth → run → verify 가 돌고 PLY·스냅샷·manifest 가 나오지만 verify 5/7(초벌 정렬 잔차·초벌↔정밀 높이 차). 2구역은 등록 240/240 까지 왔고 남은 것은 정밀 겹침 차 3.98 m. 세 가지(pipeline·pipeline-tests·pipeline-densify·pipeline-regions)가 아직 따로 있어 한 가지로 합쳐야 함.
+- 다음 할 일:
+  1. 부하 낮은 상태에서 묶음 수를 3~4 개로 줄여 각 가지 전체 시험 확인.
+  2. `feat/pipeline` 에 pipeline-tests(보조 사진) → pipeline-densify → pipeline-regions 순으로 합치고, 3구역 30/78 이 보조 사진으로 풀리는지 확인.
+  3. 초벌 정렬·높이 차: 문턱 원인설 기각 → 초벌 포즈(회전 평균 뒤 10° 초과 간선 제거·재평균, 위치 단계) 쪽 조사. 정밀 겹침 3.98 m 도 같은 쪽.
+  4. PatchMatch: 240/4 기본값 정확도 확인, 실패면 feat/patchmatch 를 f36c82d 이전(5c1ec21)으로 되돌릴지 결정.
+- 막힌 점:
+  - 측정 기계 포화(부하 평균 17~26, 4 코어)로 시험 한 번에 5~10 분 — 이번 회차 어느 묶음도 전체 시험 완료 못 함.
+  - 결정 필요: 위치 평균 #37 시험 RMS 상한 0.6 m 유지 여부, SPEC §3.2 카메라 간 일정(F-197), 구역 희소 복원에 구역 밖 보조 사진 사용을 SPEC §3.5 에 둘지.
+
+## 직전 실행 기록 (2026-10-03 10:06Z 시작분)
 - 상태: 진행 중
 - 마지막 갱신: 2026-10-03T12:07Z (12:06Z 시작분 진행 중)
 - 묶음별 결과:
