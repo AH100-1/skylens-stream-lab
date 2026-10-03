@@ -1,5 +1,30 @@
 # 현재 상태
 
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-03T13:53Z (13:06Z 시작분)
+- 이번 회차 결론: 위치 평균 #37 이 F-213 기준(0.3/1.0 m)을 회복해 다시 검토 요청. 흐름 네 가지(pipeline·tests·densify·regions)를 `feat/pipeline` 하나로 합침 — 단, 합친 머리의 전체 시험은 미확인.
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | translation-averaging (#37, F-213) | `feat/translation-averaging` eba2e87 | experiment/translation-averaging 45052da | CI 실패는 옛 커밋 것(머리 2783d53 통과). 마지막 거르기 2°→2°→1.5°, 뒤에 점 재교차·카메라 각도 최소제곱(이웃 짝 방향 가중 0.1) 5회 번갈아. 실측 배치 시드 11~13 × 점 이상치 0/5% × 짝 이상치 10/20% 12경우 모두 240/240, RMS ≤0.296 m·최대 ≤0.85 m, 시험 상한 0.3/1.0 m 복원. 총괄 재확인: fmt 통과, 모듈 시험 9 통과·0 실패·3 무시(219 s). 전체 시험은 CI 에 맡김. review-requested 다시 붙임. F-218 일부 |
+  | pipeline (#46, E01) | `feat/pipeline` ee9eb18 | experiment/pipeline f2db217 | tests → densify → regions(3dffbc1 까지) 합침. 합치기 직전(1dda4bd) 단구역 40위치: 120/120, 정밀 중심 0.337/1.26 m, 표면 중앙 0.342 m, verify 5/7(preview_align·preview_vs_refined). 2구역: 240/240, 중심 0.959/9.01 m, 표면 4.10 m, verify 4/7, 정밀 겹침 8.51 m(합치기 전 3.98 m 에서 악화). 시험 상한 일부 느슨히 함(노트에 명시). ee9eb18 clippy·전체 시험 미확인 → 라벨 안 붙임 |
+  | pipeline-preview | `feat/pipeline-preview` 2406456 | experiment/pipeline-preview 99cdf5a | 초벌 포즈 단계 분해: 회전 평균 나쁜 간선이 지배. 회전 평균 뒤 10° 초과 간선 제거·재평균 + 위치 단계 GPS 사전 가중 1 을 기본값으로: 중심 중앙 3.21 → 1.11 m, 최대 14.8 → 3.26 m, 회전 2.54 → 0.82°, 정렬 잔차 8.61 → 4.23 m, 높이 차 4.18 → 2.91 m(기준 2 m 미달). 끝까지 verify·전체 시험 미실행. feat/pipeline 에 아직 안 합침 |
+  | pipeline-regions | `feat/pipeline-regions` 569b10f | experiment/pipeline-regions 7a6df38(노트 미갱신) | 3구역 30/78 원인: 짝 규칙상 R(p)·L(p)는 F(p−40..p−12)와 이어지는데 보조 범위 [lo−40, lo−20] 이 구역 첫 위치 짝을 놓침 → [lo−40, lo−1] 로 넓힘. 시험 장면 62위치·3구역(186장): 구역별 78/78·84/84·48/48, verify 등록 186/186. 직전 정밀 모델 기준 시작은 구현했으나 초벌에서 구한 닮음 변환(점 짝 잔차 1.7/3.1 m)이라 나빠져 기본 끔(겹침 8.03 m·스케일 차 44%). 끈 상태: 겹침 3.04 m(기준 0.3 m), 스케일 차 6.5%, 정렬 잔차 7.04 m, 높이 차 12.97 m, 재정렬 잔차 0.206/0.071 m. fmt·clippy 통과, pipeline_stream 1 통과(157 s). 2구역 시험·전체 시험 미실행. feat/pipeline 에는 3dffbc1 까지만 합쳐짐 |
+  | pipeline-tracks | `feat/pipeline-tracks` bb5ba24 | experiment/pipeline-tracks | feat/tracks·feat/pipeline 최신 합침(sparse_init 충돌). 수치 보고 전 회차 마감 — 다음 회차 확인 |
+  | two-view-cross (F-251) | `feat/two-view-cross` 71340c8 | experiment/two-view-cross 6dab5b9 | 남은 3짝은 정답 포즈에서 시작해도 같은 오차 — 추정 한계(정상 33~118개, 평면 우세). 알고리즘 변경 없이 짝 종류별 시험만(같은 카메라 중앙 0.076°, 카메라 간 0.88°·2° 초과 8.3%). 기준 미달, 회전 평균 단계 거르기로 넘김 |
+  | translation-averaging-formation (F-214)·patchmatch (#6, F-048)·rotation-coverage (F-209) | 변경 없음 | | 이번 회차에 시작하지 못함 |
+- 끝까지 흐름 진척: `feat/pipeline` 하나에 보조 사진·밀집 교체·구역 차례 처리가 모임. 단구역 synth → run → verify 가 README 명령 그대로 돌고(run 181 s, verify 5/7) PLY·스냅샷·manifest 출력. 2구역 등록 240/240 이나 정밀 겹침 8.5 m. 초벌 포즈 개선(pipeline-preview)과 트랙 연결(pipeline-tracks)은 아직 따로 있음.
+- 다음 할 일:
+  1. `feat/pipeline` ee9eb18 에 regions 569b10f 합치고 clippy·전체 시험, 2구역 겹침 악화 원인(regions 의 공유 점 재정렬 vs 3dffbc1).
+  2. 구역 기준 변환을 직전 정밀 점끼리 대응으로 구해 겹침 차 줄이기. pipeline-preview(초벌 포즈) → pipeline-tracks 를 feat/pipeline 에 합치고 verify 재측정 — preview_align·높이 차가 남은 두 실패.
+  3. 남은 높이 차 2.9 m: 정밀 쪽 GPS 사전항(F-258·F-270)과 초벌 점 깊이.
+  4. F-214(시드 1~10 20%), PatchMatch F-048(체커보드 병렬·창 통계 캐시·단계식 해상도), F-209.
+- 막힌 점:
+  - 4 코어 측정 기계에서 묶음 여럿이 동시에 시험하면 전체 시험이 마감 안에 끝나지 않음.
+  - 결정 필요: 구역 희소 복원에 구역 밖 보조 사진 사용을 SPEC §3.5 에 둘지, 카메라 간 일정(F-197), 카메라 간 두 시점 자세 기준(F-251)을 회전 평균 뒤 기준으로 옮길지.
+
+
+## 직전 실행 기록 (2026-10-03 12:06Z 시작분)
 - 상태: 진행 중
 - 마지막 갱신: 2026-10-03T13:06Z (13:06Z 시작분 진행 중)
 - 이번 회차 결론: PR 로 넘긴 묶음 없음. 측정 기계(4 코어)가 부하 평균 17~26 으로 포화돼 모든 묶음이 전체 시험을 끝내지 못함. 끝까지 흐름에서 실제 진척은 2구역 등록 붕괴 해결(210 → 240/240) 하나.
@@ -26,7 +51,7 @@
   - 측정 기계 포화(부하 평균 17~26, 4 코어)로 시험 한 번에 5~10 분 — 이번 회차 어느 묶음도 전체 시험 완료 못 함.
   - 결정 필요: 위치 평균 #37 시험 RMS 상한 0.6 m 유지 여부, SPEC §3.2 카메라 간 일정(F-197), 구역 희소 복원에 구역 밖 보조 사진 사용을 SPEC §3.5 에 둘지.
 
-## 직전 실행 기록 (2026-10-03 10:06Z 시작분)
+## 그 전 실행 기록 (2026-10-03 10:06Z 시작분)
 - 상태: 진행 중
 - 마지막 갱신: 2026-10-03T12:07Z (12:06Z 시작분 진행 중)
 - 묶음별 결과:
