@@ -5,7 +5,7 @@
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
-  | pipeline (#46) | `feat/pipeline` 9df31b8 | experiment/pipeline | F-268·F-269: BA 에는 느슨한 문턱(영상 폭 1%) 안 관측, 점 문턱 = 3 × 재투영 중앙(하한 0.7 px)은 초벌 점에만, 버림 상한·퇴화 단위 시험. 총괄 확인: pipeline-densify 와 합친 `feat/pipeline-integ` 6a69363 에서 fmt·clippy 통과(시험 모듈 위치를 끝으로 옮김), 끝까지 시험 실패 — 등록 120/120·중심 1.06/3.02 m 이나 점 760개·표면 중앙 3.57 m(> 시험 상한), verify 6/7(높이 차 6.47 m). 두 변경을 합치면 밀집 점이 크게 줄어 PR 로 넘기지 않음 |
+  | pipeline (#46) | `feat/pipeline` 9df31b8 | experiment/pipeline | F-268·F-269: BA 에는 느슨한 문턱(영상 폭 1%) 안 관측, 점 문턱 = 3 × 재투영 중앙(하한 0.7 px)은 초벌 점에만, 버림 상한·퇴화 단위 시험. 총괄 확인: pipeline-densify 와 합친 `feat/pipeline-integ` 6a69363 에서 fmt·clippy 통과(시험 모듈 위치를 끝으로 옮김), 끝까지 시험 실패 — 등록 120/120·중심 1.06/3.02 m 이나 점 760개·표면 중앙 3.57 m(> 시험 상한), verify 6/7(높이 차 6.47 m). 라이브러리 pipeline·matching·sparse·dense 49 통과·1 실패(`sparse::tests::formation_scene_registers_all_and_meets_floors` — 짝 일정 통합 뒤 하한 미달 의심). 두 변경을 합치면 밀집 점이 크게 줄어 PR 로 넘기지 않음 |
   | pipeline-densify | `feat/pipeline-densify` bbb70c8 | experiment/pipeline-densify c2614c6 | F-271: 밀집 단계가 `dense::region_cloud` 경유, 짝 일정 matching 하나. 40위치 점→표면 중앙 2.072 → 1.258 m, 중심 0.588/2.972 m, 등록 120/120, verify 6/7(높이 차 4.32 m), 점 수 11480 → 1451 |
   | pipeline-regions | `feat/pipeline-regions` 74cb241 | 없음 | 구역 차례 처리(도착 → 등록 → 초벌 즉시 출력 → 정밀 뒤 스레드 → 교체·재정렬), F-272 구역 실패 건너뜀(가운데 구역 단색 시험 통과), F-275 자기 구역 중심. 3구역 장면 등록 30/78. 다음 등록이 최신 정밀 모델 위에서 하는 것은 아직. fmt·clippy·전체 시험 미실행 |
   | pipeline-tracks | `feat/pipeline-tracks` 3e28131 | experiment/pipeline-tracks 942c9f4 | `tracks::build_tracks` 연결. 120/120, 중심 0.899/3.832 m, 표면 2.103 m — 정확도 변화 없음. pipeline 9df31b8 과 `sparse_init` 에서 충돌 |
