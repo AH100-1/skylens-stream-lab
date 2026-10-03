@@ -147,3 +147,13 @@ feat/translation-averaging-formation (기반 feat/translation-averaging a5cb96e)
 ### 제품 브랜치·커밋
 
 feat/translation-averaging-formation 커밋 474b18c (모듈 전체 시험은 부하로 돌리지 못함; 새 시험·fmt·clippy 통과).
+
+## 추가 시도 (점 이상치 5% 시작값 선택, 미완)
+
+결론: 개선 없음, 제품 코드는 바꾸지 않았다.
+
+- 시도: 시작값 후보(1단계 해, 투영 순서 거르기 해, 무작위 시작 3개)를 짝 간선 절단 비용 + 점 광선 절단 비용 합으로 골라 점 삼각측량·정밀화에 넘김.
+- 측정(점 이상치 5%, 실측 배치, 4 코어 측정 기계, 부하가 높아 느림): 시드 1 은 짝 10%·20% 모두 후보 선택 유무와 관계없이 RMS 4.1 m·2.8 m 로 실패(1단계 해 자체가 RMS 3.9 m). 즉 후보 풀에 좋은 시작값이 없다.
+- 80경우 표는 부하(평균 20 이상)로 끝내지 못했다.
+- 남은 문제: 1단계 시작값 자체가 틀리는 시드의 시작값 생성(점 광선 기반 카메라 위치 다중 시작), 80경우 표, 향후 feat/translation-averaging 병합(미실시).
+- 제품 브랜치: feat/translation-averaging-formation 8b6bf12 (변경 없음).
