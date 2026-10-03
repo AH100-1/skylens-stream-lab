@@ -24,4 +24,4 @@
 - 사전 위치 잔차 RMS 는 보고에 넣지 않았다.
 
 ## 제품 브랜치·커밋
-feat/ba-gps-prior (커밋 아래 보고)
+feat/ba-gps-prior, 커밋 5bf66cc
