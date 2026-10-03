@@ -1,8 +1,32 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-03T21:06Z (21:05Z 시작분)
-- 직전 기록(20:06Z 시작분, 20:50Z 갱신):
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-03T21:50Z (21:05Z 시작분)
+- 이번 회차 결론: 흐름 머리 후보 `feat/pipeline-merge-2106`(= merge-2006 + height2 + 시험 폴더 분리) 에서 단구역 synth → run → verify **7/7**(높이 차 1.553 m, 최근접 1.416 m), 2구역 6/7(높이 차 5.829 m 그대로). 머리 시험 실패 2개 중 `preview_ba_option_does_not_change_refined` 는 원인 확인·수정(시험들이 같은 인자일 때 같은 작업 폴더를 병렬로 지우고 덮어씀 — 이름에 시험 이름 추가, 단언 그대로). F-294 는 합치면 시험 통과·단구역 1.538 m 이나 2구역 정밀 점 표면 거리 중앙 0.494 → 0.742 m 로 e2e 절대 상한(0.60 m) 초과 → 별도 가지에만. 단계별 시간: 단구역 99 s 중 짝 맞춤 73%(그중 RANSAC 이 대부분), 밀집 20%. 머리 전체 시험을 돌리지 못해 #46 갱신·새 흐름 PR 은 열지 않음. 패치매치 비용 기반 섭동 폭 옵션만 PR #50(기준 feat/patchmatch, 기본 끔).
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | pipeline-merge-2106 | `feat/pipeline-merge-2106` e064aab | experiment/pipeline-merge-2106 0818638 | merge-2006 + height2 + preview-ba-fix. 단구역 7/7(1.553 m), 2구역 6/7(5.829 m). README 단구역 열·`pipeline_e2e` 단구역 단언을 7/7 로. 작업자 확인: fmt·clippy, height2 상태 `pipeline` end_to_end 3·`pipeline_e2e` 2 통과. preview-ba-fix 합친 뒤 시험 재실행 못 함 |
+  | pipeline-merge-2106-f294 (F-294) | `feat/pipeline-merge-2106-f294` df7a0c7 | 같은 노트 | `preview_default_pose_error_bounds` 통과(회전 1.06°·중심 1.12 m), 단구역 7/7·1.538 m, 2구역 6/7·높이 차 6.763 m, `pipeline_e2e` 2구역 표면 거리 단언 실패(중앙 0.742 > 0.60, 95% 3.869 > 3.63). 상한 유지 |
+  | pipeline-preview-ba-fix | `feat/pipeline-preview-ba-fix` 90e72c0 | experiment/pipeline-preview-ba-fix 5c3f4e8 | 원인: `run_case_with` 작업 폴더가 프로세스 번호+인자뿐 → 단구역 시험과 같은 인자. 단독 실행 통과(초벌 BA 0/8 정밀 결과 동일, 중심 중앙 0.3284 m). 수정 뒤 병렬 실행에서 해당 3 시험 통과, 2구역 2 시험은 미완 |
+  | pipeline-two-region-height | `feat/pipeline-two-region-height` bec30fb | experiment/pipeline-two-region-height f4b2161 | 원인: 초벌 광선 각 거름 하한 '20° 이상 200점 미만이면 거르지 않음' — 2구역 구역 0 은 84/1310 점이라 거름 꺼짐. 하한 50: 2구역 높이 차 6.278 → 3.469 m(이 가지 2구역은 점쌍 324 측정, merge-2006 점쌍 수정 미포함), verify 5/7 그대로, 단구역 7/7 유지. 시험 미실행 |
+  | pipeline-preview-tri | `feat/pipeline-preview-tri` 66fce68 | experiment/pipeline-preview-tri 05eddc9 | 초벌 점: 최대 사잇각 쌍 초기값 + 모든 관측 각도 잔차 가우스–뉴턴 4회(카메라 고정). 단구역 높이 차 1.553 → **1.114 m**, 최근접 1.416 → 1.109 m, 7/7. 문턱 10° 1.711 m, 5° 3.581 m(6/7) → 20° 유지. 단위 합성에서는 이득 재현 못 함(나빠지지 않음만 단언). `tri_tests` 7·`run::` 3 통과 |
+  | pipeline-stage-time | `feat/pipeline-stage-time` 92b70e4 | experiment/pipeline-stage-time 8ddb533 | 출력 폴더에 timing.json. 단구역 99.4 s(부하 약 20): 짝 맞춤 73.0 s(73%), 초벌 밀집 10.6, 정밀 밀집 9.3, 특징 5.4, 정밀 BA 0.9. 기준 가지의 `pipeline_e2e` 단구역 기대값이 낡아 실패(merge-2106 에서 고쳐짐) |
+  | patchmatch-f293b (F-293) | `feat/patchmatch-f293b` 042d9fc, **PR #50** | experiment/patchmatch-f293b f28dcc6, 연구 PR #67 | 192 px 은 한 층뿐이라 건너뜀 0%, 960 px 고운 층 85~92%. 비용 기반 섭동 폭+후보 축소: CPU 2.02 s·98.5%·2.90° (skip 0.08 1.42 s·94.4%·4.01°). 기본 끔. 총괄 재확인: fmt·clippy 통과, core `patchmatch` 13 통과·6 무시, CI 초록 |
+  | 알고리즘 정리 4편(밀집·자세·트랙·BA) | — | — | 요점: 초벌은 최대 사잇각 쌍 + 각도 잔차 정제, 좁은 각 점은 깊이 불확실도로 가중. 거의 연직 촬영에선 초점거리와 높이가 함께 움직이므로 초벌도 정밀 BA 의 내부 파라미터를 쓰는 것이 높이 차를 줄이는 싼 방법. 전역 위치는 점–카메라 결합 목적식 + GPS 사전항(수평 σ 1.5 m·수직 3 m). 짝 맞춤 RANSAC 반복 상한·적응 종료 점검. 패치매치는 건너뛰지 말고 비용 기반 섭동 폭 |
+- 끝까지 흐름 진척: synth → run → verify 가 PLY·스냅샷·manifest·timing.json 까지. 머리 후보 `feat/pipeline-merge-2106`: 단구역 7/7, 2구역 6/7. 더 붙일 수 있는 것: preview-tri(단구역 1.114 m), two-region-height 하한 50(2구역 높이 차 개선 후보).
+- 다음 할 일:
+  0. 부하 없는 첫 20 분에 `feat/pipeline-merge-2106` 전체 `cargo test --release --workspace` 를 출력 파일로. F-294 시험만 실패하면 다음 단계 1 뒤 #46 갱신.
+  1. merge-2106 에 preview-tri·two-region-height(하한 50) 합쳐 2구역 높이 차 재측정(점쌍 수정과 함께) → 2 m 기준 근접 여부.
+  2. F-294: 롤 수정이 2구역 정밀 표면 거리를 나쁘게 하는 원인 분리(정밀 BA 시작점 롤 편향 가설).
+  3. 초벌에 정밀 BA 의 내부 파라미터 쓰기(초점–높이 결합) 시험.
+  4. 짝 맞춤 RANSAC 반복 분포 측정 → 상한·적응 종료 조정(단구역 시간 73%).
+- 막힌 점:
+  - 4 코어 측정 기계: 묶음 6개 동시에 부하 13~22, 전체 시험 못 돌림. 다음 회차는 동시 구현 묶음을 3개 이하로.
+  - 결정 필요: 초벌 정렬 닮음 + 보정장 허용 여부(SPEC §3.7), F-197, F-209 확인 기준, F-251, preview_align 점쌍 ≥1000 기준을 구역 길이에 비례시킬지.
+  - 소유자 병합 필요: #6·#37·#39~#42·#49, #50(#6 위).
+
+## 직전 실행 기록 (2026-10-03 20:06Z 시작분)
 - 이번 회차 결론: 첫 시점에 `feat/pipeline-merge-1906` 전체 `cargo test --release --workspace` 를 출력 파일로 돌림 — core lib 320 통과·1 실패(F-294 `preview_default_pose_error_bounds`, 2274 행)·25 무시(1150 s), dataset_synth 2·perf_structure 6·cli 단위 3 통과, cli `pipeline` 시험에서 `preview_ba_option_does_not_change_refined` 실패(사유 기록 전 회차 마감). region-pairs 를 합친 `feat/pipeline-merge-2006` 으로 2구역 verify 5/7 → 6/7. F-294 시험은 f294d 가지에서 통과하나 높이 차가 2.948 m 로 나빠져 흐름 머리에 합치지 않음. 이번에도 PR 새로 열지 않음(머리 전체 시험 미통과).
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
