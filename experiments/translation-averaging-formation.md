@@ -89,4 +89,4 @@ feat/translation-averaging-formation (기반 feat/translation-averaging a5cb96e)
 
 ### 제품 브랜치·커밋
 
-feat/translation-averaging-formation, 커밋 아래 보고 참조.
+feat/translation-averaging-formation 커밋 474b18c (모듈 전체 시험은 부하로 돌리지 못함; 새 시험·fmt·clippy 통과).
