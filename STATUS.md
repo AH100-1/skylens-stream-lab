@@ -1,6 +1,31 @@
 # 현재 상태
 
-- 상태: 진행 중
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-03T18:47Z (18:06Z 시작분)
+- 이번 회차 결론: 끝까지 흐름 통합 가지 `feat/pipeline-merge-1717` 을 부하 낮은 시작 시점에 전체 시험으로 재확인(결과 아래 '흐름 진척'). 합성 정답 대비 끝까지 시험 `pipeline_e2e`(단구역·2구역) 추가. F-294 회귀 지점을 첫 합침 ece7a81 로 좁힘(원인 후보: 비행 축 둘레 회전 선택 휴리스틱). 초벌 높이 차 2.657 → 2.424 m(수평 잔차 보정장) — 기준 2 m 미달. 동시 묶음 6개로 줄였지만 부하 15~22 로 대부분 묶음이 시간 안에 검증을 못 끝냄 → PR 새로 열지 않음.
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | pipeline-e2e (F-273) | `feat/pipeline-e2e` 5de63af | experiment/pipeline-e2e b66ea65 | 새 `crates/cli/tests/pipeline_e2e.rs`: README 명령 그대로 synth → run → verify, 출력 폴더 확인, verify 항목별 기대 판정, 정답 대비 상한(실측×1.2). 단구역(stride 2, 120장): 6/7(높이 차 2.657 m), 중심 오차 중앙/최대 0.329/2.912 m, 점→표면 중앙/95% 0.475/1.465 m, 점 11054. 2구역(stride 1, 240장): 5/7(점쌍 324, 높이 차 6.278 m), refined_overlap 0.257 m 통과(실제 판정), 중심 0.290/3.115 m, 점 0.494/3.022 m, 점 19855. 시험 통과·fmt·clippy(작업자). 회전 오차는 poses.txt 에 회전이 없어 못 잼. README '합성 장면으로 한 번 돌려 보기' 절 |
+  | pipeline-f294b (F-294) | 변경 없음 | experiment/pipeline-f294b 3f10bd1 | 초벌 가지 끝 2406456: placed 회전 중앙 0.82° → 첫 합침 ece7a81 부터 머리까지 1.48°(중심 1.11~1.12 m 불변). 회전 평균 자체는 1.23 → 0.63° 로 좋아짐 → 삼각측량·위치 평균·짝 일정·초벌 BA 는 원인 아님. 의심: 좌표계 맞춤의 비행 축 둘레 회전 2° 격자 선택(0.1° 격자로 하면 1.73° 로 악화 → 휴리스틱 편향). 다음: 방향 일치 잔차 최소화로 롤 결정 |
+  | pipeline-preview-height (F-286 후속) | `feat/pipeline-preview-height` f94b8f9 | experiment/pipeline-preview-height 5f6f690 | 원인은 초벌 자세 휨(초벌 중심 1.12 m·회전 1.48°, 정답 자세 삼각측량은 표면 0.07~0.19 m). 전체 닮음 뒤 잔차를 수평 12×12 칸 가우스 보정장으로: 단구역 높이 차 2.657 → 2.424 m, 최근접 2.358 → 2.110 m, 6/7 그대로. 단위 시험·fmt·clippy 통과, 통합·2구역 미실행. 보정장은 SPEC §3.7 '닮음 변환' 규칙 밖 → 채택 전 결정 필요 |
+  | pipeline-arrival (흐름 순서) | `feat/pipeline-arrival` 63d15a9 | experiment/pipeline-arrival 007e32b | 순서 표: 사진 도착은 위치 단위, 등록은 구역 단위(점진 등록 없음), 최신 정밀 위 등록은 꺼짐(`ANCHOR_NEXT_REGION=false`, 켜면 나빠짐). 연쇄 재정렬을 `progressive::chain_realign` 으로 분리, 사건 순서 시험 `pipeline_arrival` 2 통과(재정렬 전 5.95 → 후 0.0135 m). 이미 내보낸 정밀 중심에도 sim3 적용 → GPS 정답 대비 중심 중앙 2.51 → 3.60 m 악화(최신 구역 스케일 1.126) — 이 부분은 되돌릴 후보. 기준 가지에서 `pipeline_stream_order` 가 182 행에서 실패(변경과 무관, 기준에서 재현) |
+  | pipeline-region-pairs (2구역 점쌍) | `feat/pipeline-region-pairs` e869179 | experiment/pipeline-region-pairs 52a8050 | region-sim3 합침(충돌 1곳 정리) + 진단 출력(`SKYLENS_PAIR_DEBUG`). 측정 못 함(빌드 6 분, 시험 10 분 초과). 가설: 2구역 정렬 창 [46,50) = 12장뿐 → 점쌍 324 |
+  | translation-averaging-guard (F-288·F-289) | `feat/translation-averaging-guard` 1379587 | experiment/translation-averaging-guard 272dda0 | F-288: 고윳값 비 하한 1e-4 → 1e-3, 단위 시험(퍼짐 0.3~1°, 잡음 1°, 정답 밖 출발 → 1 m 미만) 통과. 갱신 채택 조건은 시드 12 점 5% RMS 0.296 → 0.333 m 악화로 뺌. 시드 12 4경우 기준과 같음, 11·13 재측정·전체 시험 미실행. F-289 미착수(되돌림) |
+- 끝까지 흐름 진척: `feat/pipeline-merge-1717`(92429d8) 그대로 — synth → run → verify 단구역 6/7·2구역 5/7(pipeline-e2e 실측, 위 표), PLY·스냅샷·manifest 출력. 이번 회차 총괄 재확인: fmt·clippy 통과, 전체 `cargo test --release --workspace` 는 40 분 한도에 걸려 중단(흐름 시험 단계, 출력 버퍼링으로 결과 기록 없음) → `feat/pipeline`(#46) 로 올리지 않음. 알려진 실패: `pipeline_stream_order` 182 행(기준 가지에서 재현), F-294 `preview_default_pose_error_bounds`.
+- 다음 할 일:
+  1. F-294: 롤(비행 축 둘레 회전)을 방향 일치 잔차 최소화로 정하고 정답 카메라 기울기와 비교 → 초벌 회전 1.2° 이하. 초벌 자세가 좋아지면 높이 차도 같이 줄 것으로 기대.
+  2. 2구역 점쌍: `SKYLENS_PAIR_DEBUG=1` 로 창 이미지·관측 맺힘 비율 측정, 트랙 관측 전체로 대응 만들기.
+  3. 재정렬 중심 적용(arrival)은 정확도 악화라 되돌리고 점군만 재정렬 유지, 그다음 `feat/pipeline` 에 arrival·e2e 합치기.
+  4. 위치 평균: 시드 11·13 확인, F-289 비율 지지 하한.
+  5. poses.txt 에 회전 추가(정답 대비 회전 오차 측정용).
+- 막힌 점:
+  - 4 코어 측정 기계: 묶음 6개 동시에도 부하 15~22, 릴리스 빌드 6 분·흐름 시험 10 분 이상. 묶음당 28 분 안에 측정까지 끝나지 못함. 다음은 묶음 3~4개 이하 + 빌드 폴더 공유가 필요.
+  - 결정 필요: 초벌 정렬에 닮음 + 보정장 허용 여부(SPEC §3.7), F-197, F-209 확인 기준, F-251.
+  - 소유자 병합 필요: #6·#37·#39~#42·#49 (감독 통과 판정 유지분).
+
+## 직전 실행 기록 (2026-10-03 17:06Z 시작분)
+- 상태: 쉬는 중
 - 마지막 갱신: 2026-10-03T18:06Z (18:06Z 시작분)
 - 이번 회차 결론: 흐름 가지 CI 막힘 4개 중 F-287(희소 BA 회전 20.75 → 0.68°)·F-272(stream-order 합침, `pipeline_regions` 3/3)·F-286/F-295(초벌 BA 를 사본에만, 시험 기본 설정)를 각 가지에서 고쳤고, F-294(초벌 회전 1.485°)는 원인 못 찾음. 네 가지(sparse-ba·so-merge·preview-split·cli)를 `feat/pipeline-merge-1717` 하나로 합침 — fmt·clippy 통과, README 단구역 명령 run 38 s(종료 0) → verify 6/7(등록 120/120, 정밀 0.300 px·초벌 3.026 px, preview_align 점쌍 2746·잔차 3.932 m, preview_vs_refined 높이 차 2.657 m 만 실패, final 11054) — e0438ca 와 같은 수치. 측정 기계 부하 30~45 로 전체 시험은 어느 가지에서도 못 돌림 → PR 새로 열지 않음, 라벨 변경 없음.
 - 묶음별 결과:
@@ -28,29 +53,3 @@
   - 결정 필요: F-197, F-209 확인 기준, F-251.
   - 소유자 병합 필요: #6·#37·#39~#42·#49 (감독 통과 판정 유지분).
 
-## 직전 실행 기록 (2026-10-03 15:54Z 시작분)
-- 이번 회차 결론: `feat/pipeline`(#46)에 main(트랙·융합 일치)·preview·preview-ba(시험 수정 포함)·pm 을 합쳐 README 단구역 synth → run → verify 가 32 s 에 끝나고 6/7(preview_vs_refined 높이 차 2.657 m 만 실패), PLY·스냅샷·manifest 출력. #48 CI 실패 원인은 카메라 간 짝 기본 일정 변경(시험 기준값이 옛 일정에서 잰 것). PatchMatch 건너뛴 화소 법선 회복(5.85 → 4.01°, CPU/4 0.37 s). 새 PR #49(회전 범위 시험).
-- 묶음별 결과:
-  | 묶음 | 제품 | 연구 | 결과 |
-  |---|---|---|---|
-  | pipeline (E01 통합) | `feat/pipeline` e0438ca → PR #46(라벨) | experiment/pipeline e1d641d → PR #63 | main·preview·preview-ba·pm 합침(stream-order 는 못 합침). 총괄 재확인: fmt·clippy 통과, README 단구역 명령 run 32 s(종료 0) → verify 6/7: 등록 120/120, 정밀 0.300 px(초벌 3.026), preview_align 점쌍 2746·잔차 3.932 m, preview_vs_refined 최근접 2.358 m·높이 차 2.657 m(실패), 스냅샷 1889 → final 11054. 단구역 시험 2 통과(스윕·패치매치, 468 s, 작업자 실행). 2구역 시험·전체 시험 미실행. CLI 에 `preview_ba_iters` 옵션 없음 |
-  | pipeline-preview-ba (#48 CI) | `feat/pipeline-preview-ba` ed6e7c6 → PR #48 | experiment/pipeline-preview-ba b7c5d08 → PR #65 | `sparse::formation_scene_registers_all_and_meets_floors` 실패는 6724181 이 아니라 그 이전부터: 카메라 간 짝 기본 일정이 +12/+16 매 칸 → +20 부터 4칸 간격으로 바뀐 탓. 시험에 옛 일정 명시: 정밀 중심 2.504/5.089 → 0.621/1.282 m, 132/132. 기본 일정에서 이 장면 중심 2.5 m 는 남은 문제. 대상 시험 1 통과(작업자), CI 결과 대기, 라벨 없음 |
-  | patchmatch (#6, F-048) | `feat/patchmatch` 58cc1ad → PR #6(라벨) | experiment/patchmatch 4ac4ff4 → PR #20 | 건너뛴 화소에 이웃 법선 평균 후보 1회, 거친 층 반복 3, 고운 층 이웃 3: 960×540 이웃 8장 CPU 1.46 s(CPU/4 0.37 s), 벽시계 2.6~3.1 s(부하 20~24), 깊이 중앙 0.198%, 1% 이내 94.4%, 법선 4.01°(이전 5.85°), 경사 4.37°·계단 4.63°(기준 5°, 여유 얇음). 총괄 재확인: fmt·clippy 통과, `patchmatch` 12 통과·0 실패·4 무시 |
-  | pipeline-stream-order (F-272) | `feat/pipeline-stream-order` 6307ed2 | experiment/pipeline-stream-order 27eeb2a | 정지 검사가 앞 구역 도우미 사진 짝까지 세던 것, 무늬 없는 구역이 도우미 사진만으로 등록되던 것 고침. 총괄 재확인: fmt·clippy 통과, `pipeline_regions` 3 통과·0 실패. 같은 수정이 feat/pipeline-regions·-regions-ba 에도 필요. 흐름 순서 표: '최신 정밀 위 등록'·'sim3 재정렬'은 사건 시험 없음, 위치 하나씩 점진 등록은 없음(구역 단위) |
-  | rotation-coverage (F-148·F-209) | `feat/rotation-coverage` acaef38 → 새 PR #49(라벨) | experiment/rotation-coverage e4a8add → 새 PR #66 | 기본 bench 8위치는 카메라 간 겹침 0(다른 카메라 짝 0/156, 성분 3) → 24/24 불가. 넓은 편대 34장 시험: 141/141, 2° 초과 2.8%, 34/34, 정렬 중앙 0.116°. 총괄 재확인: fmt·clippy 통과, `formation` 19 통과·0 실패 |
-  | translation-averaging (#37, F-276) | `feat/translation-averaging` f9c39df(#37 라벨 유지) | experiment/translation-averaging-f276 39f0851 | 원인: 이웃이 거의 한 직선인 퇴화(점 관측 수 무관). Cauchy 가중 시도는 2.339 → 2.530 m 악화로 되돌림. 시드 21~25: 240/240, 최대 ≤ 0.95 m, RMS 시드 22 점 5% 두 경우 0.362 m. 단언 시험 #[ignore]. 총괄 재확인 못 함 |
-  | pipeline-accuracy | `feat/pipeline-accuracy` 5b3f5d9 | experiment/pipeline-accuracy 8b5c69c | poses.txt 에 회전 추가, preview-ba 합침. 초벌 전 BA 8회: 1구역 시드1 높이 차 5.40 → 0.92 m(verify 6/7), 시드2 1.29 m. 중심 중앙 0.96~1.71 m, 회전 중앙 6.8~15.2°·최대 39~45°(축 규약 차이 의심). 2구역 시드2 4/7(스케일 차 26.6%, 점쌍 141). 총괄 확인 못 함 |
-  | pipeline-region-align | (코드 변경 없음) | experiment/pipeline-region-align 2d39d47 | 2구역 시드1: 스케일 차 8.91%, 초벌 점쌍 최소 150, 정밀↔정밀 공유 점 30쌍·잔차 0.884 m, refined_overlap 1.749 m. 겹침 사진 포즈 고정 시작은 모든 항목 악화(스케일 차 18.07%). 공유 이미지 양방향 재투영 sim3 는 설계만 |
-  | pipeline-pm (F-271) | `feat/pipeline-pm` c95b1a3(main 병합만) | experiment/pipeline-pm b3cd483 | 패치매치 경로 시간의 99% 이상이 장당 깊이 추정(부하 상태 71~175 s), 융합 0.3~1.3 s, 사진별 추정은 이미 병렬. 융합 문턱 0.6배 + 깊이 범위 30% 확대: 95% 꼬리 2.619 → 2.141 m(중앙 0.319 → 0.310 m, 1 m 초과 9.0 → 7.5%), 스윕(1.5 m) 미달, 반영 안 함. fmt·clippy 통과, 패치매치 흐름 시험 1 통과(작업자). 총괄 확인 못 함 |
-- 끝까지 흐름 진척: `feat/pipeline` 하나에서 synth → run → verify 가 끝까지 돌고 PLY(preview·refined·snapshots)·manifest·report·poses 가 나온다(단구역 6/7). 이어진 단계: 특징 → 매칭 → 트랙 → 회전·위치 평균 → BA → GPS 정렬 → 초벌/정밀 → 밀집(스윕 기본, 패치매치 선택) → 융합 → 초벌 정렬 → 스냅샷. 남은 것: stream-order 합치기, 초벌 전 BA 를 CLI·기본값으로(SPEC 결정 필요), 2구역 스케일 차·점쌍 부족.
-- 다음 할 일:
-  1. `feat/pipeline` 에 `feat/pipeline-stream-order`(6307ed2 포함) 합치기 — 구역 루프 충돌 예상.
-  2. CLI 에 `--preview-ba-iters` 추가하고 README 명령으로 7/7 확인(accuracy 가지 수치상 높이 차 0.92 m).
-  3. 2구역: 공유 이미지 + 양방향 재투영 sim3(관측 30% 통과 이미지, 정상 이미지 비율 ≥ 0.2) 구현, 초벌 정렬 점쌍(150 < 1000) 늘리기.
-  4. 회전 오차 39~45° 최대가 축 규약 차이인지 확인(pipeline-accuracy).
-  5. 위치 평균 퇴화 카메라(이웃 방향 산포 둘째 고윳값 작음) 판정 후 이웃 보간/사전항(F-276).
-  6. PatchMatch 부하 없는 벽시계, 경사·계단 법선 여유.
-- 막힌 점:
-  - 4 코어 측정 기계에서 묶음 9개 동시로 부하 20~27 — 2구역 시험(6~8 분)·전체 시험을 마감 안에 못 돌림.
-  - 결정 필요: 초벌 짧은 BA(SPEC §3 '초벌 BA 없음'), F-209 확인 기준(기본 bench 8위치로는 카메라 간 겹침 불가), 카메라 간 짝 기본 일정(+20, 4칸)에서 sparse 편대 장면 중심 2.5 m, F-197, F-251.
-  - 소유자 병합 필요: #37·#39~#42, 이번 라벨 #6·#46·#49.
