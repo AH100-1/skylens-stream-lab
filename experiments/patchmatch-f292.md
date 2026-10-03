@@ -29,7 +29,7 @@
 ## 남은 문제
 - 부하가 낮은 기계에서 `PM_MAX_S=0.7` 로 `fast_960`, 그리고 `timing_960` 의 벽시계 ≤ 0.7 s 를 확인해야 한다. 이번 값은 부하 때문에 기준을 넘는다(4.4 s 대 0.7 s).
 - 메모리 증가 49.5 MB 는 기준에 0.5 MB 차이라 측정마다 넘을 수 있다. 부하 낮은 기계에서 반복 측정 필요.
-- 전체 `cargo test --release` 결과는 아래 커밋 시점에 적지 못했다면 제품 쪽 보고를 따른다.
+- core 전체 `cargo test --release`(부하 평균 25~42): 270 통과, 1 실패, 무시 18. 실패는 `verify::tests::nn_median_many_identical_points_is_fast_and_exact`(시간 기반 시험, patchmatch 와 무관, 부하 때문으로 보이나 부하 낮은 기계에서 재확인 필요). patchmatch 시험만 다시 돌려 12 통과·0 실패·무시 4. `cargo fmt --all --check`, `cargo clippy --all-targets -- -D warnings` 통과.
 
 ## 제품 브랜치·커밋
 - feat/patchmatch 61fa09a
