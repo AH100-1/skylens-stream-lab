@@ -1,7 +1,8 @@
 # 현재 상태
 
-- 상태: 쉬는 중
-- 마지막 갱신: 2026-10-03T20:50Z (20:06Z 시작분)
+- 상태: 진행 중
+- 마지막 갱신: 2026-10-03T21:06Z (21:05Z 시작분)
+- 직전 기록(20:06Z 시작분, 20:50Z 갱신):
 - 이번 회차 결론: 첫 시점에 `feat/pipeline-merge-1906` 전체 `cargo test --release --workspace` 를 출력 파일로 돌림 — core lib 320 통과·1 실패(F-294 `preview_default_pose_error_bounds`, 2274 행)·25 무시(1150 s), dataset_synth 2·perf_structure 6·cli 단위 3 통과, cli `pipeline` 시험에서 `preview_ba_option_does_not_change_refined` 실패(사유 기록 전 회차 마감). region-pairs 를 합친 `feat/pipeline-merge-2006` 으로 2구역 verify 5/7 → 6/7. F-294 시험은 f294d 가지에서 통과하나 높이 차가 2.948 m 로 나빠져 흐름 머리에 합치지 않음. 이번에도 PR 새로 열지 않음(머리 전체 시험 미통과).
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
