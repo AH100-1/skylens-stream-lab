@@ -35,7 +35,7 @@ SPEC 순서 대조표:
 - 위치 단위 도착은 읽기 단계만 해당한다. 등록은 구역 전체 짝 맞춤 뒤에 하므로 위치 하나씩 등록하는 점진 등록은 아니다.
 - 시점 스냅샷 합성의 잔상 걸러내기는 F-175(점 수의 제곱에 가까운 느림)의 영향을 그대로 받는다. 큰 점군에서는 시점 스냅샷이 병목이 될 수 있다.
 - 시험 장면의 등록률이 낮아 정밀 중심 오차(2.15 m)와 verify 통과(2/7)는 방식 비교 기준으로만 의미 있다.
-- 기존 시험(pipeline_stream, pipeline_regions) 재확인 결과는 아래 커밋 시점 기준으로 별도 보고.
+- 기존 `pipeline_regions` 시험 3개 중 2개가 실패했다(`failed_middle_region_is_skipped_not_fatal`: 건너뜀 기록 없음, `stationary_segment_is_error_or_issue`: 정지 구간 문구 없이 정렬 잔차·스케일 issue 만 남음; 이 장면에서 구역 간 스케일 차 2.6~3.5). 바뀐 부분(읽기 순서·사건 기록)과 직접 관계가 없어 보이나 기반 브랜치에서 같은 시험을 돌려 비교하지 못했다(시간 부족). 이 두 시험은 확인 필요. `pipeline_regions` 의 순서 시험과 `pipeline_stream_order` 는 통과, core 단위 시험 `pipeline_stream` 통과. 3구역 `pipeline_stream` 통합 시험은 시간 안에 돌리지 못했다.
 
 ## 제품 브랜치·커밋
 - feat/pipeline-stream-order 6de27fc
