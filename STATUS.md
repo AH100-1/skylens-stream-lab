@@ -1,7 +1,31 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-03T10:07Z (10:06Z 시작)
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-03T10:50Z (10:06Z 시작, 4 코어 측정 기계, 10 묶음 동시 — 부하 평균 25~37, 시간 수치는 크게 부풀려짐)
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | pipeline (#46) | `feat/pipeline` 9df31b8 | experiment/pipeline | F-268·F-269: BA 에는 느슨한 문턱(영상 폭 1%) 안 관측, 점 문턱 = 3 × 재투영 중앙(하한 0.7 px)은 초벌 점에만, 버림 상한·퇴화 단위 시험. 총괄 확인: pipeline-densify 와 합친 트리에서 fmt·clippy 통과(시험 모듈 위치 수정 필요했음) |
+  | pipeline-densify | `feat/pipeline-densify` bbb70c8 | experiment/pipeline-densify c2614c6 | F-271: 밀집 단계가 `dense::region_cloud` 경유, 짝 일정 matching 하나. 40위치 점→표면 중앙 2.072 → 1.258 m, 중심 0.588/2.972 m, 등록 120/120, verify 6/7(높이 차 4.32 m), 점 수 11480 → 1451 |
+  | pipeline-regions | `feat/pipeline-regions` 74cb241 | 없음 | 구역 차례 처리(도착 → 등록 → 초벌 즉시 출력 → 정밀 뒤 스레드 → 교체·재정렬), F-272 구역 실패 건너뜀(가운데 구역 단색 시험 통과), F-275 자기 구역 중심. 3구역 장면 등록 30/78. 다음 등록이 최신 정밀 모델 위에서 하는 것은 아직. fmt·clippy·전체 시험 미실행 |
+  | pipeline-tracks | `feat/pipeline-tracks` 3e28131 | experiment/pipeline-tracks 942c9f4 | `tracks::build_tracks` 연결. 120/120, 중심 0.899/3.832 m, 표면 2.103 m — 정확도 변화 없음. pipeline 9df31b8 과 `sparse_init` 에서 충돌 |
+  | pipeline-tests | `feat/pipeline-tests` b9086e4 | experiment/pipeline-tests fe2a30d | F-273: 구역 1·2개 시험, 항목별 단언, README 명령 = 시험 설정. 2구역(stride 1): 등록 210/240(구역 1 68/102), 중심 1.91/7.86 m, 겹침 14.4 m, 스케일 차 13% — 구역 2개 이상에서 흐름이 무너짐. 단언 재실행 미완 |
+  | translation-averaging (#37) | `feat/translation-averaging` 69f0794 | 노트 없음 | 미등록 카메라 보충, 최대 성분 제한, 짝 전용 시험 둘을 점 경로로. 시드 11~13 240/240 이나 시드 12 RMS 0.58 m 라 상한을 0.6 m 로 느슨히 함(F-213 기준 0.3 m 미달). 전체 시험 미확인 |
+  | translation-averaging-formation | `feat/translation-averaging-formation` 8b6bf12 | experiment/translation-averaging-formation 70dc86b | 실측 배치 시험, 카메라/점 번갈아 교차 정밀화 시작값. 점 이상치 5%: 짝 10% 18/20, 짝 20% 시드 1~6 중 5/6 통과. 80경우 표 미완, #37 과 충돌 |
+  | patchmatch (#6) | `feat/patchmatch` 5c1ec21 | 노트 없음 | 120 px 층 추가, 세밀 층 이웃 재평가 축소. 960×540 이웃 8장 8.0~10.8 s(부하 30, 같은 부하 이전 25.7 s), 법선 3.87 → 4.55° |
+  | patchmatch-fast | `feat/patchmatch-fast` 1f38c8a | experiment/patchmatch-fast 91f3a81 | 화소별 이웃 4장·상위 3, 세밀 층 가까운 전파만. 경사 3.76°·계단 3.86°·960 경사 2.46°, 시간 53.96 → 35.2 s(부하 31) |
+  | cross-schedule | `feat/cross-schedule` 3698eeb | experiment/cross-schedule 5e883bb | F-251: 일정 +28..+36, 카메라 간 2° 초과 2/48(4.2%), 성분 1. F-209 미착수. 곁가지: `refine_relative_pose` 가 F–R·F–L 짝에서 25~56° 틀림(선형 `recover_pose` 는 정상) |
+- 끝까지 흐름 진척: 구역 하나(40위치)는 synth → run → verify 가 돌고 밀집 단계가 실제 `dense::region_cloud` 를 쓴다(표면 1.26 m). 구역 2개 이상에서는 둘째 구역 등록이 무너지고(68/102) 겹침 14 m — 지금 가장 큰 막힘. 구역 차례 처리 뼈대는 따로 있음. 트랙 연결은 됐으나 정확도 이득 없음.
+- 다음 할 일:
+  1. feat/pipeline 에 densify·tracks·regions·tests 를 차례로 합치기(sparse_init·run_pipeline 충돌 손으로).
+  2. 2구역 등록 붕괴 원인: 둘째 구역 회전 평균·위치 단계 표, 카메라 간 일정 +28..+36 적용 후 재측정, `refine_relative_pose` 카메라 간 오차.
+  3. 위치 평균: 시드 12 의 6.5 m 카메라, 점 이상치 5% 실패 시드 시작값(무작위 다중 시작), #37 과 formation 가지 합치기.
+  4. PatchMatch: 세밀 층(480·960) 비용, 체커보드 병렬·기준 창 통계 캐시를 #6 에, 부하 없는 측정.
+- 막힌 점:
+  - 측정 기계 부하(평균 25~37)로 전체 시험·시간 기준을 이번에 확인하지 못함. 묶음 수를 줄여야 함.
+  - 결정 필요: 위치 평균 #37 시험 RMS 상한 0.6 m 완화 유지 여부, 카메라 간 일정 +28..+36 를 SPEC §3.2 에(F-197).
+
+## 직전 실행 기록 (2026-10-03 09:02Z 시작분)
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
@@ -22,6 +46,7 @@
   - 시간 기준(F-048·F-127·밀집 30 s)은 부하 없는 기계에서만 판정 가능(이번 부하 평균 15~20).
   - 결정 필요: 위치 평균 짝 전용 경로 시험 2개(편대 일직선 배치에서 구조적으로 퇴화) — 시험을 점 관측 경로로 바꿀지.
   - 결정 필요: SPEC §3.3 에 정밀 BA 위치 사전항 줄 추가(F-247), §3.2 짝 일정(F-197).
+
 
 ## 직전 실행 기록 (2026-10-03 08:06Z 시작분)
 - 묶음별 결과:
