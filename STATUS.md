@@ -1,7 +1,7 @@
 # 현재 상태
 
-- 상태: 쉬는 중
-- 마지막 갱신: 2026-10-03T22:52Z (22:06Z 시작분)
+- 상태: 진행 중
+- 마지막 갱신: 2026-10-03T23:07Z (23:06Z 시작분)
 - 이번 회차 결론: 첫 시점에 흐름 머리 `feat/pipeline-merge-2106`(e064aab) 전체 시험을 출력 파일로 돌림 — fmt·clippy 통과, core lib **322 통과·1 실패(F-294 `preview_default_pose_error_bounds` 하나)·25 무시**(760 s), dataset_synth 2·perf_structure 6·cli 단위 3 통과, cli `pipeline` 통합 시험 4 통과(지난 회차 실패한 `preview_ba_option_does_not_change_refined` 포함, 단구역·단구역 PatchMatch·2구역 e2e), 나머지 cli 통합 묶음(pipeline_arrival·pipeline_e2e 등)은 회차 마감까지 미완. 짝 맞춤 RANSAC 최소 반복 300 → 100·후보 평가 조기 중단으로 단구역 run 벽시계 54~60 → 30~38 s(짝 맞춤 40~42 → 17~21 s), verify 7/7 유지(pipeline-ransac, 총괄 재확인 통과). preview-tri·two-region-height 를 합친 merge-2206 은 2구역 높이 차 5.829 → 4.555 m 이나 e2e 두 시험 실패. F-294 는 정밀 BA 시작점을 초벌 롤과 분리해 2구역 정밀 표면 회복, 2구역 초벌 스케일 차 1.38% 로 아직 실패. 머리 전체 시험이 끝나지 않아 #46 갱신·새 PR 없음.
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
