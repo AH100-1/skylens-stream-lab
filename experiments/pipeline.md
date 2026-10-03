@@ -1,5 +1,40 @@
 # pipeline: 데이터셋에서 PLY 까지 잇기
 
+## 갱신: 열린 갈래 합치기 (제품 feat/pipeline, 마지막 합침 a5f6076 + 서식 정리)
+
+### 결론
+feat/pipeline 에 regions, tracks, ta, height 를 순서대로 합쳐 푸시했다. main 은 이미 들어 있었다.
+충돌은 regions(시험 파일 한 곳, 양쪽 줄 유지), ta(lib.rs 모듈 선언), height(PipelineConfig 필드·기본값·sparse_init 인자·시험 설정)에서 났고
+모두 양쪽 기능을 살렸다(위치 방식 `position` 과 삼각측량·GPS σ 설정을 함께 둠, sparse_init 은 두 인자 모두 받음).
+preview 는 합치지 못했다: 구역 차례 처리 쪽 구조(파이프 단계 run_ba 인자, sparse_init 반환형, 구역 반복 본문)와 4곳에서 겹쳐 시간 안에 풀지 못했다.
+preview-ba 합치기는 이 작업 환경에서 권한 거부로 실행하지 못했다. 둘 다 남은 일이다(preview 가 먼저여야 한다).
+빌드 --all-targets·fmt·clippy(-D warnings) 통과. 끝까지 시험 `pipeline`(2개)은 regions 합친 시점에 1 통과·1 실패(`synthetic_two_region_end_to_end`, 단언 249행:
+점쌍 최소 143, 구역 간 스케일 차 12.71%, 잔차 9.813 m). tracks·ta·height 합친 뒤에는 시험이 12분 걸려 돌리지 못했다. 시험 단언은 느슨하게 바꾸지 않았다.
+
+### 수치 (4코어 측정 기계, 부하 큼, 합성 320x180, stride 2 / 1, span 48, ovl 2, 특징 800, 깊이 폭 96, BA 15회; height 까지 합친 바이너리)
+| 항목 | 구역 1개 | 구역 2개 |
+|---|---|---|
+| preview/·refined/·snapshots/·manifest.json | 모두 생성 | 모두 생성 |
+| verify 통과 | 5/7 (종료 1) | 4/7 (종료 1) |
+| 등록 | 120/120 | 240/240 |
+| 정밀 재투영 (초벌→정밀) | 2.530→0.273 px | 3.010→0.271 px |
+| 실패 항목 | preview_align(잔차 6.872 m), preview_vs_refined(최근접 3.522, 높이 차 3.942 m) | preview_align(스케일 차 8.91%, 잔차 9.267 m), preview_vs_refined(높이 차 6.788 m), refined_overlap(1.749 m) |
+| 점 수 (final) | 10777 | 12034 |
+| run 시간 | 약 127 s | 수 분 |
+정밀 중심 오차 중앙/최대, 점→표면 중앙은 이번에 따로 재지 않았다(시험 `pipeline` 이 출력하는 값; 시간 부족).
+2구역 refined_overlap 이 앞선 8.51 m 에서 1.749 m 로 좋아졌고 높이 차 12.0→6.79 m 로 줄었다.
+
+### 방법
+git merge(병합 커밋) 순서: regions → (preview 충돌, 중단) → tracks → ta → height → main(이미 포함). README 의 synth→run→verify 명령은 위에서 실제로 돈 명령과 이미 같아 고치지 않았다.
+
+### 남은 문제
+- preview, preview-ba 합치기(둘 다 pipeline.rs 구역 반복 본문 충돌).
+- 합친 뒤 `pipeline` 시험 전체 재실행(2구역 시험은 regions 시점부터 실패).
+- 정밀 중심 오차·점→표면 수치 재측정.
+
+### 제품 브랜치·커밋
+feat/pipeline: 서식 정리 커밋(a5f6076 위).
+
 ## 갱신: 네 갈래 합치기 (제품 feat/pipeline, 병합 fc81622 이후)
 
 ### 결론
