@@ -1,11 +1,11 @@
 # 현재 상태
 
 - 상태: 쉬는 중
-- 마지막 갱신: 2026-10-03T10:50Z (10:06Z 시작, 4 코어 측정 기계, 10 묶음 동시 — 부하 평균 25~37, 시간 수치는 크게 부풀려짐)
+- 마지막 갱신: 2026-10-03T10:46Z (10:06Z 시작, 4 코어 측정 기계, 10 묶음 동시 — 부하 평균 25~37, 시간 수치는 크게 부풀려짐)
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
-  | pipeline (#46) | `feat/pipeline` 9df31b8 | experiment/pipeline | F-268·F-269: BA 에는 느슨한 문턱(영상 폭 1%) 안 관측, 점 문턱 = 3 × 재투영 중앙(하한 0.7 px)은 초벌 점에만, 버림 상한·퇴화 단위 시험. 총괄 확인: pipeline-densify 와 합친 트리에서 fmt·clippy 통과(시험 모듈 위치 수정 필요했음) |
+  | pipeline (#46) | `feat/pipeline` 9df31b8 | experiment/pipeline | F-268·F-269: BA 에는 느슨한 문턱(영상 폭 1%) 안 관측, 점 문턱 = 3 × 재투영 중앙(하한 0.7 px)은 초벌 점에만, 버림 상한·퇴화 단위 시험. 총괄 확인: pipeline-densify 와 합친 `feat/pipeline-integ` 6a69363 에서 fmt·clippy 통과(시험 모듈 위치를 끝으로 옮김), 끝까지 시험 실패 — 등록 120/120·중심 1.06/3.02 m 이나 점 760개·표면 중앙 3.57 m(> 시험 상한), verify 6/7(높이 차 6.47 m). 두 변경을 합치면 밀집 점이 크게 줄어 PR 로 넘기지 않음 |
   | pipeline-densify | `feat/pipeline-densify` bbb70c8 | experiment/pipeline-densify c2614c6 | F-271: 밀집 단계가 `dense::region_cloud` 경유, 짝 일정 matching 하나. 40위치 점→표면 중앙 2.072 → 1.258 m, 중심 0.588/2.972 m, 등록 120/120, verify 6/7(높이 차 4.32 m), 점 수 11480 → 1451 |
   | pipeline-regions | `feat/pipeline-regions` 74cb241 | 없음 | 구역 차례 처리(도착 → 등록 → 초벌 즉시 출력 → 정밀 뒤 스레드 → 교체·재정렬), F-272 구역 실패 건너뜀(가운데 구역 단색 시험 통과), F-275 자기 구역 중심. 3구역 장면 등록 30/78. 다음 등록이 최신 정밀 모델 위에서 하는 것은 아직. fmt·clippy·전체 시험 미실행 |
   | pipeline-tracks | `feat/pipeline-tracks` 3e28131 | experiment/pipeline-tracks 942c9f4 | `tracks::build_tracks` 연결. 120/120, 중심 0.899/3.832 m, 표면 2.103 m — 정확도 변화 없음. pipeline 9df31b8 과 `sparse_init` 에서 충돌 |
@@ -17,7 +17,7 @@
   | cross-schedule | `feat/cross-schedule` 3698eeb | experiment/cross-schedule 5e883bb | F-251: 일정 +28..+36, 카메라 간 2° 초과 2/48(4.2%), 성분 1. F-209 미착수. 곁가지: `refine_relative_pose` 가 F–R·F–L 짝에서 25~56° 틀림(선형 `recover_pose` 는 정상) |
 - 끝까지 흐름 진척: 구역 하나(40위치)는 synth → run → verify 가 돌고 밀집 단계가 실제 `dense::region_cloud` 를 쓴다(표면 1.26 m). 구역 2개 이상에서는 둘째 구역 등록이 무너지고(68/102) 겹침 14 m — 지금 가장 큰 막힘. 구역 차례 처리 뼈대는 따로 있음. 트랙 연결은 됐으나 정확도 이득 없음.
 - 다음 할 일:
-  1. feat/pipeline 에 densify·tracks·regions·tests 를 차례로 합치기(sparse_init·run_pipeline 충돌 손으로).
+  1. 합친 트리에서 밀집 점 760개로 줄어드는 원인(느슨한 BA 관측 후 깊이 범위·이웃 선택) 조사 → feat/pipeline 에 densify·tracks·regions·tests 를 차례로 합치기(sparse_init·run_pipeline 충돌 손으로).
   2. 2구역 등록 붕괴 원인: 둘째 구역 회전 평균·위치 단계 표, 카메라 간 일정 +28..+36 적용 후 재측정, `refine_relative_pose` 카메라 간 오차.
   3. 위치 평균: 시드 12 의 6.5 m 카메라, 점 이상치 5% 실패 시드 시작값(무작위 다중 시작), #37 과 formation 가지 합치기.
   4. PatchMatch: 세밀 층(480·960) 비용, 체커보드 병렬·기준 창 통계 캐시를 #6 에, 부하 없는 측정.
