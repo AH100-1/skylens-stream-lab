@@ -1,7 +1,28 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-03T23:07Z (23:06Z 시작분)
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-03T23:50Z (23:06Z 시작분)
+- 이번 회차 결론: 새 흐름 머리 `feat/pipeline-merge-2306`(= merge-2106 + ransac + f294e, 03f6009) 를 만들고 전체 시험을 돌림 — fmt·clippy 통과, core lib **324 통과·1 실패·25 무시**(653 s). **F-294 시험 통과**. 실패 하나는 `verify::nn_median_many_identical_points_is_fast_and_exact` 시간 단언 1.017 s > 1.0 s(부하 10 안팎, 값 단언은 통과 — 단독 재실행 못 함). perf_structure 의 RANSAC 최소 반복 고정 시험(300)은 ransac 가지가 상수를 100 으로 바꾼 것을 따라 고침(03f6009, 재실행 못 함). cli `pipeline` 통합 4 통과 확인, pipeline_e2e 등 나머지는 회차 안에 결과 없음. 정밀 BA 는 단구역에서 시작 롤과 무관하게 15회 안에 롤을 푼다(비행 축 성분 0.02° 미만) — 2구역 악화는 롤이 아니라 구역 합치기 경로. 초벌 구역 간 스케일 차 1.38% 는 구역 0 스케일만 움직인 결과(0.9397 → 0.9533). PR 새로 열지 않음(머리 cli 통합 결과 미완).
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | pipeline-merge-2306 (머리) | `feat/pipeline-merge-2306` 03f6009 | experiment/pipeline-merge-2306 5b7c948 | ransac 깨끗이, f294e 는 초벌 BA 블록 충돌 1 곳(초벌 = 높이 분산 롤 시작 + 단계 시간 유지, 정밀 = 예전 롤 시작). core lib 324/1/25, dataset_synth 2, perf_structure 5/1(고침), cli 단위 3, cli `pipeline` 4 통과 확인. README 단구역 명령은 못 돌림 |
+  | pipeline-refined-roll | `feat/pipeline-refined-roll` b3395d4 | experiment/pipeline-refined-roll 713236a | 단구역 정밀 BA 반복 0/5/15/30/60: 비행 축 롤 성분 예전 +0.377/−0.465/+0.014/+0.003/−0.007°, 높이 분산 +0.354/−0.478/−0.004/−0.014/−0.015°, 중심 중앙 0.326~0.328 m, RMS 0.300 px. 단구역 e2e 표면 중앙 0.475 대 0.486 m. 2구역 높이 분산 시작 0.742/3.869 m 재현. 시작 롤 무관 시험 `refined_roll_independent_of_start_roll` 추가(통과). legacy_roll 은 그대로(2구역 원인 미분리). 총괄 재빌드 확인 못 함(부하) |
+  | pipeline-preview-scale | 변경 없음 | experiment/pipeline-preview-scale b6d686d | 롤 규칙만 바꿔 재현: 새 규칙 구역 0/1 스케일 0.9533/0.9403(1.38%), 예전 0.9397/0.9402(0.05%). 구역 0(자기 구역 전체로 정렬)만 움직임 → 기울기를 스케일로 보상한다는 가설과 방향 일치. 광선 각 20° 거름은 효과 없음(이미 통과한 점). 수정 못 함 |
+  | 자세 단계 분석 | — | — | 위치 사전항 BA 는 게이지를 따로 묶지 않아 직선 비행이면 롤이 영공간. 권고: 공선 판정(σ2/σ1) 뒤 롤을 지면 평면 법선으로 고정, 정렬 스케일은 비행 축 기선 비로 분리 추정 |
+- 끝까지 흐름 진척: synth → run → verify 가 PLY·스냅샷·manifest·timing.json 까지. 머리가 `feat/pipeline-merge-2306` 로 바뀜 — core 시험 실패는 부하 시간 단언 하나뿐(F-294 해결). 2구역은 초벌 스케일 차 1.38%(시험 기준 1.0%)와 초벌↔정밀 높이 차가 남음.
+- 다음 할 일:
+  0. 부하 없는 첫 시점에 merge-2306 의 perf_structure·`nn_median` 단독, 그리고 cli 통합(pipeline_e2e·pipeline_arrival·pipeline_regions·pipeline_stream*)을 출력 파일로. 단구역 README 명령 verify. 통과하면 #46 갱신.
+  1. 구역 0 초벌 정렬 스케일: 정렬 전 초벌 점 기울기를 정답과 직접 비교 → 스케일을 비행 축 기선 비로 분리하거나 롤을 구역 간 공유(SPEC §3.7 사용 이미지 규칙 유지).
+  2. 2구역 정밀 표면 악화를 구역 간 정렬 전/후로 분리 → legacy_roll 임시 처방 제거.
+  3. refined-roll 의 측정 함수·시험을 머리에 합칠지(측정 전용 ignore 시험 포함) 결정.
+- 막힌 점:
+  - 4 코어 측정 기계: 전체 시험 + 묶음 2개에 부하 7~11, 전체 시험은 이번에도 cli 통합 단계에서 회차 마감.
+  - 결정 필요: 초벌 정렬 닮음 + 보정장 허용 여부(SPEC §3.7), F-197, F-209 확인 기준, F-251.
+  - 소유자 병합 필요: #6·#37·#39~#42·#49, #50(#6 위).
+
+## 직전 실행 기록 (2026-10-03 22:06Z 시작분)
+- 마지막 갱신: 2026-10-03T22:52Z
 - 이번 회차 결론: 첫 시점에 흐름 머리 `feat/pipeline-merge-2106`(e064aab) 전체 시험을 출력 파일로 돌림 — fmt·clippy 통과, core lib **322 통과·1 실패(F-294 `preview_default_pose_error_bounds` 하나)·25 무시**(760 s), dataset_synth 2·perf_structure 6·cli 단위 3 통과, cli `pipeline` 통합 시험 4 통과(지난 회차 실패한 `preview_ba_option_does_not_change_refined` 포함, 단구역·단구역 PatchMatch·2구역 e2e), 나머지 cli 통합 묶음(pipeline_arrival·pipeline_e2e 등)은 회차 마감까지 미완. 짝 맞춤 RANSAC 최소 반복 300 → 100·후보 평가 조기 중단으로 단구역 run 벽시계 54~60 → 30~38 s(짝 맞춤 40~42 → 17~21 s), verify 7/7 유지(pipeline-ransac, 총괄 재확인 통과). preview-tri·two-region-height 를 합친 merge-2206 은 2구역 높이 차 5.829 → 4.555 m 이나 e2e 두 시험 실패. F-294 는 정밀 BA 시작점을 초벌 롤과 분리해 2구역 정밀 표면 회복, 2구역 초벌 스케일 차 1.38% 로 아직 실패. 머리 전체 시험이 끝나지 않아 #46 갱신·새 PR 없음.
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
