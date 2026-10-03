@@ -1,7 +1,29 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-03T09:03Z (09:02Z 시작)
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-03T09:48Z (09:02Z 시작, 4 코어 측정 기계, 8 묶음 동시 — 부하 평균 15~20, 시간 수치는 부풀려짐)
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | pipeline (E01) | PR #46 (c72ef77) | PR #63 (→ progressive-stream) | main(#43) 합침, 정밀 BA 에 GPS 위치 사전항(σ 2 m), 초벌 점을 초벌 포즈로 다시점 강건 삼각측량(재투영 0.7 px·광선 각 4°). 40위치×3대 320×180: 등록 120/120, 정밀 중심 오차 중앙 0.88 m·최대 3.82 m(이전 3.82/12.76), 점→정답 표면 중앙 2.04 m, 초벌 정렬 잔차 중앙 2.90 m(6.55), 높이 차 중앙 2.60 m(6.91, 기준 2 m 미달), verify 6/7. run 81 s(부하 15~20). 구역 차례 처리(초벌 즉시·정밀 교체·sim3 재정렬) 아직 |
+  | pipeline-preview | `feat/pipeline-preview` 14db902 | experiment/pipeline-preview aac2223 | 원인 분해: 초벌 포즈 오차가 지배(중심 중앙 3.21 m·회전 2.54°), 같은 트랙을 정답 포즈로 삼각측량하면 표면 0.08~0.34 m. 광선 각 2° 미만 제외는 효과 작음(높이 차 6.14 m). 정밀 모델 회전 오차 중앙 14.1° 의심(`gps_align_refined`) |
+  | tracks (PR #15) | `feat/tracks` 23cd3bc, 라벨 | experiment/tracks 85ed135 | F-244·F-123·F-245·트랙 시드 XOR 처리: 국소 아핀 변위장(최근접 24) + MAD 판정, 문턱 영상 크기 비례. 회전 0~120° 버린 참 대응 2/39952, 오대응 1% 검출 99.1%, 두 해상도 순도 1.0000·완전도 ≥ 0.9994, 카메라 간 짝 장면 순도 1.0000·완전도 0.9997. 총괄 재검증 fmt·clippy·`tracks::` 15 통과 |
+  | tracks-affine | `feat/tracks-affine` ac55376 | experiment/tracks-affine b21a655 | 짝 전역 닮음 RANSAC 후 변위 거름: 회전 짝은 기준 통과, 카메라 간 짝 순도 0.916 로 미달 — tracks 쪽 방식 채택 |
+  | translation-averaging (PR #37) | `feat/translation-averaging` 7cd987e(main 병합만) | 변경 없음 | CI 원인: 현재 브랜치 시험 4개 실패(`noisy_outliers_register_all_seeds` 등록 224~234, `rough_model_from_averaged_poses` 225/240, `disconnected_keeps_largest_component` 209/210, `nan_rotation_and_infinite_weight_are_isolated` 238). 미등록 카메라 보충 단계(점 광선 + 등록 이웃 짝 방향)로 앞 둘은 통과하나 짝 전용 경로 두 시험은 일직선 퇴화로 구조적 실패 — 미커밋. 시드·문턱 되돌림 미완 |
+  | translation-averaging-formation | `feat/translation-averaging-formation` a68d5ce | experiment/translation-averaging-formation e4c68f3 | F-214 실측 배치 표: 점 이상치 0% × 짝 10·20% × 시드 1~20 중 39/40 통과(20% 시드 11 RMS 0.458 m). 점 이상치 5% 는 2/40 측정, 둘 다 실패(RMS 3.4~4.1 m) — 1단계 시작값이 이미 틀림, 정밀화 발산 아님 |
+  | patchmatch (PR #6) | `feat/patchmatch` 8cb4054 | experiment/patchmatch f5194e4 | 거친 층 첫 반복 뒤 이웃 4장. 960×540 이웃 8장 23.2 s(부하 15~18), F-048 미달 |
+  | patchmatch-fast | `feat/patchmatch-fast` 283ef19 | experiment/patchmatch-fast 6c3916d | 경사 평면·계단 법선 시험 무시 해제 후 통과(4.21°·4.24°, 기준 5°): 창 밝기 가중 끔·상위 3. 시간 60.5/42.3 s(부하 17~19), 1 s 목표 미확인 |
+- 끝까지 흐름 진척: 합성 40위치 synth → run → verify 가 돌고 PLY·스냅샷·manifest 가 나온다. verify 6/7(초벌↔정밀 높이 차 2.60 m 만 실패). 정밀 중심 오차 중앙 0.88 m. 트랙(#15)은 흐름 연결 가능 상태, 위치 평균·PatchMatch 는 아직 대체 구현.
+- 다음 할 일:
+  1. pipeline: 초벌 포즈 정확도(회전 평균·위치 풀이) — 높이 차 2 m 미만. 구역 2개 이상 장면 측정, 구역 차례 처리. feat/tracks 를 흐름에 연결.
+  2. 위치 평균 #37: 미등록 카메라 보충 단계 커밋, 짝 전용 경로 시험 두 개 처리 방침 결정, 시드 1~20·문턱 되돌림, F-213. 점 이상치 5% 표(F-214).
+  3. PatchMatch: 조기 중단·기준 창 통계 캐시, 부하 없는 기계에서 1스레드·4스레드 재측정. patchmatch-fast 의 법선 개선을 #6 에 합칠지 결정.
+- 막힌 점:
+  - 시간 기준(F-048·F-127·밀집 30 s)은 부하 없는 기계에서만 판정 가능(이번 부하 평균 15~20).
+  - 결정 필요: 위치 평균 짝 전용 경로 시험 2개(편대 일직선 배치에서 구조적으로 퇴화) — 시험을 점 관측 경로로 바꿀지.
+  - 결정 필요: SPEC §3.3 에 정밀 BA 위치 사전항 줄 추가(F-247), §3.2 짝 일정(F-197).
+
+## 직전 실행 기록 (2026-10-03 08:06Z 시작분)
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
