@@ -1,7 +1,37 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-03T14:07Z (14:06Z 시작분)
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-03T14:50Z (14:06Z 시작분)
+- 이번 회차 결론: 새 PR 없음. 위치 평균 #37 에 F-277·F-278 처리(기존 시드 11~13 출력 그대로), 트랙 #15 에 편대 재현율 표 시험(완전도 ≥0.9937, 9경우) — 둘 다 해당 모듈 시험 재확인 후 review-requested 다시 붙임. PatchMatch 경사·계단 법선 시험 통과로 복구, 속도는 CPU/4 1.19 s 로 목표 미달. `feat/pipeline` 합치기(regions·preview·tracks)는 커밋하지 못해 그대로.
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | translation-averaging (#37, F-276~F-278) | `feat/translation-averaging` 209a6a6 (수정 3d65184) | experiment/translation-averaging 821d403 | F-277: 문턱 안 제약 < 4 또는 고윳값 비 < 1e-4 면 이전 중심 유지, 단위 시험 4경우. F-278: 카메라별 색인. F-276: 진단만(시드 15 카메라 41 은 점 관측 0 인 보충 카메라 2.339 m, 시드 7 카메라 5 원인 미확인). 총괄 재확인: fmt 통과, `translation_averaging` 10 통과·0 실패·4 무시(136 s). 전체 시험은 미실행 |
+  | tracks (#15) | `feat/tracks` edb095a | experiment/tracks 06e61fb | 트랙 코드 변경 없음. 편대 기본 장면 재현율 30/40/50% × 오대응 0/5/10%: 완전도 0.9937~0.9996, 순도 0.9857~1.0. 시험 `formation_recall_table`(완전도 ≥0.95, 오대응 ≤5% 순도 ≥0.97). 총괄 재확인: fmt 통과, `tracks` 17 통과·0 실패·2 무시 |
+  | patchmatch (#6, F-048) | `feat/patchmatch` 36aa847 | experiment/patchmatch 46f880c | 기본 경로를 체커보드 경로로, 120 px 시작 4층, 상위층 표본 간격 4, 상위 3 조기 중단, 세밀층 후보 비용 < 0.9. 경사·계단 법선 통과(이전 5.47°·5.36° 실패). 960×540 이웃 8장 CPU 10.28 → 4.77 s(4 스레드, 부하 15~20, CPU/4 1.19 s), 법선 중앙 2.43 → 2.85°. clippy 통과, 전체 시험 미완. 총괄 재확인 못 함 → 라벨 없음 |
+  | pipeline-height (F-268·F-270) | `feat/pipeline-height` 6724181 | experiment/pipeline-height 763e15e | 삼각측량 문턱·GPS σ 수평/수직을 설정으로, synth 기체별 GPS 치우침 옵션. 끝까지 단구역 수치 변화 없음(verify 5/7, preview_align 6.97 m, 높이 차 4.62 m). 높이 차는 초벌 점 깊이 쪽으로 추정. 전체 시험 중 `sparse::formation_scene_registers_all_and_meets_floors` 실패(중심 2.50/5.09 m, 부하 20, 원인 미확인) |
+  | pipeline-regions | `feat/pipeline-regions` 07c48d5 | experiment/pipeline-regions f75bc59 | 정밀 구역 재정렬을 이웃 따라 연쇄 합성: 3구역 겹침 차 3.04 → 2.40 m, 스케일 차 6.49%, verify 4/7. 남은 차이는 구역별 정밀 모델 자체(스케일·높이) — 구역 경계 묶는 BA 필요 |
+  | rotation-coverage (F-209·F-148) | `feat/rotation-coverage` 4fa2bc6 | experiment/rotation-coverage 3ae6d09 | main 에서도 기본 bench 8/24: 8위치 bench 는 카메라 간 짝이 구조적으로 안 겹침(원인은 평면 순위 아님). 겹치는 편대 시험: 16/16, 2° 초과 3.9%, 정렬 중앙 0.141°. bench 에 짝 종류별 성공 수·성분 수 출력 |
+  | pipeline-ta | `feat/pipeline-ta` 2e18bd8 | 노트 미확인 | feat/pipeline + #37 합침, 위치 평균을 선택 가능한 초벌 위치로 연결(기본값 그대로). 결과 보고 전 회차 종료 |
+  | pipeline (#46, E01 합치기) | `feat/pipeline` ee9eb18(변경 없음) | | regions 합치기 충돌 해결·빌드까지 했으나 커밋 단계가 이 측정 기계 권한 설정에서 막혀 진행 못 함 |
+  | fusion-consistency | 시작 못 함 | | 권한 설정에서 막힘 |
+- 끝까지 흐름 진척: 지난 회차와 같음 — `feat/pipeline` 단구역 synth → run → verify 5/7, PLY·스냅샷·manifest 출력. 위치 평균 연결(pipeline-ta)·높이 설정(pipeline-height)·구역 연쇄 재정렬(pipeline-regions)이 각자 브랜치에 있고 아직 하나로 모이지 않음.
+- 다음 할 일:
+  1. `feat/pipeline` 에 regions 07c48d5 → preview 2406456 → tracks bb5ba24 → pipeline-ta 2e18bd8 → pipeline-height 6724181 순서로 합치고 끝까지 시험.
+  2. 초벌 점 깊이(높이 차 4.6 m): 초벌 점군 전에 GPS 사전항 BA 몇 회.
+  3. 구역 경계 스케일을 묶는 단계(겹치는 사진 포즈 고정 또는 합친 BA).
+  4. PatchMatch 960 층 반복·평가 시간, 부하 없는 벽시계 재측정. 융합 일치 검사(재투영·상대 깊이·최소 시점 수).
+  5. F-276 80경우 표·시드 21~25, F-209 확인 기준 개정(겹치는 위치 포함 bench).
+- 막힌 점:
+  - 4 코어 측정 기계에서 묶음 여럿이 동시에 시험하면 부하 15~20 으로 전체 시험이 마감 안에 끝나지 않고, 시간 단언 시험(`verify::nn_median_many_identical_points_is_fast_and_exact`)이 부하로 실패함.
+  - `feat/pipeline` 합치기 커밋이 이번 회차에 권한 설정으로 막힘 — 소유자 확인 필요.
+  - 소유자 병합 필요: #37·#15(통과 판정, 라벨 유지).
+  - 결정 필요: 보조 사진 SPEC §3.5, F-197 카메라 간 일정, F-251 기준.
+
+
+## 직전 실행 기록 (2026-10-03 13:06Z 시작분)
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-03T13:53Z (13:06Z 시작분)
 - 이번 회차 결론: 위치 평균 #37 이 F-213 기준(0.3/1.0 m)을 회복해 다시 검토 요청. 흐름 네 가지(pipeline·tests·densify·regions)를 `feat/pipeline` 하나로 합침 — 단, 합친 머리의 전체 시험은 미확인.
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
