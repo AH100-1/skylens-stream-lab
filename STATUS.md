@@ -14,13 +14,14 @@
   | pipeline-regions-ba (F-272·F-273) | `feat/pipeline-regions-ba` d7981e7 | experiment/pipeline-regions-ba a0d62d0 | `region_link` Off/Points/Centers(겹치는 사진 포즈 고정). 3구역 62/78: 겹침 4.20/4.48/4.20 m, 스케일 차 177.8/374.5/177.8% — 개선 없음, 기본 Off. `pipeline_regions` 2 실패(가운데 구역 건너뜀 기록·정지 구간 이슈) |
   | pipeline-stream-order (F-055 등 관련) | `feat/pipeline-stream-order` 6de27fc | experiment/pipeline-stream-order bd4fee2 | 위치 단위 도착 사건, 시점별 스냅샷 `snapshots/live/`, manifest `events`. 2구역 사건 순서 시험 통과, 스트림 41.6 s / 순차 51.5 s 수치 동일. `pipeline_regions` 2 실패(위와 같은 두 시험) |
   | pipeline-pm (F-271) | `feat/pipeline-pm` f34be87 | experiment/pipeline-pm 1a8d46f | densify + patchmatch 합침, `PipelineConfig::dense_method`(Sweep 기본 / PatchMatch: 이웃 8장 `select_neighbors`·`depth_range` → `patchmatch::estimate` → `fusion::fuse`). 단구역 폭 96 px: 스윕 점→표면 0.333/1.523 m(중앙/95%)·12.0 s, 패치매치 0.319/2.619 m·66.1 s, 둘 다 verify 5/7(시험 하한 6 → 5 로 낮춤). fmt 통과, `--test pipeline` 2 통과, clippy·전체 시험 미실행. 총괄 확인 못 함 |
-  | pipeline-accuracy (F-273·F-066) | `feat/pipeline-accuracy` | experiment/pipeline-accuracy | 마감 시점 결과 미수신 — 브랜치 상태만, 총괄 확인 못 함 |
+  | pipeline-accuracy (F-273·F-066) | `feat/pipeline-accuracy` 6f19c4c | experiment/pipeline-accuracy 8341d5f | 새 시험 `pipeline_accuracy.rs`(구역 1·2 × 시드 1·2, 320×180, BA 15회): 등록 전부, 중심 중앙 1.01~1.90 m·최대 4.88~13.05 m, 점→표면 중앙 2.93~9.12 m, 높이 차 3.85~13.96 m, verify 5/7·4/7. 시드 2 가 크게 나쁨. preview_align 실패는 점쌍 부족(740~842, 2구역 141~143 < 1000), 2구역 시드 2 는 정밀 BA 가 구역 0 높이를 +14.98 m 띄움. 상한은 나쁜 시드 +15~20% 로 느슨(노트 명시). fmt·clippy 통과, 4 통과(175 s). 회전 오차는 poses.txt 에 중심만 있어 못 잼. 총괄 확인 못 함 |
 - 끝까지 흐름 진척: `feat/pipeline` 단구역 synth → run → verify 가 PLY·스냅샷·manifest 까지 나오고, 초벌 BA 가지(#48)에서 단구역 7/7. 남은 것: #48 을 `feat/pipeline` 에 합치기(preview 충돌 정리 먼저), 2구역 스케일 차(12.7%), 밀집을 PatchMatch 로.
 - 다음 할 일:
   0. #48 CI: `sparse::formation_scene_registers_all_and_meets_floors` 실패 원인을 `feat/pipeline-height` 6724181 에서 찾기(번들 조정 뒤 회전 오차 20.75° — 삼각측량 문턱·σ 설정 변경 영향으로 추정).
   1. `feat/pipeline` 에 `feat/pipeline-preview`(run_ba 시그니처·sparse_init 반환형·구역 반복 충돌) → `feat/pipeline-preview-ba` 합치고 끝까지 시험.
   2. 2구역 스케일 차: 겹침 위치 늘리기, 공유 점 + 양방향 재투영 검사 정렬, 겹치는 사진 위치 사전항(축별 가중, ba.rs 확장).
   3. `pipeline_regions` 의 `failed_middle_region_is_skipped_not_fatal`·`stationary_segment_is_error_or_issue` 실패를 기반 `feat/pipeline-regions` 에서 재현해 원인 가르기.
+  3a. 정밀 BA 가 구역 높이를 띄우는 시드 2 경우(pipeline-accuracy 2구역 시드 2, +14.98 m)를 초벌 BA 가지(#48)로 다시 재고, poses 출력에 회전 추가.
   4. PatchMatch: 건너뛴 화소 법선 섭동 1회 또는 법선 변화 기준 건너뜀, 원 해상도 시작 비용·최상층 반복 축소, 부하 없는 벽시계 재측정.
 - 막힌 점:
   - 4 코어 측정 기계에서 묶음 9개 동시 시험으로 부하 15~25 — 끝까지 시험(12 분)·전체 시험을 마감 안에 못 돌림.
