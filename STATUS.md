@@ -7,8 +7,8 @@
   |---|---|---|---|
   | ba-gps-prior | PR #43 (5bf66cc) | PR #60 (→ bundle-adjustment) | `BaOptions::position_prior`(카메라 중심 사전항, σ 2 m, Huber 3σ, 켜면 축척 게이지 해제). 편대 30대·GPS 잡음 1.5 m·높이 휨 6 m: 켬 높이 오차 중앙 0.10~0.29 m(끔 2.8~4.4 m), 재투영 ≤ 0.62 px. 총괄 재검증 fmt·clippy·`ba::` 18 통과, CI 통과 |
   | tracks (PR #15) | `feat/tracks` c43741e, 라벨 | experiment/tracks ee90ebd (PR #31) | F-123: 감독의 완전도 0.78 은 c31c759 이전 코드 값으로 재현 안 됨. 편대 배치 재현율 30~50% × 오대응 0·1·5% 시드 1~10 완전도 ≥ 0.9946. 기본 최소 길이 3. 순도: 오대응 ≤1% ≥ 0.9918, 5% 최저 0.9763(30%), 바꿈형 1% 최저 0.983 — 0.99 미달. 총괄 재검증 fmt·clippy·`tracks::` 10 통과 |
-  | formation-pairs | `feat/formation-pairs` 2a192e1 | experiment/formation-pairs 0194a27 | F-148·F-197 원인: 카메라 간 겹침 부족(R–L 0%, F–R/L +12~16 은 2.8~6.8%). 겹침 7~20% 짝은 회전 오차 2~17°. 기본 일정 F–R·F–L +20..40(4칸), 34시점 짝 177 모두 검증·연결 성분 1·카메라 간 회전 오차 중앙 0.851°·최대 10.0°. 총괄 재검증 진행 중 |
-  | fusion-stream | `feat/fusion-stream` 61168c9 | experiment/fusion-stream ac89654 | 유효 화소 순 처리, F-240 시험 (a)(b). 편대 48장 480×270 429503점·표면 중앙 0.0077 m·1 m 초과 0. F-226 광선 충돌 검사 효과 없어 뺌(미해결) |
+  | formation-pairs | PR #44 (2a192e1) | PR #61 (→ matching-followup) | F-148·F-197 원인: 카메라 간 겹침 부족(R–L 0%, F–R/L +12~16 은 2.8~6.8%). 겹침 7~20% 짝은 회전 오차 2~17°. 기본 일정 F–R·F–L +20..40(4칸), 34시점 짝 177 모두 검증·연결 성분 1·카메라 간 회전 오차 중앙 0.851°·최대 10.0°. 총괄 재검증 fmt·clippy·`matching::` 40 통과 |
+  | fusion-stream | PR #45 (61168c9) | PR #62 (→ fusion-hardening) | 유효 화소 순 처리, F-240 시험 (a)(b). 편대 48장 480×270 429503점·표면 중앙 0.0077 m·1 m 초과 0. F-226 광선 충돌 검사 효과 없어 뺌(미해결). 총괄 재검증 fmt·clippy·`fusion::` 17 통과 |
   | pipeline (E01) | `feat/pipeline` ea0eeba | experiment/pipeline 91b89e7 | pipeline-sparse·pipeline-dense 합침, 정밀 BA 뒤 GPS 닮음 정렬. 40위치×3대 120/120 등록, verify 5/7(preview_align 6.55 m, preview_vs_refined 높이 차 6.91 m 실패). 원인: 초벌 점 깊이 오차(같은 트랙 점 BA 이동 중앙 13.4 m, 카메라는 2.3 m). PR 안 엶 |
   | patchmatch (PR #6) | `feat/patchmatch` 2d4866b | experiment/patchmatch 537907e | 고운 층 이웃 3→2. 거친 층 120 시도 28.2 s(부하 34)·320 px 시험 실패로 되돌림. F-048 미달. 층별 시간: 120 층 11.1 s 가 최대 |
   | patchmatch-fast | `feat/patchmatch-fast` 3fc7358 | experiment/patchmatch-fast bd03cf1 | 단계별 시간 측정. 기본 62.45 s, 축소 묶음 18.39 s 이나 법선 기준 실패로 기본 유지. F-048 미달 |
