@@ -315,3 +315,35 @@ F-274: `run_ba` 설명 주석을 함수 바로 위로 옮겼다. BA 는 정밀 �
 
 ## 제품 브랜치·커밋
 feat/pipeline (83ff628 위 시험 단언·주석 위치 커밋; main 1578181 은 이미 포함).
+
+## 통합 2: 가지 모으기 (feat/pipeline)
+
+### 결론
+feat/pipeline 에 origin/main(트랙·융합 일치), pipeline-preview, pipeline-preview-ba, pipeline-pm 을 차례로 합쳐 푸시했다(마지막 커밋 86361e9). 합칠 때마다 release 빌드·fmt·clippy 통과. pipeline-stream-order 는 시간이 모자라 합치지 못했다.
+단구역 끝까지 시험 두 개(`synthetic_single_region_end_to_end`, `..._patchmatch`, 스윕·패치매치)는 통과(2 passed, 0 failed, 468 s, 2개 병렬). 두 구역 시험·README 의 synth → run → verify 실측과 수치(통과 항목 수, 정밀 중심 오차, 점→표면, 높이 차)는 이번에 돌리지 못했다. README 의 "verify 5/7" 문구는 이전 측정이라 낡았을 가능성이 크다(고치지 못함).
+
+### 합친 순서와 충돌 정리
+| 순서 | 가지 | 충돌 | 정리 방식 |
+|---|---|---|---|
+| 1 | origin/main | 없음 | - |
+| 2 | pipeline-preview | pipeline.rs 6곳 | feat/pipeline 의 비동기 구역 루프(정밀 스레드·앵커)를 유지. preview 의 `PreviewOpts`·`average_pruned`·`snap_poses_to_gps`·`well_conditioned` 를 살리고 `sparse_init_with(method, tri, ..., opts)` 로 위치 평균 방식과 합침. 초벌 점군은 광선 각 2도 미만 점을 뺀 모델로 |
+| 3 | pipeline-preview-ba | pipeline.rs 2, 시험 1 | `preview_ba_iters` 를 `sparse_init` 인자(반복, σ)로 연결, 시험 설정에 함께 넣음 |
+| 4 | pipeline-pm | pipeline.rs 1, 시험 4 | `dense_method` 를 `dense_cloud` 인자로, 정밀 스레드에는 복사해 넘김. 시험은 `run_case(..., method)` 로 일반화하고 패치매치 단구역 시험 추가 |
+| 5 | pipeline-stream-order | 미착수 | 남음 |
+
+### stream-order 의 흐름 순서 구현 현황 (SPEC 요구 대비, 합치지 못해 코드 확인은 제한적)
+| 요구 | feat/pipeline(합친 뒤) | stream-order 가지 |
+|---|---|---|
+| 위치 단위로 차례 도착 | 구역 단위 처리 | 위치 단위 도착 사건, `snapshots/live/`, manifest `events` (구현됨, 미병합) |
+| 구역 완료 시 초벌 즉시 | 구현 | 구현 |
+| 정밀은 병렬로 만들어 교체 | 구현(별도 스레드) | 구현 |
+| 다음 등록은 최신 정밀 위에서 | 앵커로 직전 정밀 좌표계 사용 | 이 가지에서 확인 못 함 |
+| 새 정밀 모델 시 이미 보낸 구역을 공유 3D 점 sim3 로 재정렬 | `realigns` 로 구현 | 확인 못 함 |
+
+### 남은 문제
+- stream-order 병합(주로 pipeline.rs 구역 루프와 manifest 쪽 충돌 예상), 병합 후 전체 시험.
+- README 명령 실측과 문구 갱신, 두 구역 시험.
+- 경고: preview-ba 의 `sparse::formation_scene_registers_all_and_meets_floors` CI 실패는 다른 묶음 담당이라 조사하지 않음. 이번 병합 뒤 `cargo test` 전체는 돌리지 않음.
+
+### 제품 브랜치·커밋
+feat/pipeline 86361e9 (PR #46).
