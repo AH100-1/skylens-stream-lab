@@ -10,11 +10,11 @@
   | patchmatch → main | `feat/patchmatch` 92f56e4 → PR #56(review-requested) | — | main 위 병합 충돌 없음(patchmatch.rs 만). 총괄 확인: fmt·clippy 통과, core patchmatch 13 통과·6 무시, CI 초록 |
   | dense-pose-robust | `feat/dense-pose-robust` 9df4447(feat/dense-accuracy 위, PR 없음) | experiment/dense-pose-robust 225fd57 | view_selection 에 이웃 각 설정(최소·목표·폭·상한). 24장: 정답/0.05°/0.2° 자세에서 표면 중앙 기본 0.0651/0.4113/1.9944 m, 최소 8° 0.0371/0.2857/2.0846 m, 최소 10° 0.0319/0.3141/2.4020 m. 0.2° 잡음은 이웃 선택으로 못 고침. 기본을 8° 로 하면 4 위치 장면 시험 등 4개 실패 → 기본 유지. dense.rs 에 설정 통로 없음(다음). 총괄 재확인 안 함 — PR 은 #54 병합 뒤 |
   | pipeline-stream-anchor | `feat/pipeline-stream-anchor` 1df7649(PR 없음) | experiment/pipeline-stream-anchor c048296 | 원인: 시험 장면(16 위치·span 10)에 카메라 간 짝(F 기준 +20..+40)이 없었음 — 알고리즘 결함 아님. 앵커 꺼짐 상수 삭제, 앵커 안 붙은 이유 로그, 붙은 구역은 GPS 재정렬 생략. 시드 1 켬/끔 겹침 0.285/0.285 m(7/7), 시드 2 0.511/0.646 m(6/7). 희소 점 구역 간 차 0.08 m 인데 밀집 높이 차 0.5 m 대 → 밀집 깊이 쪽 편향 추정. pipeline_stream_order·pipeline_e2e 미확인이라 PR 보류 |
-  | sparse-staged-ba | (결과 미수신) | — | 회전 고정 BA → 공동 BA 라운드·조이는 관측 거르기·재삼각측량(선택)으로 정밀 회전 0.388° → 0.2° 목표. 마감까지 결과 없음 |
+  | sparse-staged-ba | `feat/sparse-staged-ba` 31d88a7(PR 없음) | experiment/sparse-staged-ba | `BaOptions::fix_rotations`, `SparseConfig::ba_stages`(기본: 회전 고정 BA → 공동 BA 3라운드 + 재투영 30→20→10 px·4 px·삼각측량 각 1.5° 거르기, 재삼각측량은 선택). 단구역 120장 480×270 정렬 후 회전 중앙/최대: 기존 4.897/8.459° → 2단계 1.758/1.871°, +재삼각측량 3.239/3.692°(중심 무관 회전 0.742°, 중심 중앙 0.515 → 0.185 m, 점 표면 1.922 → 0.454 m). 기존 수치(흐름 측정 0.388°)와 장면·해상도가 달라 비교 기준 재확인 필요. 기본 경로를 바꾸는데 sparse·ba lib 시험 미확인 → PR 보류 |
 - 끝까지 흐름 진척: main 779edb7 에서 이미지 폴더(+GPS) → 스냅샷·manifest 전부 연결 유지. 스트림 순서 중 '다음 구역 등록은 최신 정밀 모델 위에서'가 80 위치 장면에서 처음 실제로 동작(feat/pipeline-stream-anchor). #54·#56 병합 시 main 의 밀집 단계가 반점 제거·속도 선택지까지.
 - 다음 할 일:
   1. 시드 2 이웃 정밀 구역 겹침 차 0.511 m: 희소는 0.08 m 라 밀집 깊이 높이 편향 — 겹침 구역 밀집 점군 직접 높이 정합 또는 구역별 깊이 범위 고정 비교. 그 뒤 stream-anchor PR(pipeline_stream_order·pipeline_e2e 확인 포함).
-  2. sparse-staged-ba 결과 확인·재시험(정밀 회전 0.2° 이하가 표면 오차를 가장 크게 줄임).
+  2. sparse-staged-ba: lib 시험 확인, 기존 경로 회전 4.9° 가 흐름 측정 0.388° 와 다른 이유(장면·지표 차) 확인, 줄 축 회전 불안정 → 회전 지표를 중심 무관 지표로도 보고, 초점·왜곡 정제.
   3. dense.rs 에 이웃 각 설정 통로, 기선 짧은 장면용 최소 각 자동 결정(사진별 후보 각 하위 분위) 후 기본값 재검토.
   4. 카메라 중심 최대 오차 3 m 대(켬·끔 같음) 원인.
 - 막힌 점:
