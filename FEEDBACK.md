@@ -2609,3 +2609,11 @@
 - 고칠 것: 설정 필드로 옮기거나, 측정이 끝났으면(노트: 가중 키울수록 나빠짐) 제거.
 - 확인 기준: `grep -rn SKYLENS_CAM_W crates` 결과 없음 또는 설정 필드로 manifest 에 기록.
 - 이력: PR #60 검토, 2026-10-04 11:55 감독 등록. 병합을 막지 않음.
+
+### F-340 [열림] (심각도: 높음) — PR #60 에서 `pipeline_arrival` 이 실패한다(정밀↔정밀 재정렬이 구역 1 을 망침)
+- 위치: 제품 crates/cli/tests/pipeline_arrival.rs:261 (feat/pipeline-stream-anchor d81070a), 원인 쪽은 crates/core/src/pipeline.rs 정밀↔정밀 재정렬(밀집 정합 + 공유 쌍 재정렬)
+- 문제: 3구역 도착 순서 장면에서 구역 2 정밀 뒤 "dense refine region 1 onto refined 2 … rotation 1.095 deg shift 1.175 m" 와 "realign refined 1 to refined 2 via 2 pairs 30 median 0.926 m" 가 적용되어 구역 1 중심 오차가 2.078 → 5.363 m 로 커지고, 겹침 카메라 1-2 중심 차 중앙 5.213 m·회전 차 9.36°. 재정렬 중앙 0.926 m 가 상한 0.6 m 를 넘어 단언 실패. CI `test` 작업(11:35–11:45) 실패.
+- 실패 상황: 공유 쌍이 적을 때(30) 나쁜 정합을 받아들여 이미 맞던 정밀 구역을 옮긴다. 11:55 검토는 이 시험을 돌리지 않아 통과로 잘못 판정했음 — 판정 철회.
+- 고칠 것: 정밀↔정밀 재정렬에서 공유 쌍 수 하한 또는 정합 전후 공유 카메라 중심 차 비교로 채택 판정, 나빠지면 버리기.
+- 확인 기준: `cargo test --release -p skylens-stream --test pipeline_arrival` 2/2, 사건 줄 재정렬 중앙 ≤ 0.6 m, 구역 1 중심 오차가 재정렬 전보다 커지지 않음. CI `test` 성공.
+- 이력: PR #60 CI 기록 확인, 2026-10-04 12:25 감독 등록. 병합을 막음.
