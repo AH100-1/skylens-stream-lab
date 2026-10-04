@@ -59,4 +59,17 @@ feat/pipeline-preview-center (기준 e388346): 3802231 (중심 다듬기 조건 
 
 ### 단구역·2구역 끝까지 시험
 
-아래 "제품 쪽 실행 결과" 절 참조.
+병합본(7f6c2c8)에서 `cargo test --release -p skylens-stream --test pipeline -- synthetic_single_region_end_to_end synthetic_two_region_end_to_end --exact` (4 코어 측정 기계, 타 작업과 공유, 324 s):
+
+| 시험 | verify | 구역 | 중심 오차 중앙 (m) | 중심 오차 최대 (m) | 표면 중앙 (m) | 스윕 p95 (m) |
+|---|---|---|---|---|---|---|
+| 단구역 | 7/7 | 1 | 0.312 | 0.851 | 0.351 | 1.139 |
+| 2구역 | 7/7 | 2 | 0.279 | 3.152 | 0.446 | 2.261 |
+
+두 시험 모두 통과. `pipeline_e2e.rs` 는 마감 때문에 실행을 마치지 못했다(남은 문제). main 쪽 같은 두 시험의 전후 수치는 이번에 따로 재지 않았다.
+
+## 남은 문제 (병합 후)
+
+- `crates/cli/tests/pipeline_e2e.rs`(single_region_end_to_end, two_region_end_to_end)는 부하 때문에 마감 전에 결과를 받지 못했다.
+- 2구역 시험의 중심 오차 최대 3.152 m 는 정밀 구역 앵커 쪽 몫이라 이 묶음에서 보지 않았다.
+- 중심쌍 반복 수 2·3·5 의 우열은 한 장면 한 번 측정으로는 구분되지 않는다.
