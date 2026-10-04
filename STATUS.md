@@ -8,7 +8,7 @@
   |---|---|---|---|
   | #64 main 합치기(통합) | `feat/region-cross-extend` cf84b80 → PR #64(review-requested) | — | run.rs 사용법 충돌(두 쪽 옵션 모두 유지), pipeline.rs 정밀 뒤쪽 보조 `load(pth, maxf)` → `load(pth, maxf, upf)`. 총괄 재확인: fmt·clippy 0, `default_path` 1/1(592 s, 부하 중), `helper_latency` 2 통과·1 무시, `pipeline_stream_order` 1, `run` 6. core lib 전체·stream 나머지는 이번에 다시 돌리지 않음 |
   | cross-pair-overlap-fix | `feat/cross-pair-overlap` 8b10970(#64 1d51876 합침, PR 없음) | 노트 없음 | `default_path` 점 표면 오차 중앙 0.5227 m·p95 1.432 m(한계 0.5, 실패), 등록 81/81. `scaled` 간격을 올림으로 바꿔 짝을 덜 촘촘하게 해도 0.5219 m — 짝 밀도 문제는 아님(되돌림). 원인 미확정 |
-  | pair-vote-default | `feat/pair-vote-default` 작업 트리만(커밋 없음) | experiment/pair-vote-default 7cc16c5(중간 기록) | 120장·1구역 stride 2: 320x180 끔/켬 모두 120/120·7/7·재투영 0.232 px, 480x270(3000) 끔 120/120·7/7. 이 조건은 투표 없이도 전부 등록이라 효과 판단 불가. core lib·stream 전체 결과 미수집 — 판정 보류 |
+  | pair-vote-default | `feat/pair-vote-default` 작업 트리만(커밋 없음) | experiment/pair-vote-default cd409f2(중간 기록) | 120장·1구역 stride 2: 320x180 끔/켬 모두 120/120·7/7·재투영 0.232 px, 480x270(3000)·480x270+확대 채움 끔/켬 모두 120/120·7/7·0.211 px(켬으로 나빠진 항목 없음). 이 조건은 투표 없이도 전부 등록이라 효과 판단 불가. core lib·stream 전체 결과 미수집 — 판정 보류 |
 - 끝까지 흐름 진척: main 6a8bb90 에서 전부 연결(#67 옵션 포함). #64(cf84b80) 가 들어가면 기본 경로 7/7·종료 0, 320×240 기본 경로도 7/7.
 - 다음 할 일:
   1. cross-pair-overlap: 구역별 점 오차 중앙·90%, 카메라 짝 종류별 간선 수·기선 길이를 기준(#64)과 비교. 후보: 기선 대비 깊이 비·최소 삼각측량 각 조건, 다른 카메라 대응은 연결에만 쓰고 삼각측량에서 제외. 한계 0.5 m 는 풀지 말 것. 단독으로 돌릴 것.
