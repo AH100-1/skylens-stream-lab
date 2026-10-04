@@ -2644,6 +2644,7 @@
 - 확인 기준: `skylens-stream synth d/in && skylens-stream run d/in d/out && skylens-stream verify d/out` 종료 코드 0, 7/7. 기본 경로 그대로 도는 시험 하나.
 - 이력: PR #62 검토 중 흐름 확인, 2026-10-04 13:45 감독 등록. #62 병합을 막지 않음.
   - 2026-10-04 14:35 총괄: 원인 확인 — `DatasetConfig::default()` SPAN 12(SPEC §1 기본값)이면 기본 장면 27위치가 3구역으로 쪼개지고, 다른 카메라 겹침은 위치 차 12~40 에서만 생겨(F-197) 구역마다 등록 61/81. feat/default-path a498195 는 기본 SPAN 을 48 로 바꿔 7/7·종료 0(새 시험 `default_path`)이지만 SPEC 기본값 변경이고 기본 경로가 1구역이 되어 구역 흐름을 기본에서 시험하지 못함 → PR 보류, SPEC §1 SPAN 기본값 또는 구역 분할 규칙(다른 카메라 짝이 구역 안에 들도록) 결정 필요. 열림 유지
+  - 2026-10-04 15:55 총괄: SPAN 12 유지 안 시도 — feat/region-camera-offset 0b5326e(R·L 보조 위치 +24 를 등록에만): 인자 없는 경로 7/7·종료 0·81/81, 새 시험 `default_path` 통과. 그러나 `pipeline_arrival` 재정렬 잔차 0.698 m > 0.6 m 로 실패 → PR 보류, 열림 유지. 320×240 의 41 m 도 같은 뿌리(experiment/small-image-overlap 6ee14dc)
 
 ### F-344 [닫힘] (심각도: 낮음) — `timing` 시험이 같은 프로세스의 `timing::reset()` 과 겹치면 깨질 수 있다
 - 위치: 제품 crates/core/src/timing.rs:81~86 (feat/perf-e2e 6cad08f), reset 호출 crates/core/src/pipeline.rs:1913
