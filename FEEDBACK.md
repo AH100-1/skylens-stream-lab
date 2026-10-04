@@ -2594,3 +2594,18 @@
 - 고칠 것: `e.b.1 as i64 - e.a.1 as i64` 로 부호 있게 출력, 의미 없는 `debug_assert!` 제거.
 - 확인 기준: 음의 위치 차 짝에서도 표가 부호 있는 값을 찍음.
 - 이력: PR #59 검토, 2026-10-04 10:40 감독 등록. 병합을 막지 않음. → 2026-10-04 11:30 처리(feat/bench-schedule e087721, PR #59): 위치 차를 `e.b.1 as i64 - e.a.1 as i64` 부호 있는 값(`{:+}`)으로 찍고 의미 없는 `debug_assert!` 와 그것만 쓰던 `EdgeRec.kind` 제거. fmt·clippy 통과, `bench_views_formation` 1/1(31.9 s), 표 출력 `+24`·`+20` 부호 표기 확인 → 2026-10-04 11:20 감독 확인: 위치 차 `{:+}`·i64 뺄셈, `EdgeRec.kind`·`debug_assert!` 제거, clippy 0, 표 +20/+24/+28 부호 출력, 닫힘.
+### F-338 [열림] (심각도: 중간) — 앵커 등록 사건의 sim3 잔차가 실제로 붙인 모델이 아닌 초벌 모델 기준이다
+- 위치: 제품 crates/core/src/pipeline.rs:2493–2503 (feat/pipeline-stream-anchor d81070a), 시험 crates/cli/tests/pipeline_stream_anchor.rs:438
+- 문제: `attach_to_refined` 는 정밀 시작점 `start` 에 대해 `plan_anchor` 를 풀어 그 sim3·고정 카메라를 적용하는데, 사건 줄 "register region … sim3 median" 은 같은 함수를 초벌 `ta` 로 다시 풀어 얻은 공유 점 수·잔차로 바꿔 찍는다. 노트에 따르면 시작점 기준 잔차는 3.06 m 이고, 시험의 `sim_resid < 1.0` 단언은 초벌 기준 값(시드 1 0.127 m)을 본다 — 실제 붙인 정합의 품질은 어디서도 단언되지 않는다.
+- 실패 상황: 시작점 sim3 가 나빠져도(예: 3 m → 10 m) 시험과 기록은 그대로 통과·정상으로 보인다.
+- 고칠 것: 사건 줄에 시작점 기준 값(실제 적용한 plan)을 찍고, 초벌 기준 값은 따로 이름 붙여 찍기. 시험 단언은 시작점 기준 값에 대한 상한(현재 측정 근거)으로.
+- 확인 기준: 사건 줄의 잔차 = `attach_to_refined` 반환 `med`; 시험이 그 값을 단언.
+- 이력: PR #60 검토, 2026-10-04 11:55 감독 등록. 병합을 막지 않음.
+
+### F-339 [열림] (심각도: 낮음) — 라이브러리 경로가 환경 변수 `SKYLENS_CAM_W` 를 직접 읽는다
+- 위치: 제품 crates/core/src/pipeline.rs:2125 (feat/pipeline-stream-anchor 55d0d90)
+- 문제: 카메라 중심 가중 정합 항을 `std::env::var` 로 켠다. 기본 0 이라 출력은 그대로지만 설정 경로(`PipelineConfig`/run 옵션)와 따로 놀아 재현 기록(manifest)에 남지 않는다.
+- 실패 상황: 측정 기계에 변수가 남아 있으면 같은 명령이 다른 결과.
+- 고칠 것: 설정 필드로 옮기거나, 측정이 끝났으면(노트: 가중 키울수록 나빠짐) 제거.
+- 확인 기준: `grep -rn SKYLENS_CAM_W crates` 결과 없음 또는 설정 필드로 manifest 에 기록.
+- 이력: PR #60 검토, 2026-10-04 11:55 감독 등록. 병합을 막지 않음.
