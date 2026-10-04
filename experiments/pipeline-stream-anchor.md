@@ -198,3 +198,29 @@ feat/pipeline-stream-anchor d81070a (이전 55d0d90).
 
 ### 제품 브랜치·커밋
 feat/pipeline-stream-anchor 0b52107 (이전 d81070a).
+
+## F-341 버린 정밀↔정밀 재정렬의 manifest 기록 정리
+### 결론
+- 이전에는 정밀 재정렬을 기록에 먼저 넣고 수락 검사·경유 거절에서 건너뛰어, 버린 변환도 manifest `realigns`·`realign_count` 에 적용된 것처럼 남았고, 모두 버려져도 "realign" 스냅샷이 찍혔다.
+- 수정: `ReAlign` 에 `applied: bool` 을 두어 버린 것은 `applied: false` 로 manifest 에 남기고(검토 가능), `realign_count`·스냅샷 분기는 적용된 것만 센다. 사건 줄은 버린 것을 `realign rejected refined ...` 로 적어 적용된 `realign refined ...` 와 구분한다.
+- 3구역 시험 장면: 정밀 1 → 정밀 2 재정렬(점 30 쌍, 잔차 0.456 m, 공유 카메라 불일치 1.751 → 9.235 m)은 버려져 `applied: false`. 이 장면에는 적용된 정밀↔정밀 재정렬이 없어 마지막 정밀 구역 뒤 realign 스냅샷도 없다(이전 시험은 버린 재정렬이 만든 스냅샷을 요구했으므로 이 단언을 바꿨다).
+
+### 수치 표 (4 코어 측정 기계, 단일 실행)
+| 항목 | 수정 전 | 수정 후 |
+|---|---|---|
+| 3구역 장면 manifest `realign_count` | 5 (버린 1건 포함) | 4 (적용된 것만) |
+| 버린 1→2 재정렬 manifest 항목 | applied 표시 없음, 적용된 것처럼 남음 | `applied: false` |
+| 마지막 정밀 뒤 realign 스냅샷 | 있음(버린 것 때문) | 없음 |
+| 적용된 정밀↔정밀 재정렬 median 상한 0.6 m | 버린 0.456 m 도 포함해 검사 | 적용된 것만 검사(해당 없음) |
+| pipeline_arrival | 2/2 | 2/2 (약 40 s) |
+
+### 방법
+- 시험이 report.json 의 `realigns` 를 읽어 적용·버림 수의 합이 항목 수와 같고, `realign_count` 가 적용 수와 같으며, `realign rejected` 사건 수가 `applied: false` 수와 같고, 버린 항목이 적용 목록에 없음을 단언한다.
+- 전체 `cargo test --release -p skylens-stream`: pipeline.rs 5/5 (653 s), 이어서 pipeline_arrival 이 첫 시도에서 위 스냅샷 단언 때문에 실패해 시험을 고쳤고 재실행 2/2 통과. 나머지 시험 결과는 제품 보고에 따로 적는다.
+
+### 남은 문제
+- manifest 에 `applied` 키가 새로 생겼다. 이를 읽는 외부 도구가 있으면 `applied: false` 항목을 거르도록 맞춰야 한다(제품 저장소 안에서 `realigns` 를 해석하는 곳은 없었다).
+- 버린 항목의 `median_m` 은 점 대응 잔차이므로 적용 후 품질을 뜻하지 않는다.
+
+### 제품 브랜치·커밋
+feat/pipeline-stream-anchor 382be0d (이전 0b52107).
