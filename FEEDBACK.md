@@ -2703,7 +2703,7 @@
 - 확인 기준: SPEC 에 등록 입력 범위 문구가 있음.
 - 이력: PR #64 검토, 2026-10-04 16:47 감독 등록. 병합을 막지 않음.
 
-### F-350 [처리됨-검증대기] (심각도: 높음) — 확대 검출 기본값(800 미만 자동)이 480×270 편대 장면 등록을 132 → 88 로 떨어뜨린다
+### F-350 [닫힘] (심각도: 높음) — 확대 검출 기본값(800 미만 자동)이 480×270 편대 장면 등록을 132 → 88 로 떨어뜨린다
 - 위치: 제품 crates/core/src/features.rs:283 `upscale_below: 800`, 587~598 `detect_and_describe` (feat/small-image-features a278542, PR #66)
 - 문제: 긴 변 800 미만 사진은 설정 없이 모두 2배 확대 검출로 바뀐다. `cargo test --release -p skylens-core --lib` 에서 main 은 통과하는 시험 두 개가 깨진다: `sparse::tests::formation_scene_registers_all_and_meets_floors`(480×270, 44위치, 특징 상한 1200) 등록 88/132(정답 132, 위치 정밀 회전 중앙 7.48°), `pipeline::diag::preview_default_pose_error_bounds`(320×180) `new.placed_rot_med < 0.6 * old.placed_rot_med` 실패. 같은 두 시험이 main 779edb7 에서는 2/2 통과(122.6 s). `cargo test --release -p skylens-stream` 에서도 `pipeline_stream_order::stream_order_events_and_numbers_match_sequential` 실패(pipeline_stream_order.rs:176) — 구역 0 등록 12/36(cam1 만, cam0·cam2 전부 미등록), 구역 1 8/24. 이 시험은 직전 #64·#65 검토(main 기준)에서 1/1 통과.
 - 실패 상황: 480×270 처럼 상한(1200~1500)에 이미 닿는 해상도에서는 확대가 특징 수를 늘리지 못하고 작은 축척 쪽으로 몰아, 다른 카메라 짝이 줄어드는 것으로 보인다(연구 노트도 480×270 은 54/81 그대로라고 적음). 320×240 개선과 바꾸어 다른 해상도를 깨뜨림.
@@ -2711,7 +2711,8 @@
 - 확인 기준: `cargo test --release -p skylens-core --lib`·`-p skylens-stream` 전부 통과(위 세 시험 포함), 320×240 7/7 유지 수치가 노트에 있음.
 - 이력: PR #66 검토, 2026-10-04 감독 등록. 병합 막음. → 2026-10-04 19:40 총괄: cd9a360(원래 검출이 상한 절반 미만일 때만 확대 특징으로 모자란 만큼 채움) 재확인 — fmt·clippy 통과, `cargo test --release -p skylens-core --lib` 328 통과·0 실패·30 무시(745 s, formation_scene_registers_all_and_meets_floors·preview_default_pose_error_bounds 포함), `-p skylens-stream` 전부 통과(pipeline 5·pipeline_arrival 2·pipeline_e2e 2·pipeline_regions 3·pipeline_stream 1·pipeline_stream_order 1·ply_info 4·run 6·synth_args 6·verify 24). 머리 b97a3ea(시험만 변경) `--lib features` 16 통과. PR #66 라벨 다시
 
-### F-351 [처리됨-검증대기] (심각도: 낮음) — 새 시험 이름은 '더 많이 검출'인데 실제로는 확대 쪽이 적고, 수를 비교하지 않는다
+- 확인(2026-10-04 19:41 검토): b97a3ea 독립 재실행 — fmt 통과, clippy 0, `cargo test --release -p skylens-core --lib` 329 통과·0 실패·30 무시(339 s, 두 바닥값 시험 포함), `-p skylens-stream` 전부 통과(pipeline 5/5 308 s, pipeline_arrival 2, pipeline_e2e 2, pipeline_regions 3, pipeline_stream 1, pipeline_stream_order 1, ply_info 4, run 6, synth_args 6, verify 24). 노트 '시험 회귀와 수정' 절 320x240 7/7·81/81. 닫음.
+### F-351 [닫힘] (심각도: 낮음) — 새 시험 이름은 '더 많이 검출'인데 실제로는 확대 쪽이 적고, 수를 비교하지 않는다
 - 위치: 제품 crates/core/src/features.rs:1188 `small_image_upscaled_detects_more_with_original_coords`
 - 문제: 출력 `upscale off 96 on 72` — 이 영상에서는 확대 쪽 검출이 적다. 단언은 `b.len() >= 24` 와 좌표 범위·1 px 근접뿐이라 확대 이득을 확인하지 않는다.
 - 실패 상황: 확대가 검출 수를 줄이는 쪽으로 바뀌어도 시험은 통과.
@@ -2719,6 +2720,7 @@
 - 확인 기준: 시험 이름과 단언이 일치, `--lib features` 통과.
 - 이력: PR #66 검토, 2026-10-04 감독 등록. 병합을 막지 않음. → 2026-10-04 19:40 총괄: feat/small-image-features b97a3ea — 기존 시험을 `small_image_upscaled_keeps_original_coords` 로 이름 변경, 합성 장면 320×240 한 장에서 확대 검출 수 > 끔 단언 시험 추가(끔 393, 확대 2679). `--lib features` 16 통과·1 무시
 
+- 확인(2026-10-04 19:41 검토): `--lib small_image` 2/2, 출력 `scene 320x240 upscale off 393 on 2679` — 이름·단언 일치. 닫음.
 ### F-352 [처리됨-검증대기] (심각도: 낮음) — 320×240 개선 수치가 `--span 48` 경로뿐이고 인자 없는 기본 경로(SPAN 12)는 재지 않았다
 - 위치: 연구 experiments/small-image-features.md 수치 표 (experiment/small-image-features e9e9f16), PR #66 본문
 - 문제: 표의 모든 행이 `--stride 3 --span 48 ...` 1구역 측정. 직전 기록의 320×240 3/7 은 SPAN 12·3구역 기본 경로 수치라 서로 비교되지 않는다.
@@ -2727,10 +2729,19 @@
 - 확인 기준: 노트 표에 기본 경로 320×240 행이 있음.
 - 이력: PR #66 검토, 2026-10-04 감독 등록. 병합을 막지 않음. → 2026-10-04 19:40 총괄: experiment/small-image-followup 43f8639 — 인자 없는 기본 경로 320×240(SPAN 12·3구역): #64 + #66 로컬 병합 7/7·등록 81/81(초벌·정밀), #64 단독 3/7·31/81. 1회 측정
 
-### F-353 [처리됨-검증대기] (심각도: 중간) — `--coarse-back off` 에서 정밀 다시 등록이 앞 구역 기준(앵커)을 적용하지 않고 GPS 맞춤도 건너뛴다
+### F-353 [닫힘] (심각도: 중간) — `--coarse-back off` 에서 정밀 다시 등록이 앞 구역 기준(앵커)을 적용하지 않고 GPS 맞춤도 건너뛴다
 - 위치: 제품 crates/core/src/pipeline.rs:2511 `if let (Some(an), None) = (&anchor, &full)`, 2521 `if anchor.is_none()` (feat/region-cross-extend c11b451, PR #64)
 - 문제: 정밀 작업이 뒤쪽 보조까지 넣어 다시 등록하면(`full` 이 Some) 앵커의 닮음 변환·고정 자세를 넣지 않는다(색인이 초벌 목록 기준이라 그대로 쓸 수 없어서 건너뛴 것으로 보임). 그런데 앵커가 있으면 `gps_align_refined` 도 건너뛰어, 둘째 구역부터는 다시 등록한 좌표계를 GPS 사전값 BA 로만 맞춘다.
 - 실패 상황: 선택 옵션(`--coarse-back off`)에서만. 연구 노트의 초벌 뒤쪽 보조 없음 행은 구역 간 스케일 차 13.48 %(기준 10 %) — 정밀 쪽 구역 이음도 기본 경로보다 느슨할 수 있다. 기본값(on)에서는 `split` 이 거짓이라 영향 없음(시험 전부 통과로 확인).
 - 고칠 것: 다시 등록한 목록에서 앵커 고정 사진을 gid 로 다시 찾아 색인을 바꿔 적용하거나, 앵커를 못 쓰면 `gps_align_refined` 를 돌린다.
 - 확인 기준: `--coarse-back off` 27위치 기본 장면에서 정밀 구역 간 스케일 차가 기본 경로 수준(10 % 미만), `helper_latency` 시험 통과.
 - 이력: PR #64 c11b451 검토, 2026-10-04 18:50 감독 등록. 선택 옵션이라 병합을 막지 않음. → 2026-10-04 19:40 총괄: feat/region-cross-extend 439bf49(PR #64 에 추가) — 다시 등록한 목록에서 앵커 고정 사진을 gid 로 다시 찾아 3장 이상이면 적용, 못 쓰면 GPS 맞춤. 지금은 앞 구역 앵커가 꺼져 있어(앵커 없음) off 경로는 이미 GPS 맞춤을 돌고 있었고, 13.48 % 는 초벌 preview_align 값. off 27위치: verify 5/7(초벌 쪽 항목만 실패), 정밀 이음 잔차 중앙 0.043·0.030·0.043 m. 시험 `coarse_back_off_keeps_refined_seams_tight`(잔차 중앙 < 1 m). 총괄 재확인: fmt·clippy, `helper_latency` 2 통과·1 무시, `pipeline_stream_order` 1. 남은 점: 앵커를 켠 다시 등록 경로에서 `an.sim` 은 초벌 좌표계 기준이라 다시 등록한 좌표계에 그대로 맞지 않을 수 있음 — 고정 사진 대응으로 닮음 변환을 다시 구해야 함(미측정, 앵커 꺼짐이라 지금은 영향 없음)
+- 확인(2026-10-04 19:55 검토): 439bf49 독립 재실행 — fmt 통과, clippy 0, `helper_latency` 2 통과·1 무시(46 s, `coarse_back_off_keeps_refined_seams_tight` 포함), `pipeline_stream_order` 1/1, `default_path` 1/1(162 s). 앵커를 켠 경로의 닮음 변환 문제는 F-354 로 따로 둠. 닫음.
+
+### F-354 [열림] (심각도: 중간) — 다시 등록한 정밀 경로에 앵커를 적용할 때 초벌 좌표계 기준 닮음 변환 `an.sim` 을 그대로 쓴다
+- 위치: 제품 crates/core/src/pipeline.rs:2520~2539 (feat/region-cross-extend 439bf49, PR #64)
+- 문제: `full` 이 Some 이면 `rs` 는 뒤쪽 보조까지 넣어 새로 등록한 결과라 좌표계(원점·회전·축척)가 초벌과 다르다. 고정 사진은 gid 로 다시 찾았지만 `apply_sparse_sim(&mut rs, &an.sim)` 은 초벌 등록을 앞 구역에 맞추던 변환이라 새 좌표계에는 맞지 않는다. 그 뒤 고정 자세를 그대로 넣고 BA 하면 고정 사진과 나머지 사진이 서로 다른 좌표계에 놓인 채 시작한다.
+- 실패 상황: 앵커를 켜고 `--coarse-back off` 로 돌릴 때. 지금은 앞 구역 앵커가 꺼져 있어 이 분기가 실행되지 않는다(기본 경로 영향 없음).
+- 고칠 것: `mapped` 의 (새 등록 중심, 고정 자세 중심) 대응 3쌍 이상으로 닮음 변환을 다시 구해 적용하거나, 앵커를 켤 때까지 이 분기에서는 고정 없이 `gps_align_refined` 만 쓴다.
+- 확인 기준: 앵커 켬 + `--coarse-back off` 27위치에서 정밀 구역 이음 잔차 중앙이 앵커 끔과 같은 수준(< 0.1 m), 해당 단위 시험 추가.
+- 이력: PR #64 439bf49 검토, 2026-10-04 19:50 등록. 앵커 꺼짐·선택 옵션이라 병합을 막지 않음.
