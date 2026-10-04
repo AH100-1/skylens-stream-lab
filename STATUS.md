@@ -1,7 +1,7 @@
 # 현재 상태
 
 - 상태: 쉬는 중
-- 마지막 갱신: 2026-10-04T08:45Z (08:06Z 시작분)
+- 마지막 갱신: 2026-10-04T08:52Z (08:06Z 시작분)
 - 이번 회차 결론: **README·흐름 시험 수치를 현재 출력으로 맞추고 초벌 다듬기 0/5회 결과를 시험에 고정(PR #57, F-313·F-314·F-315·F-327 처리됨-검증대기)**. 다듬기 0회면 2구역이 6/7(preview_vs_refined 최근접 4.535 m·높이 차 4.767 m, 초벌 재투영 3.209 px), 5회면 7/7(0.673 px). 시드 2 이웃 정밀 구역 겹침 차 0.511 m 는 밀집 폭(96→240)과 무관하고 구역별 부호 있는 편향도 거의 0 — 포즈·좌표계의 공간 변화 성분(기울기·배율) 의심. 단계식 BA 는 제품 흐름(pipeline.rs)이 쓰지 않는 sparse.rs 경로라 흐름 포즈 정확도에 영향 없음, 흐름 BA 앞에 회전 고정 단계를 넣어도 회전 0.3876 → 0.3833° 로 효과 없음.
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
@@ -9,11 +9,11 @@
   | pipeline-numbers (F-313·F-314·F-315·F-327) | `feat/pipeline-numbers` 619ac2b → PR #57(base feat/dense-accuracy, review-requested) | experiment/pipeline-numbers aeb54b0 → 연구 PR #83(base experiment/pipeline-head) | 총괄 재확인: fmt·clippy 통과, `pipeline_e2e` 2/2(119.5 s). 작업자 실행: cli pipeline 7/7(597 s, 새 시험 2개 포함). 단구역 7/7·점 10302·0.336/0.932 m·중심 0.312/0.851 m, 2구역 7/7·점 18575·0.431/1.336 m. 위치 평균 경로 120/120·7/7·중심 0.245/0.508 m, GPS 최소제곱 되돌아감 시 알림·시험 실패 |
   | pipeline-stream-anchor | `feat/pipeline-stream-anchor` e123acd(PR 없음) | experiment/pipeline-stream-anchor dde9158 | 미달. 시드 2 겹침 차 켬/끔 0.511/0.646 m, 구역 1 카메라 전부 고정 0.537, 밀집 폭 192/240 0.501/0.518, 구역 1 에 구역 밖 앞 6 위치 사진 추가 0.455(구역 밖 번짐 부작용, 되돌림). 앵커 켬 구역별 정답 대비 부호 있는 중앙 +0.029/+0.004 m·절대 중앙 0.566/0.531 m. 겹침 카메라 차 진단 로그 추가. pipeline_stream_order·pipeline_e2e 미확인 |
   | sparse-staged-ba | `feat/sparse-staged-ba` 3f32348(PR 없음) | experiment/sparse-staged-ba 203e19e | 미달(lib 1 실패: `formation_scene_default_schedule_meets_floors` 회전 중앙 < 1.0° 단언 — 단계식 2.39°·기존 2.75° 모두 실패, main 에서도 실패하는지 미확인). 같은 장면(80곳 중 2곳마다·320×180)에서 기존/단계식/+재삼각 회전 중앙 1.40/2.38/1.26°, 중심 0.484/0.465/0.307 m. `PipelineConfig::ba_rotation_first`(기본 끔) 추가 |
-  | dense-pose-robust (F-322·F-328) | `feat/dense-pose-robust` 9df4447(이번 회차 새 커밋 없음) | experiment/dense-pose-robust 225fd57 | 회차 끝까지 결과 보고 없음 — 다음 회차에 이어서 |
+  | dense-pose-robust (F-322·F-328) | `feat/dense-pose-robust` c704bf6(PR 없음) | experiment/dense-pose-robust ca5ed46 | 검증 미완으로 PR 보류. 960 폭 24장 정답 자세: 스윕 제거 없음/100/400 화소 점 779695/688639/608566·중앙 0.0999/0.0891/0.0888 m·95% 0.5617/0.4150/0.4116 m, PatchMatch 1526174/1477707/1415433·0.0689/0.0619/0.0590·0.3385/0.2915/0.2666 — 반점 제거가 중앙·95% 모두 개선. 크기 문턱을 지도 면적 비례(480×270 100, 960 400, 80 폭 2)로 바꿈 → 기본 흐름 출력이 바뀌므로 pipeline_e2e(#57 상한) 재확인 필요. `DenseConfig.neighbor` 통로, 사진별 자동 최소 각(50% 분위: 잡음 0.05 중앙 0.4113 → 0.2803 m)은 기본 끔 — 켜면 `formation_neighbors`·`formation_noisy_with_outliers` 2개 실패. 작업자 lib view_selection·dense·fusion 30 통과 |
 - 끝까지 흐름 진척: main 779edb7 에서 이미지 폴더(+GPS) → 스냅샷·manifest 전부 연결(변화 없음). #54 → #57 순으로 올리면 README·시험 수치가 현재 출력과 같아짐.
 - 다음 할 일:
   1. 시드 2 겹침 차: 구역별 정답 대비 높이 오차를 수평 좌표에 대해 찍어 기울기·배율 성분 확인 → 성분이면 겹침 밀집 점 평면 맞춤을 공유 3D 점 닮음 변환과 함께 푸는 정합.
-  2. F-322: 960 폭 × 스윕/PatchMatch × 반점 제거 유무 표, NeighborConfig 를 dense.rs 로, 최소 이웃 수 보장 규칙으로 최소 각 8° 기본화 재시험.
+  2. feat/dense-pose-robust c704bf6: 전체 시험·pipeline_e2e 확인 후 PR(반점 면적 비례 문턱 → #57 상한과 충돌 여부). 자동 최소 각 기본화를 위해 깨지는 시험 2개의 가정 정리, 자세 잡음에서 400 화소 문턱 재측정.
   3. sparse-staged-ba: main 에서 `formation_scene_default_schedule_meets_floors` 실패 여부 확인; 흐름은 pipeline.rs 경로라 이 모듈 우선순위 낮춤. 흐름 BA 에서 초점·왜곡 정제와 거르기 조기 종료 효과 측정.
 - 막힌 점:
   - 소유자 병합 필요: #54, #56, #55, #57(→ feat/dense-accuracy), #53(→ feat/pipeline), #51, #49, #39~#42, 연구 #81·#82·#83.
