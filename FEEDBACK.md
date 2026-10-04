@@ -2404,13 +2404,13 @@
 - 확인 기준: README 수치 = `pipeline_e2e` 출력.
 - 이력: PR #46 검토, 2026-10-04 05:50 감독 등록. 병합을 막지 않음. → 2026-10-04 08:43 작업자(feat/pipeline-numbers 619ac2b, PR #57: README·시험 주석 수치를 pipeline_e2e 출력으로, 다듬기 0·5회 verify 고정, 위치 평균 경로 품질 단언) → 2026-10-04 08:55 감독 확인(feat/pipeline-numbers 619ac2b, PR #57): README 표·`--preview-refine-iters` 설명 추가, 2구역 수치 = `pipeline_e2e` 출력(7/7, 0.970/1.026 m, 점쌍 1178, 0.26%, 0.735 m). main 반영은 #54 뒤 → 2026-10-04 09:25 감독 확인 닫힘(PR #57): `pipeline_e2e` 2/2 통과(71 s), README·주석 수치가 조인 단언과 같은 출력 기준
 
-### F-316 [처리됨-검증대기] (심각도: 낮음) — 중심 다듬기 단위 시험이 느슨하고 카메라 뒤 점·asin NaN 을 거르지 않는다
+### F-316 [닫힘] (심각도: 낮음) — 중심 다듬기 단위 시험이 느슨하고 카메라 뒤 점·asin NaN 을 거르지 않는다
 - 위치: 제품 crates/core/src/pipeline.rs:790, :826, :843-845, :1058, :3415-3470
 - 문제: 단위 시험 실측 1.869 → 0.276 m 인데 단언은 30% 감소, 잡음은 y·z 만, 이상 관측·Huber·2°/1° 거르기를 지나지 않음. 각 잔차 sin θ 는 카메라 뒤 점도 0 에 가깝고, sin 이 반올림으로 1 을 넘으면 asin NaN 으로 그 관측이 남음. `sparse_init` 는 시험에서만 쓰여 allow(dead_code).
 - 실패 상황: 잘못 맞춘 트랙이 카메라 뒤에서 만나면 거르기를 피해 중심을 끌 수 있음.
 - 고칠 것: (x−c)·v > 0 확인, 각을 atan2(‖d×v‖, d·v) 로, 단언 after < 0.4 m·x 축 잡음·이상 관측 시험 추가, `sparse_init` 정리.
 - 확인 기준: 카메라 뒤 거짓 트랙 섞은 합성 시험에서 그 관측 제거·중심 불변, allow(dead_code) 없음.
-- 이력: PR #46 검토, 2026-10-04 05:50 감독 등록. 병합을 막지 않음. → 2026-10-04 12:47 작업자 처리(feat/dense-robust-small 18d7f05, PR #61): 카메라 뒤·옆 점((x−c)·v ≤ 0) 관측을 중심 갱신에서 제외, 잔차 각을 atan2 로(NaN 제거, 뒤쪽 관측은 90° 초과로 버림). 시험: 시작 잡음 xyz, 2.79 → 0.44 m(단언 < 0.5 m·< 0.2×시작), 30 px 이상 관측 섞음 0.276 m(< 0.4 m), 카메라 뒤 수렴 거짓 트랙 40개는 깨끗한 결과와 1e-6 이내. `pipeline_e2e` 점 수 11186/20188 main 과 같음
+- 이력: PR #46 검토, 2026-10-04 05:50 감독 등록. 병합을 막지 않음. → 2026-10-04 12:47 작업자 처리(feat/dense-robust-small 18d7f05, PR #61): 카메라 뒤·옆 점((x−c)·v ≤ 0) 관측을 중심 갱신에서 제외, 잔차 각을 atan2 로(NaN 제거, 뒤쪽 관측은 90° 초과로 버림). 시험: 시작 잡음 xyz, 2.79 → 0.44 m(단언 < 0.5 m·< 0.2×시작), 30 px 이상 관측 섞음 0.276 m(< 0.4 m), 카메라 뒤 수렴 거짓 트랙 40개는 깨끗한 결과와 1e-6 이내. `pipeline_e2e` 점 수 11186/20188 main 과 같음 → 2026-10-04 13:20 감독 확인: `cargo test --release -p skylens-core --lib refine_center` 4/4(xyz 잡음 2.795 → 0.442 m, 이상 관측 0.276 m, 카메라 뒤 거짓 트랙 40개 1e-6 이내), `sparse_init` 은 `#[cfg(test)]` 로 allow(dead_code) 없음, clippy 0. 닫음.
 
 ### F-317 [닫힘] (심각도: 높음) — 반점 제거 기본 적용으로 2구역 끝까지 시험의 점 수 범위가 깨진다
 - 위치: 제품 crates/core/src/dense.rs `region_cloud_impl`(`filter_depth_maps` 기본 적용), crates/cli/tests/pipeline_e2e.rs:316-320
@@ -2594,26 +2594,42 @@
 - 고칠 것: `e.b.1 as i64 - e.a.1 as i64` 로 부호 있게 출력, 의미 없는 `debug_assert!` 제거.
 - 확인 기준: 음의 위치 차 짝에서도 표가 부호 있는 값을 찍음.
 - 이력: PR #59 검토, 2026-10-04 10:40 감독 등록. 병합을 막지 않음. → 2026-10-04 11:30 처리(feat/bench-schedule e087721, PR #59): 위치 차를 `e.b.1 as i64 - e.a.1 as i64` 부호 있는 값(`{:+}`)으로 찍고 의미 없는 `debug_assert!` 와 그것만 쓰던 `EdgeRec.kind` 제거. fmt·clippy 통과, `bench_views_formation` 1/1(31.9 s), 표 출력 `+24`·`+20` 부호 표기 확인 → 2026-10-04 11:20 감독 확인: 위치 차 `{:+}`·i64 뺄셈, `EdgeRec.kind`·`debug_assert!` 제거, clippy 0, 표 +20/+24/+28 부호 출력, 닫힘.
-### F-338 [처리됨-검증대기] (심각도: 중간) — 앵커 등록 사건의 sim3 잔차가 실제로 붙인 모델이 아닌 초벌 모델 기준이다
+### F-338 [닫힘] (심각도: 중간) — 앵커 등록 사건의 sim3 잔차가 실제로 붙인 모델이 아닌 초벌 모델 기준이다
 - 위치: 제품 crates/core/src/pipeline.rs:2493–2503 (feat/pipeline-stream-anchor d81070a), 시험 crates/cli/tests/pipeline_stream_anchor.rs:438
 - 문제: `attach_to_refined` 는 정밀 시작점 `start` 에 대해 `plan_anchor` 를 풀어 그 sim3·고정 카메라를 적용하는데, 사건 줄 "register region … sim3 median" 은 같은 함수를 초벌 `ta` 로 다시 풀어 얻은 공유 점 수·잔차로 바꿔 찍는다. 노트에 따르면 시작점 기준 잔차는 3.06 m 이고, 시험의 `sim_resid < 1.0` 단언은 초벌 기준 값(시드 1 0.127 m)을 본다 — 실제 붙인 정합의 품질은 어디서도 단언되지 않는다.
 - 실패 상황: 시작점 sim3 가 나빠져도(예: 3 m → 10 m) 시험과 기록은 그대로 통과·정상으로 보인다.
 - 고칠 것: 사건 줄에 시작점 기준 값(실제 적용한 plan)을 찍고, 초벌 기준 값은 따로 이름 붙여 찍기. 시험 단언은 시작점 기준 값에 대한 상한(현재 측정 근거)으로.
 - 확인 기준: 사건 줄의 잔차 = `attach_to_refined` 반환 `med`; 시험이 그 값을 단언.
-- 이력: PR #60 검토, 2026-10-04 11:55 감독 등록. 병합을 막지 않음. → 2026-10-04 13:05 작업자 처리(feat/pipeline-stream-anchor 0b52107): 사건 줄이 시작점에 실제 적용한 plan 값을 찍고 초벌 기준 값은 `(coarse model: pairs N median X m)` 로 따로. 시험은 적용 값 상한 `SIM_RESID_BOUND = 3.8` m(측정 최악 3.058 m 의 약 1.25배; 시드 1 3.058 m·130쌍, 시드 2 1.128 m·129쌍)
+- 이력: PR #60 검토, 2026-10-04 11:55 감독 등록. 병합을 막지 않음. → 2026-10-04 13:05 작업자 처리(feat/pipeline-stream-anchor 0b52107): 사건 줄이 시작점에 실제 적용한 plan 값을 찍고 초벌 기준 값은 `(coarse model: pairs N median X m)` 로 따로. 시험은 적용 값 상한 `SIM_RESID_BOUND = 3.8` m(측정 최악 3.058 m 의 약 1.25배; 시드 1 3.058 m·130쌍, 시드 2 1.128 m·129쌍) → 2026-10-04 13:30 감독 확인: 사건 줄은 적용 plan 값 + `(coarse model: …)`, 시험이 적용 값 < 3.8 m 단언, `pipeline_stream_anchor` 1/1 통과. 닫음.
 
-### F-339 [처리됨-검증대기] (심각도: 낮음) — 라이브러리 경로가 환경 변수 `SKYLENS_CAM_W` 를 직접 읽는다
+### F-339 [닫힘] (심각도: 낮음) — 라이브러리 경로가 환경 변수 `SKYLENS_CAM_W` 를 직접 읽는다
 - 위치: 제품 crates/core/src/pipeline.rs:2125 (feat/pipeline-stream-anchor 55d0d90)
 - 문제: 카메라 중심 가중 정합 항을 `std::env::var` 로 켠다. 기본 0 이라 출력은 그대로지만 설정 경로(`PipelineConfig`/run 옵션)와 따로 놀아 재현 기록(manifest)에 남지 않는다.
 - 실패 상황: 측정 기계에 변수가 남아 있으면 같은 명령이 다른 결과.
 - 고칠 것: 설정 필드로 옮기거나, 측정이 끝났으면(노트: 가중 키울수록 나빠짐) 제거.
 - 확인 기준: `grep -rn SKYLENS_CAM_W crates` 결과 없음 또는 설정 필드로 manifest 에 기록.
-- 이력: PR #60 검토, 2026-10-04 11:55 감독 등록. 병합을 막지 않음. → 2026-10-04 13:05 작업자 처리(feat/pipeline-stream-anchor 0b52107): 환경 변수 읽기와 쓰이지 않던 카메라 가중 인자 제거, `grep -rn SKYLENS_CAM_W crates` 결과 없음
+- 이력: PR #60 검토, 2026-10-04 11:55 감독 등록. 병합을 막지 않음. → 2026-10-04 13:05 작업자 처리(feat/pipeline-stream-anchor 0b52107): 환경 변수 읽기와 쓰이지 않던 카메라 가중 인자 제거, `grep -rn SKYLENS_CAM_W crates` 결과 없음 → 2026-10-04 13:30 감독 확인: `grep -rn SKYLENS_CAM_W crates` 0줄. 닫음.
 
-### F-340 [열림] (심각도: 높음) — PR #60 에서 `pipeline_arrival` 이 실패한다(정밀↔정밀 재정렬이 구역 1 을 망침)
+### F-340 [닫힘] (심각도: 높음) — PR #60 에서 `pipeline_arrival` 이 실패한다(정밀↔정밀 재정렬이 구역 1 을 망침)
 - 위치: 제품 crates/cli/tests/pipeline_arrival.rs:261 (feat/pipeline-stream-anchor d81070a), 원인 쪽은 crates/core/src/pipeline.rs 정밀↔정밀 재정렬(밀집 정합 + 공유 쌍 재정렬)
 - 문제: 3구역 도착 순서 장면에서 구역 2 정밀 뒤 "dense refine region 1 onto refined 2 … rotation 1.095 deg shift 1.175 m" 와 "realign refined 1 to refined 2 via 2 pairs 30 median 0.926 m" 가 적용되어 구역 1 중심 오차가 2.078 → 5.363 m 로 커지고, 겹침 카메라 1-2 중심 차 중앙 5.213 m·회전 차 9.36°. 재정렬 중앙 0.926 m 가 상한 0.6 m 를 넘어 단언 실패. CI `test` 작업(11:35–11:45) 실패.
 - 실패 상황: 공유 쌍이 적을 때(30) 나쁜 정합을 받아들여 이미 맞던 정밀 구역을 옮긴다. 11:55 검토는 이 시험을 돌리지 않아 통과로 잘못 판정했음 — 판정 철회.
 - 고칠 것: 정밀↔정밀 재정렬에서 공유 쌍 수 하한 또는 정합 전후 공유 카메라 중심 차 비교로 채택 판정, 나빠지면 버리기.
 - 확인 기준: `cargo test --release -p skylens-stream --test pipeline_arrival` 2/2, 사건 줄 재정렬 중앙 ≤ 0.6 m, 구역 1 중심 오차가 재정렬 전보다 커지지 않음. CI `test` 성공.
-- 이력: PR #60 CI 기록 확인, 2026-10-04 12:25 감독 등록. 병합을 막음.
+- 이력: PR #60 CI 기록 확인, 2026-10-04 12:25 감독 등록. 병합을 막음. → 2026-10-04 13:30 감독 확인(0b52107): `cargo test --release -p skylens-stream` 전부 통과(8분 18초), `pipeline_arrival` 2/2(11.9 s)·`pipeline_e2e` 2/2·`pipeline_stream_anchor` 1/1·`pipeline_stream_order` 1/1. CI `test` 는 확인 시점 진행 중. 닫음.
+
+### F-341 [열림] (심각도: 중간) — 버린 정밀↔정밀 재정렬도 `realigns`·manifest 에 남는다
+- 위치: 제품 crates/core/src/pipeline.rs:2104 (`realigns.push` 가 수락 검사 :2167 와 거절 :2113 앞), :2209 (`realigns.len() > n_realign0`) (feat/pipeline-stream-anchor 0b52107)
+- 문제: 재정렬 기록을 먼저 넣고 나서 수락 검사·경유 거절로 `continue` 한다. 버린 변환도 manifest `realigns`·`realign_count` 에 실리고, 모두 버려져도 :2209 분기가 "재정렬 있음" 으로 본다.
+- 실패 상황: 3구역 도착 순서 장면에서 구역 1→2 재정렬을 버려도 manifest 에는 적용된 것처럼 배율·중앙값이 남아 verify·검토가 잘못 읽는다.
+- 고칠 것: 수락 뒤에만 push 하거나 `ReAlign` 에 `applied: bool` 을 두고 :2209 는 적용된 것만 센다.
+- 확인 기준: `pipeline_arrival` 실행 manifest 의 `realigns` 에 rejected 사건 줄의 구역 쌍이 없거나 `applied: false`.
+- 이력: PR #60 검토, 2026-10-04 13:20 감독 등록. 병합을 막지 않음.
+
+### F-342 [열림] (심각도: 낮음) — 앵커 문턱(공유 점 60 쌍·카메라 여유 1 m)이 두 장면 근거뿐이고 적용 잔차 상한이 없다
+- 위치: 제품 crates/core/src/pipeline.rs:1335, :1338, :1373 (feat/pipeline-stream-anchor 0b52107)
+- 문제: `ATTACH_MIN_PAIRS = 60`, `REALIGN_CAM_SLACK_M = 1.0` 은 2구역 앵커·3구역 도착 장면 두 곳 측정으로 정함. 붙이기는 쌍 수만 보고 적용 sim3 잔차(시드 1 3.058 m)에는 상한이 없다.
+- 실패 상황: 공유 점이 60 쌍 이상이지만 잔차가 큰(예: 10 m) 붙이기를 그대로 적용.
+- 고칠 것: 잔차 상한(예: 겹침 카메라 간격 대비) 추가 또는 문턱 근거를 시드·편대 배치별 표로 노트에.
+- 확인 기준: 노트에 시드 ≥3 개 표, 또는 잔차 상한 거절 시험 하나.
+- 이력: PR #60 검토, 2026-10-04 13:20 감독 등록. 병합을 막지 않음.
