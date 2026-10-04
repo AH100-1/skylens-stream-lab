@@ -12,13 +12,14 @@
 - [x] T05 `two-view` — 2026-10-01 병합, 제품 7b2e6e6 (실험 노트 보충 필요) — 8점·5점 본질 행렬, 상대 자세 복원, 삼각측량. 잡음별 회전 오차(도).
 - [x] T05b `tracks` — 2026-10-03 병합, 제품 fe9a99d (PR #15, F-261·F-263~F-267·F-280·F-281 남음) — 검증된 짝 대응 → 다시점 트랙, 국소 변위 거름·Split 정책. 편대 재현율 30~50% 완전도 ≥0.9937.
 - [x] T06 `rotation-averaging` — 2026-10-01 병합, 제품 bc51103 — 상대 회전 그래프 → 전역 회전. 정답 대비 각도 오차.
-- [ ] T07 `translation-averaging` — 방향 제약 위치 추정 + 삼각측량 → 초벌 모델. 카메라 240대 등록 확인.
+- [x] T07 `translation-averaging` — 2026-10-04 병합, 제품 8afa7fe (PR #37, F-288·F-291·F-303·F-307~F-311 남음) — 방향 제약 위치 추정 + 삼각측량 → 초벌 모델. 카메라 240대 등록 확인.
 - [x] T08 `bundle-adjustment` — 2026-10-01 병합, 제품 04e4d29 (F-034~F-037 남음) — 희소 Levenberg–Marquardt + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터. 재투영·중심 오차.
 - [x] T09 `gps-align` — 2026-10-01 병합, 제품 f87549a — 위경도 → 동-북-위, Umeyama 닮음 변환 + 이상치 제외. 정답 대비 잔차.
-- [ ] T10 `dense-patchmatch` — 시점별 PatchMatch 깊이·법선(CPU, rayon 병렬). 정답 깊이 대비 오차.
+- [x] T10 `dense-patchmatch` — 2026-10-04 병합, 제품 f3e9ed2 (PR #6; 후속 #50·#52 는 feat/patchmatch 92f56e4 에 병합, main 반영 필요, F-292·F-305 남음) — 시점별 PatchMatch 깊이·법선(CPU, rayon 병렬). 정답 깊이 대비 오차.
 - [ ] T11 `depth-fusion` — 다시점 일관성 융합 → 점군 + 법선 + 색. 정답 표면 대비 최근접 거리.
 - [x] T12 `progressive-stream` — 2026-10-01 병합, 제품 f2b658b (임시 닮음 변환 → P08 병합 뒤 교체, F-055~F-057 남음) — 구역 분할, 초벌/정밀, 3D 점 대응 정렬, 잔상 걸러내기, 스냅샷, manifest. SPEC §3.7~3.8.
 - [x] T13 `verify` — 2026-10-02 병합, 제품 0afc818 (F-066 통합 시험·F-089·F-180·F-181 남음) — SPEC §4 검증을 `skylens-stream verify <폴더>` 로. 실패 시 종료 코드 1.
+- [x] E01 `pipeline` — 2026-10-04 병합, 제품 779edb7 (PR #46, F-312~F-316 남음) — synth → run → verify 끝까지, 단구역·2구역 7/7.
 - [ ] T14 `perf` — 구간별 시간 측정, 병렬화. 합성 240장 전체 시간 기록. 이후 GPU 백엔드 설계 노트.
 
 ## 병렬 묶음 (동시에 진행)
@@ -35,11 +36,11 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | [x] P03 `two-view-hardening` (2026-10-02, 제품 2bf4795 — two-view-twin 에 포함되어 병합, F-033·F-145·F-148·F-191~F-195 남음) | F-032·F-033·F-026·F-027·F-028 | `two_view.rs` | two-view | — |
 | [x] P04 `io-robustness` (2026-10-01, 제품 3b0fa9c; io-cleanup 2026-10-01 제품 d4432c7; io-followup 2026-10-02 제품 026fb3c) | F-016~F-020·F-022·F-023, README 정리(한·영) | `ply.rs`, `camera.rs`, `features.rs`(from_rgb), CLI 인자, `README.md` | scaffold | — |
 | [x] P05 `rotation-averaging-hardening` (2026-10-01, 제품 9f111f2; rotation-averaging-robust 2026-10-02 제품 ca34c6f, F-047·F-138·F-171~F-173 남음) | F-006~F-009 | `rotation_averaging.rs` | rotation-averaging | — |
-| P06 `translation-averaging` | T07 방향 제약 위치 추정 + 다시점 삼각측량 | 새 `translation_averaging.rs`, `triangulation.rs` | rotation-averaging | — |
+| [x] P06 `translation-averaging` (2026-10-04, 제품 8afa7fe) | T07 방향 제약 위치 추정 + 다시점 삼각측량 | 새 `translation_averaging.rs`, `triangulation.rs` | rotation-averaging | — |
 | [x] P07 `bundle-adjustment` (2026-10-01, 제품 04e4d29; ba-hardening 2026-10-01 제품 ec18464; ba-gps-prior 2026-10-03 제품 1dd358e, F-036·F-162·F-164~F-167·F-174·F-246·F-247·F-258~F-260 남음) | T08 희소 LM + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터, 트랙 10만 제한 | 새 `ba.rs` | two-view | — |
 | [x] P08 `similarity-align` (2026-10-01, 제품 f87549a; align-robust 2026-10-02 제품 474bcf8, F-095·F-153·F-198~F-200 남음) | T09 Umeyama 닮음 변환 + 반복 트리밍, GPS→동-북-위 정렬 | 새 `align.rs` | rotation-averaging | — |
 | [x] P09 `view-selection` (2026-10-01, 제품 80f9a86; dense-prep 2026-10-02 제품 60cbc2d, F-201~F-204 남음) | T10a 이웃 8장 점수·깊이 범위·왜곡 보정(960px) | 새 `view_selection.rs`, `undistort.rs` | camera-model | — |
-| P10 `patchmatch` | T10b 시점별 PatchMatch 깊이·법선(rayon) | 새 `patchmatch.rs` | camera-model | P09 인터페이스 |
+| [x] P10 `patchmatch` (2026-10-04, 제품 f3e9ed2; patchmatch-f293b·patchmatch-speed 2026-10-04 feat/patchmatch 92f56e4) | T10b 시점별 PatchMatch 깊이·법선(rayon) | 새 `patchmatch.rs` | camera-model | P09 인터페이스 |
 | [x] P11 `depth-fusion` (2026-10-01, 제품 6c0eea7; fusion-hardening 2026-10-02 제품 bbd82d8; fusion-tests 2026-10-02 제품 05ac3ac; fusion-stream 2026-10-03 제품 1578181; fusion-consistency 2026-10-03 제품 b75d5a5, F-113·F-226·F-229·F-241·F-242·F-255·F-282~F-285 남음) | T11 왕복 투영 걸러내기 + 3장 동의 합치기 → 점군 | 새 `fusion.rs` | camera-model | P10 인터페이스 |
 | [x] P12 `dataset-io` (2026-10-02, 제품 20a293c, F-206 남음) | 실제 데이터 읽기(`images/cam{F,R,L}`, `gps.txt`, STRIDE) + `run` 명령 뼈대 | 새 `dataset.rs`, CLI `run` | scaffold | — |
 | [x] P13 `progressive-stream` (2026-10-01, 제품 f2b658b; stream-hardening 2026-10-02 제품 6f14401; stream-followup 2026-10-02 제품 c7b7287, F-055·F-056·F-065·F-066·F-175~F-177 남음) | T12 구역 분할, 초벌/정밀, 공유 관측 닮음 정렬, 잔상 1.5m 걸러내기, 스냅샷·manifest | 새 `stream.rs` | two-view | P08 인터페이스 |
