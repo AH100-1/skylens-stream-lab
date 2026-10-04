@@ -2642,13 +2642,14 @@
 - 확인 기준: `skylens-stream synth d/in && skylens-stream run d/in d/out && skylens-stream verify d/out` 종료 코드 0, 7/7. 기본 경로 그대로 도는 시험 하나.
 - 이력: PR #62 검토 중 흐름 확인, 2026-10-04 13:45 감독 등록. #62 병합을 막지 않음.
 
-### F-344 [열림] (심각도: 낮음) — `timing` 시험이 같은 프로세스의 `timing::reset()` 과 겹치면 깨질 수 있다
+### F-344 [닫힘] (심각도: 낮음) — `timing` 시험이 같은 프로세스의 `timing::reset()` 과 겹치면 깨질 수 있다
 - 위치: 제품 crates/core/src/timing.rs:81~86 (feat/perf-e2e 6cad08f), reset 호출 crates/core/src/pipeline.rs:1913
 - 문제: `ACC` 는 전역이고 core lib 시험은 병렬로 돈다. 흐름 시험이 `reset()` 을 부르면 `accumulates_by_name` 의 `to_json`·`table` 단언(`position(..).unwrap()`)이 빈 누적을 보고 실패한다. 이번 커밋이 단언을 하나 더 늘림.
 - 실패 상황: `cargo test -p skylens-core --lib` 전체에서 흐름 시험과 시간이 겹칠 때 드물게 실패.
 - 고칠 것: 시험에서 누적 스냅숏을 받는 순수 함수(`table_from(&[..])`)를 시험하거나, 시험끼리 잠금 공유.
 - 확인 기준: 시험이 전역 `ACC` 에 의존하지 않음.
 - 이력: PR #62 검토, 2026-10-04 13:45 감독 등록. 병합을 막지 않음.
+- 닫음: 2026-10-04 14:25, feat/perf-e2e 418c16d. `json_from`·`table_from` 이 스냅숏 인자만 받고 시험 두 개가 전역 `ACC` 를 읽지 않음. `cargo test --release -p skylens-core --lib timing` 2/2.
 
 ### F-345 [열림] (심각도: 중간) — 이어받기 축척 맞춤에서 기준 관측이 카메라 뒤를 가리키면 해 전체가 1e-5 배로 줄어든다
 - 위치: 제품 crates/core/src/translation_averaging.rs:1102-1122 `gp_solve_iters` (feat/ta-reweight-scale cf77082, PR #63)
@@ -2665,3 +2666,11 @@
 - 고칠 것: 이상치 광선 1~2개가 섞인 점에서 갱신이 거부/채택되는 두 경우를 직접 확인하는 단위 시험, `cold` 제거.
 - 확인 기준: 새 단위 시험 두 경우 통과, clippy 0.
 - 이력: 2026-10-04 14:00 감독 등록(PR #63 검토). 병합을 막지 않음.
+
+### F-347 [열림] (심각도: 낮음) — `timing::add`·`timed` 누적 동작을 시험하는 경우가 없어졌다
+- 위치: 제품 crates/core/src/timing.rs:75~105 (feat/perf-e2e 418c16d)
+- 문제: F-344 수정으로 옛 `accumulates_by_name` 이 빠지면서 같은 이름 누적(초 합·호출 수 증가)과 `timed` 반환값 전달을 확인하는 시험이 없다.
+- 실패 상황: `add` 가 호출 수를 늘리지 않거나 이름을 새 행으로 넣어도 시험은 통과.
+- 고칠 것: 지역 `Vec<Row>` 에 누적하는 순수 함수(`accumulate(&mut Vec<Row>, name, secs)`)를 떼어 시험하고 `add` 는 그것을 잠금 안에서 부르게.
+- 확인 기준: 같은 이름 두 번 누적 → 행 1개·호출 2·초 합 시험 통과.
+- 이력: PR #62 검토, 2026-10-04 14:25 감독 등록. 병합을 막지 않음.
