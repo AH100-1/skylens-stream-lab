@@ -2778,3 +2778,11 @@
 - 고칠 것: 최대 무리가 전체의 절반 이하이거나 둘째 무리와 수가 같으면 그 카메라 쌍은 거르지 않고 두고, 사건 줄(`vote_stat`)에 남긴다.
 - 확인 기준: 맞는 2 + 틀린 2(서로 3° 안) 단위 시험에서 간선을 빼지 않음.
 - 이력: PR #67 b32db2e 검토, 2026-10-04 등록. 병합을 막지 않음. → 2026-10-04 22:28 총괄: feat/vote-tests e29110c(PR #68) — 최대 무리가 둘째 무리와 같거나, 절반 이하이면서 밖에 2개 이상 모인 무리가 있으면 그 쌍은 거르지 않고 `vote_stat` 에 `skipped_pairs` 로 셈(절반 이하 조건만으로는 기존 맞는 3 + 흩어진 틀린 4 시험이 깨져 조건을 덧붙임). `cross_camera_vote_keeps_pair_on_tie` 통과.
+
+### F-359 [열림] (심각도: 낮음) — `--coarse-back off` 정밀 다시 등록은 `--pair-vote` 를 켜도 카메라 쌍 투표를 하지 않는다
+- 위치: 제품 crates/core/src/pipeline.rs:2593~2602 `sparse_init_roll(.., (0, 2.0), true)` (feat/region-cross-extend cf84b80, PR #64)
+- 문제: main 을 합치면서 뒤쪽 보조 읽기에는 `upscale_fill` 을 넘기도록 고쳤지만, 같은 분기의 다시 등록은 `sparse_init_roll` 을 써서 `PreviewOpts::pair_vote` 가 늘 거짓이다. 바로 위 정밀 시작점(2402~2416)은 `pair_vote: cfg.pair_vote` 를 넘긴다.
+- 실패 상황: `--coarse-back off --pair-vote --upscale-fill --max-features 3000` 480×270 — 초벌은 투표로 L 을 살리지만 정밀 다시 등록에서 틀린 F–L 해가 남아 정밀 등록이 54/81 로 떨어질 수 있다. 두 옵션 모두 기본 끔이라 기본 경로 영향 없음.
+- 고칠 것: 이 분기도 `sparse_init_with(.., &PreviewOpts { legacy_roll: true, pair_vote: cfg.pair_vote, ..Default })` 로 부른다.
+- 확인 기준: 위 480×270 설정 + `--coarse-back off` 1회 실행에서 정밀 등록 81/81, 또는 다시 등록 경로에 투표가 들어가는지 보는 단위 시험.
+- 이력: PR #64 cf84b80 검토, 2026-10-04 22:40 등록. 선택 옵션 조합이라 병합을 막지 않음.
