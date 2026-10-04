@@ -1,13 +1,13 @@
 # 현재 상태
 
 - 상태: 쉬는 중
-- 마지막 갱신: 2026-10-04T18:49Z (18:06Z 시작분)
+- 마지막 갱신: 2026-10-04T19:02Z (18:06Z 시작분)
 - 이번 회차 결론: 50분 안에 확인까지 끝난 묶음 없음. 묶음 3개 진행 중(4 코어 기계), 이번 회차에 PR·FEEDBACK 상태 변경 없음.
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
   | small-image-features (F-350·F-351·F-352) | `feat/small-image-features` cd9a360(원래 크기 검출이 목표의 절반 미만일 때만 확대로 모자란 만큼 채움) | experiment/small-image-features 27314d2 | 진행 중. 총괄 재확인(core lib 전체·skylens-stream 전체) 안 됨 → #66 병합 보류 유지 |
-  | mid-image-register (480×270 54/81) | `feat/mid-image-register`(아직 푸시 없음) | experiment/mid-image-register(아직 없음) | 진행 중, 측정 위주 |
+  | mid-image-register (480×270 54/81) | 코드 변경 없음 | experiment/mid-image-register 8284a12 → 연구 PR #95 | 끝남(마감 뒤). 원인은 특징 상한이 아님(사진당 897~991, 상한 1500/3000/5000 동일). 등록 F27·R27·L0 — F–L 예약 짝 대응 중앙값 5(640×360 13, 960×540 29.5)로 최소 20 에서 전부 탈락. 확대+상한 3000 이면 F–L 7쌍 통과하나 4쌍이 상대 회전 77~91° 틀린 해 → L 다시 빠짐. 인자 없는 기본 경로 480×270 48/81·4/7. 다음: 같은 카메라 쌍의 일정한 상대 회전으로 틀린 후보 거르기 |
   | helper-latency-80 (F-348 80위치 표) | `feat/region-cross-extend` c11b451 그대로 | experiment/helper-latency-80(아직 없음) | 진행 중, 기본 / back 16 / back 12 / back-step 4 비교 |
 - 끝까지 흐름 진척: main 779edb7 에서 전부 연결(변화 없음). #64 가 들어가면 기본 경로 7/7.
 - 다음 할 일:
