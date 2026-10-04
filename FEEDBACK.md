@@ -2677,7 +2677,7 @@
   - 2026-10-04 14:33 총괄: feat/ta-reweight-scale de8a71e — `refine_on_lines_check_accepts_improvement_and_rejects_worse`(채택·거부 두 경우), `cold` 정리. 처리됨-검증대기
 - 닫음: 2026-10-04 15:30, feat/ta-reweight-scale de8a71e. `refine_on_lines_check_accepts_improvement_and_rejects_worse` 통과(문턱 안 4 → 3 이면 거부), `cold` 제거, clippy 0.
 
-### F-347 [처리됨-검증대기] (심각도: 낮음) — `timing::add`·`timed` 누적 동작을 시험하는 경우가 없어졌다
+### F-347 [닫힘] (심각도: 낮음) — `timing::add`·`timed` 누적 동작을 시험하는 경우가 없어졌다
 - 위치: 제품 crates/core/src/timing.rs:75~105 (feat/perf-e2e 418c16d)
 - 문제: F-344 수정으로 옛 `accumulates_by_name` 이 빠지면서 같은 이름 누적(초 합·호출 수 증가)과 `timed` 반환값 전달을 확인하는 시험이 없다.
 - 실패 상황: `add` 가 호출 수를 늘리지 않거나 이름을 새 행으로 넣어도 시험은 통과.
@@ -2702,3 +2702,27 @@
 - 고칠 것: SPEC §5 에 '구역 등록 입력 = 소유 위치 + 보조(앞 F·뒤 R/L)' 한 줄, 소유자 확인.
 - 확인 기준: SPEC 에 등록 입력 범위 문구가 있음.
 - 이력: PR #64 검토, 2026-10-04 16:47 감독 등록. 병합을 막지 않음.
+
+### F-350 [열림] (심각도: 높음) — 확대 검출 기본값(800 미만 자동)이 480×270 편대 장면 등록을 132 → 88 로 떨어뜨린다
+- 위치: 제품 crates/core/src/features.rs:283 `upscale_below: 800`, 587~598 `detect_and_describe` (feat/small-image-features a278542, PR #66)
+- 문제: 긴 변 800 미만 사진은 설정 없이 모두 2배 확대 검출로 바뀐다. `cargo test --release -p skylens-core --lib` 에서 main 은 통과하는 시험 두 개가 깨진다: `sparse::tests::formation_scene_registers_all_and_meets_floors`(480×270, 44위치, 특징 상한 1200) 등록 88/132(정답 132, 위치 정밀 회전 중앙 7.48°), `pipeline::diag::preview_default_pose_error_bounds`(320×180) `new.placed_rot_med < 0.6 * old.placed_rot_med` 실패. 같은 두 시험이 main 779edb7 에서는 2/2 통과(122.6 s). `cargo test --release -p skylens-stream` 에서도 `pipeline_stream_order::stream_order_events_and_numbers_match_sequential` 실패(pipeline_stream_order.rs:176) — 구역 0 등록 12/36(cam1 만, cam0·cam2 전부 미등록), 구역 1 8/24. 이 시험은 직전 #64·#65 검토(main 기준)에서 1/1 통과.
+- 실패 상황: 480×270 처럼 상한(1200~1500)에 이미 닿는 해상도에서는 확대가 특징 수를 늘리지 못하고 작은 축척 쪽으로 몰아, 다른 카메라 짝이 줄어드는 것으로 보인다(연구 노트도 480×270 은 54/81 그대로라고 적음). 320×240 개선과 바꾸어 다른 해상도를 깨뜨림.
+- 고칠 것: (1) 확대 조건을 '확대 전 검출 수가 상한에 못 미칠 때' 또는 긴 변 기준을 낮추는 식으로 좁히거나, 기본 끔 + run 옵션으로 켜기. (2) 어느 쪽이든 두 시험의 바닥값을 풀지 말 것. (3) 480×270·640×360 등록을 노트 표에 다시.
+- 확인 기준: `cargo test --release -p skylens-core --lib`·`-p skylens-stream` 전부 통과(위 세 시험 포함), 320×240 7/7 유지 수치가 노트에 있음.
+- 이력: PR #66 검토, 2026-10-04 감독 등록. 병합 막음.
+
+### F-351 [열림] (심각도: 낮음) — 새 시험 이름은 '더 많이 검출'인데 실제로는 확대 쪽이 적고, 수를 비교하지 않는다
+- 위치: 제품 crates/core/src/features.rs:1188 `small_image_upscaled_detects_more_with_original_coords`
+- 문제: 출력 `upscale off 96 on 72` — 이 영상에서는 확대 쪽 검출이 적다. 단언은 `b.len() >= 24` 와 좌표 범위·1 px 근접뿐이라 확대 이득을 확인하지 않는다.
+- 실패 상황: 확대가 검출 수를 줄이는 쪽으로 바뀌어도 시험은 통과.
+- 고칠 것: 이름을 좌표 복원 시험으로 바꾸거나, 질감 영상(합성 장면 한 장 320×240)에서 확대 검출 수 > 끔 검출 수를 단언.
+- 확인 기준: 시험 이름과 단언이 일치, `--lib features` 통과.
+- 이력: PR #66 검토, 2026-10-04 감독 등록. 병합을 막지 않음.
+
+### F-352 [열림] (심각도: 낮음) — 320×240 개선 수치가 `--span 48` 경로뿐이고 인자 없는 기본 경로(SPAN 12)는 재지 않았다
+- 위치: 연구 experiments/small-image-features.md 수치 표 (experiment/small-image-features e9e9f16), PR #66 본문
+- 문제: 표의 모든 행이 `--stride 3 --span 48 ...` 1구역 측정. 직전 기록의 320×240 3/7 은 SPAN 12·3구역 기본 경로 수치라 서로 비교되지 않는다.
+- 실패 상황: #64 와 함께 들어간 뒤 기본 경로 320×240 이 여전히 3/7 이어도 노트로는 알 수 없다.
+- 고칠 것: #64 위에서 인자 없는 `synth … 320 240` → `run` → `verify` 를 한 줄 추가.
+- 확인 기준: 노트 표에 기본 경로 320×240 행이 있음.
+- 이력: PR #66 검토, 2026-10-04 감독 등록. 병합을 막지 않음.
