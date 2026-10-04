@@ -7,7 +7,7 @@
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
   | refit-anchor-sim (F-354) | `feat/region-cross-extend` 1d51876 → PR #64(review-requested) | experiment/refit-anchor-sim aeb049b → 연구 PR #99 | 다시 등록한 정밀 경로에서 고정 사진 중심 대응(3쌍 이상, 비퇴화)으로 닮음 변환을 다시 구함, 못 구하면 GPS 맞춤. 총괄 재확인: fmt·clippy 0, `--lib refit_anchor` 2, `helper_latency` 2 통과·1 무시(140 s), `pipeline_stream_order` 1(44 s). 앵커 켬 27위치 이음 잔차는 미측정 |
-  | vote-upscale | `feat/vote-upscale` b32db2e → PR #67(review-requested, #66 커밋 포함) | experiment/vote-upscale ce1ac87 → 연구 PR #100 | `--upscale-fill --pair-vote --max-features 3000`: 480x270 54/81·6/7 → 81/81·7/7(투표가 F–L 틀린 해 4개 78~91° 를 뺌), 640x360 81/81·7/7, 960x540 81/81·7/7 유지. 총괄 재확인: fmt·clippy 0, `--lib features` 17, `--lib cross_camera_vote` 1, 480x270 run+verify 7/7·81/81(94 s). 기본값 그대로(끔) |
+  | vote-upscale | `feat/vote-upscale` b32db2e → PR #67(20:57Z main 에 병합됨, #66 커밋 포함) | experiment/vote-upscale ce1ac87 → 연구 PR #100 | `--upscale-fill --pair-vote --max-features 3000`: 480x270 54/81·6/7 → 81/81·7/7(투표가 F–L 틀린 해 4개 78~91° 를 뺌), 640x360 81/81·7/7, 960x540 81/81·7/7 유지. 총괄 재확인: fmt·clippy 0, `--lib features` 17, `--lib cross_camera_vote` 1, 480x270 run+verify 7/7·81/81(94 s). 기본값 그대로(끔) |
   | cross-pair-overlap | `feat/cross-pair-overlap` ae117a8(PR 없음, 기준 439bf49) | experiment/cross-pair-overlap bfa6c72 | 정답 겹침 최대 F–L 33 m(33.0 %)·F–R 42 m(39.1 %)·R–L 0 % — 기존 일정(위치 차 20..40)은 1 m 간격 가정이라 stride 3 에서 60 m 이상. `CrossSchedule::scaled` 로 환산하자 480·640·960 노트 설정·기본 경로 모두 81/81·7/7. 그러나 `default_path` 시험이 점 표면 오차 중앙 0.523 m(한계 0.5) 로 실패 — 기준 브랜치에서는 통과, 후퇴. `pipeline_stream_order` 미확인 |
 - 끝까지 흐름 진척: main 779edb7 에서 전부 연결(변화 없음). #64 가 들어가면 기본 경로 7/7, #64 + #66 이면 320×240 기본 경로도 7/7, #67 옵션이면 480x270 노트 설정 7/7.
 - 다음 할 일:
@@ -15,7 +15,7 @@
   2. `--pair-vote` 를 기본으로 켤 수 있는지 core lib·skylens-stream 전체로 확인.
   3. F-354 앵커 켬 + `--coarse-back off` 27위치 이음 잔차 측정.
 - 막힌 점:
-  - 소유자 병합 필요: #64, #66, #67, #65, #63·#62·#60·#61·#59·#58·#57·#56 → #55 → #54, #40, #53, #51·#49·#42·#41·#39, 연구 PR 들(#89 → #90 → #91, #92~#100).
+  - 소유자 병합 필요: #64, #66, #65, #63·#62·#60·#61·#59·#58·#57·#56 → #55 → #54, #40, #53, #51·#49·#42·#41·#39, 연구 PR 들(#89 → #90 → #91, #92~#100).
   - F-197(높음)·F-348·F-349 는 SPEC·지연 수용 결정이 소유자 몫.
   - 4 코어 기계 — 동시 묶음 3개.
 
