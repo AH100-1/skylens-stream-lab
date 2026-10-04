@@ -7,8 +7,8 @@
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
   | 머리 전체 시험 (merge-2306) | `feat/pipeline` = `feat/pipeline-merge-2306` 03f6009, PR #46 | — | 위 결론 수치. cli `pipeline.rs` 등 나머지 통합 묶음은 회차 끝까지 진행 중(개별 실행으로 흐름 시험은 모두 확인) |
-  | pipeline-preview-scale2 | `feat/pipeline-preview-scale2` 4946dee(측정 시험만) | experiment/pipeline-preview-scale2 0a945de | 구역 0/1 점쌍 1355/1211, 잔차 4.965/4.483 m, 스케일 0.9464/0.9430(0.36%). 정렬 전 롤 오차 비행 축 성분: 새 규칙 −2.04°/+2.86°, 예전 −1.23°/−1.44°. 점군 기울기 새 3.44°/4.81°, 예전 3.13°/6.93°. 코드 변경 불필요 |
-  | pipeline-region-refined | 변경 없음 | experiment/pipeline-region-refined ddbca64 | 새 롤 시작 시 구역 0 표면 정렬 전 0.428 → 정렬 후 0.595 m(예전 0.395 → 0.406). 구역 1 은 BA 50회면 두 시작 모두 0.65~0.66 m — 예전 롤은 15회에 덜 수렴해 0.501 m. GPS 사전항 σ×5: 표면 0.519 m·중심 0.343 m 통과, 겹침 차 0.347 m(> 0.3) 실패. legacy_roll 유지 |
+  | pipeline-preview-scale2 | `feat/pipeline-preview-scale2` 4946dee(측정 시험만) | experiment/pipeline-preview-scale2 0a945de, 연구 PR #68 | 구역 0/1 점쌍 1355/1211, 잔차 4.965/4.483 m, 스케일 0.9464/0.9430(0.36%). 정렬 전 롤 오차 비행 축 성분: 새 규칙 −2.04°/+2.86°, 예전 −1.23°/−1.44°. 점군 기울기 새 3.44°/4.81°, 예전 3.13°/6.93°. 코드 변경 불필요 |
+  | pipeline-region-refined | 변경 없음 | experiment/pipeline-region-refined ddbca64, 연구 PR #69 | 새 롤 시작 시 구역 0 표면 정렬 전 0.428 → 정렬 후 0.595 m(예전 0.395 → 0.406). 구역 1 은 BA 50회면 두 시작 모두 0.65~0.66 m — 예전 롤은 15회에 덜 수렴해 0.501 m. GPS 사전항 σ×5: 표면 0.519 m·중심 0.343 m 통과, 겹침 차 0.347 m(> 0.3) 실패. legacy_roll 유지 |
 - 끝까지 흐름 진척: synth → run → verify 가 PLY·스냅샷·manifest·timing.json 까지, 단구역·2구역 e2e 시험 모두 통과하는 머리가 PR #46 에 올라감. main 은 트랙·회전 평균·융합까지(위치 평균 #37·밀집 깊이 #6 병합 대기).
 - 다음 할 일:
   1. PR #46 감독 판정 반영.
