@@ -1,17 +1,18 @@
 # 현재 상태
 
 - 상태: 쉬는 중
-- 마지막 갱신: 2026-10-04T15:55Z (15:06Z 시작분)
+- 마지막 갱신: 2026-10-04T16:01Z (15:06Z 시작분)
 - 이번 회차 결론: F-343 을 SPAN 12 유지(결정 대기 중인 (나) 안)로 두 가지 방식 시험. **카메라별 이동 창(R·L 창을 +24 밀고 보조 위치로 등록에만 사용)으로 인자 없는 synth → run → verify 7/7·종료 0·등록 81/81** 이지만 `pipeline_arrival` 재정렬 잔차 상한 하나가 깨져 PR 보류. 320×240 의 refined_overlap 41 m 는 해상도가 아니라 같은 뿌리(짧은 구역에 카메라 한 대만 등록 → 그 구역 점 높이 눌림)로 확인. 4 코어 기계라 묶음 3개.
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
   | region-camera-offset (F-343) | `feat/region-camera-offset` 0b5326e(PR 없음) | experiment/region-camera-offset 442b84d | `PipelineConfig::cross_offset`(기본 24, `--cross-offset`), 구역마다 R·L 보조 위치 [hi, hi+24) 를 등록에만 넣고 출력·verify 집계는 소유 위치만. 전 → 후: verify 5/7 → 7/7, 등록 61/81 → 81/81, 구역 0 14/42 → 42/42, 구역 수 3 유지, run 96 → 88 s(부하 중). 정답 대비 중심 오차 중앙/최대 0.307/0.940 m, 표면 오차 중앙/95% 0.482/1.355 m, refined_overlap 0.067 m. 작업자 결과: fmt·clippy 통과, 새 `default_path` 1/1(189 s), core `dataset`·`stream::`·`progressive` 52 통과, cli 단위 4, `pipeline` 5/5, `pipeline_regions` 3/3, `run` 6/6. **실패: `pipeline_arrival::arrival_order_and_realigned_centers` 재정렬 잔차 [0.698, 0.456, 0.698] m > 0.6 m**(상한 풀지 않음). `pipeline_e2e`·`pipeline_stream*` 안 돌림. 총괄은 diff·작성자만 확인, 빌드 재확인 안 함(불합격이라) |
-  | region-cross-extend (F-343 대안: 다른 카메라 보조 사진 +40) | 이 갱신 시점까지 푸시 없음 | — | 회차 시간 안에 끝나지 않음 |
+  | region-cross-extend (F-343 대안: 다른 카메라 보조 사진) | `feat/region-cross-extend` 85dd7fe(PR 없음 — 총괄 빌드·시험 재확인 전에 회차 시간 끝) | experiment/region-cross-extend bbf8aa8 | **작업자 측정 기준 전부 통과.** `PipelineConfig::helper`(앞 F 40·뒤 R·L 구역 시작 기준 +40·간격 1, `--helper-front/-back/-back-step`), 보조는 등록·BA 만. 인자 없는 경로 7/7·종료 0·81/81·구역 3, 중심 오차 중앙/최대 0.428/0.940 m, 표면 중앙/p95 0.400/1.316 m, 정밀 재투영 0.247 px, run 45~85 s(부하). 작업자: fmt·clippy, `default_path`, `pipeline_e2e` 2, **`pipeline_arrival` 2**, `pipeline_stream_order`, `run` 6, `pipeline_regions`·`pipeline_stream`·`pipeline`·`synth_args`, core lib 328 통과. 총괄 재확인: fmt·작성자·diff 만 |
   | small-image-overlap (F-343 부수) | 코드 변경 없음 | experiment/small-image-overlap 6ee14dc | 320×240 기본: 구역별 등록 L 14/42, F 16/48, F 5/15, 구역 0↔1 공유 관측 0 → 맞춤 없음(틀린 맞춤을 받은 것 아님). 구역 1·2 희소 점 z 중앙 −4.8/−8.1 m(정답 지면 약 −27 m) → refined_overlap 41.0 m. `--max-features 4000` 결과 동일(특징 수 원인 아님). `--span 48` 이면 7/7·0.173 m. 제안: 한 카메라만 등록된 구역·공유 점 0 구역 쌍을 이슈로 |
 - 끝까지 흐름 진척: main 779edb7 에서 전부 연결(변화 없음). 기본 인자 경로 7/7 은 feat/region-camera-offset 에서 되지만 `pipeline_arrival` 하나가 남음.
 - 다음 할 일:
-  1. feat/region-camera-offset 위에서 `pipeline_arrival` 잔차 0.698 m 분해(보조 사진으로 구역 0 좌표가 바뀐 영향인지), `pipeline_e2e`·`pipeline_stream*` 전부 돌린 뒤 PR.
+  0. **feat/region-cross-extend 85dd7fe 를 clippy·`cargo test --release -p skylens-stream` 전체·core lib 로 재확인 후 제품 PR + 연구 PR(base main). F-343 처리 후보 1순위**(이동 창 안보다 `pipeline_arrival` 통과로 앞섬).
+  1. (보조) feat/region-camera-offset 위에서 `pipeline_arrival` 잔차 0.698 m 분해(보조 사진으로 구역 0 좌표가 바뀐 영향인지), `pipeline_e2e`·`pipeline_stream*` 전부 돌린 뒤 PR.
   2. 보조 R·L 을 구역마다 붙이는 비용(80위치 이상) vs 구역 0 만 쓰는 방안 비교.
   3. 320×240 에서 이동 창 적용 후 refined_overlap 재측정.
 - 막힌 점:
