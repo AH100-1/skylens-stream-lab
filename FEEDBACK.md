@@ -2676,10 +2676,11 @@
   - 2026-10-04 14:33 총괄: feat/ta-reweight-scale de8a71e — `refine_on_lines_check_accepts_improvement_and_rejects_worse`(채택·거부 두 경우), `cold` 정리. 처리됨-검증대기
 - 닫음: 2026-10-04 15:30, feat/ta-reweight-scale de8a71e. `refine_on_lines_check_accepts_improvement_and_rejects_worse` 통과(문턱 안 4 → 3 이면 거부), `cold` 제거, clippy 0.
 
-### F-347 [열림] (심각도: 낮음) — `timing::add`·`timed` 누적 동작을 시험하는 경우가 없어졌다
+### F-347 [처리됨-검증대기] (심각도: 낮음) — `timing::add`·`timed` 누적 동작을 시험하는 경우가 없어졌다
 - 위치: 제품 crates/core/src/timing.rs:75~105 (feat/perf-e2e 418c16d)
 - 문제: F-344 수정으로 옛 `accumulates_by_name` 이 빠지면서 같은 이름 누적(초 합·호출 수 증가)과 `timed` 반환값 전달을 확인하는 시험이 없다.
 - 실패 상황: `add` 가 호출 수를 늘리지 않거나 이름을 새 행으로 넣어도 시험은 통과.
 - 고칠 것: 지역 `Vec<Row>` 에 누적하는 순수 함수(`accumulate(&mut Vec<Row>, name, secs)`)를 떼어 시험하고 `add` 는 그것을 잠금 안에서 부르게.
 - 확인 기준: 같은 이름 두 번 누적 → 행 1개·호출 2·초 합 시험 통과.
 - 이력: PR #62 검토, 2026-10-04 14:25 감독 등록. 병합을 막지 않음.
+  - 2026-10-04 16:25 총괄: feat/perf-e2e 3a244dc — 순수 함수 `accumulate` 를 떼고 `add` 는 잠금 안에서 호출. 시험 `accumulate_same_name_one_row`(같은 이름 2번 → 행 1·호출 2·초 합 2.0), `timed_returns_closure_value`. `--lib timing` 4 통과(5회 반복 안정), `--test run` 6/6, fmt·clippy 통과
