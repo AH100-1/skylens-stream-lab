@@ -11,7 +11,7 @@
   | pipeline-preview-center | `feat/pipeline-preview-center` c9e0330 (PR 없음) | experiment/pipeline-preview-center b04175c | 원인: 닮음 맞춤이 점 짝만 써서 0.487 → 0.635 m. 점 짝 + 중심 짝(3배) 으로 0.428 m, 높이 차 0.570 → 0.463 m, 최근접 0.436 → 0.357 m. 초벌 중심 정밀화 고윳값 비 하한 3e-3 + 경계 시험. cli 7/7 시험은 1/5 만 끝나 미확인. F-288·F-291 원래 위치(translation_averaging.rs)는 손대지 않음 |
   | formation-view-graph (F-148·F-197·F-209·F-251) | `feat/formation-view-graph` 80c565b (PR 없음) | experiment/formation-view-graph 418d0a5 | bench 기본 40위치(120장)·`scheduled_pairs` 사용. 시작 +20 → +28: 2° 초과 전체 5.8 → 0.8%, 카메라 간 39.2 → 8.3%, 반환 120/120, 성분 1, 정렬 중앙 0.504 → 1.287°(악화). 정상 수 문턱으로는 틀린 카메라 간 간선이 갈리지 않음. `cargo test` 미완 |
   | tracks-consistent (F-263·F-125·F-264·F-265) | `feat/tracks-consistent` 18958f9 (PR 없음) | experiment/tracks-consistent 4391081 | 에피폴라 근처 오대응 2%: 재현율 30/50% 순도 0.9949/0.9995·완전도 0.9976/0.9996. 일관 교환 1%: 순도 0.978/0.983(0.99 미달). 몰린 짝 변위 거름 21배 → 3.3배(분위 격자). 마지막 커밋 뒤 core lib 재실행 안 함 |
-  | fusion-consistency (F-069·F-178·F-179·F-28x) | `feat/fusion-consistency` e28ab33 | experiment/fusion-consistency | 시험 보강 커밋까지 푸시, 결과 보고 대기 |
+  | fusion-consistency (F-229·F-282~F-285) | `feat/fusion-consistency` e28ab33 → PR #53(base feat/pipeline, review-requested) | experiment/fusion-consistency bca8a23, 연구 PR #80 | 총괄 재확인: fmt·clippy 통과, fusion 20 통과·2 무시. 시험만 바뀜. 편대 42장 σ 0.1%·이상치 10% 기본 설정 391670점·0.3 m 초과 0·최대 0.0696 m(무리 설정 없으면 최대 11.538 m). 조건별 조임 점 수: 재투영 0.1 px 44, 상대 깊이 0.001 1367, 최소 시점 5 2531(기준 5931) |
   | ta-seeds (F-276) | 커밋 없음 | experiment/ta-seeds a487c11 | 시드 1~20 × 짝 이상치 10/20% × 점 이상치 0/5%: 모두 240/240, 16경우 최대 > 1.0 m(최악 1.746 m, 시드 7). 같은 시드가 이상치 비율과 무관하게 실패 → 이웃 기하 퇴화 의심(F-303 표 필요). F-215 는 triangulation.rs 범위라 손대지 않음 |
 - 끝까지 흐름 진척: SPEC 기본 배치 240장·2구역에서 synth → run → verify 가 PLY·스냅샷·manifest 까지(`feat/pipeline-e2e-spec`, #46 머리 e388346 위). 시드 1 7/7, 시드 2 6/7. 다음 등록이 최신 정밀 모델 위에서 하지 않음(구역 자기 사진만) — SPEC 스트림 순서 중 빠진 단계. main 은 여전히 #37·#6·#46 병합 대기.
 - 다음 할 일:
@@ -22,7 +22,7 @@
   5. F-276 시드 4·7·9·15·19 카메라별 표(F-303).
   6. 정밀 회전을 출력(poses)에 넣어 회전 오차 시험.
 - 막힌 점:
-  - 소유자 병합 필요: #37·#6 → #46(흐름), #52, #51, #50, #49·#39~#42.
+  - 소유자 병합 필요: #37·#6 → #46(흐름), #52, #53, #51, #50, #49·#39~#42.
   - 4 코어 기계에 동시 묶음 7개 — 부하 15~30, 긴 cli 시험(8~9분)은 회차 안에 재확인 못 함.
   - 결정 필요: SPEC §3.2 카메라 간 일정 개정안(experiments/formation-view-graph.md), F-288·F-215 수정 범위(translation_averaging.rs·triangulation.rs), 초벌 정렬 닮음 + 보정장 허용(SPEC §3.7), F-197, F-209 확인 기준, F-251.
 
