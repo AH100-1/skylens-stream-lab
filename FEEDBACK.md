@@ -2636,7 +2636,7 @@
 - 확인 기준: 노트에 시드 ≥3 개 표, 또는 잔차 상한 거절 시험 하나.
 - 이력: PR #60 검토, 2026-10-04 13:20 감독 등록. 병합을 막지 않음.
 
-### F-343 [열림] (심각도: 중간) — 기본 `synth` → 기본 `run` 이 verify 5/7(등록 61/81)
+### F-343 [처리됨-검증대기] (심각도: 중간) — 기본 `synth` → 기본 `run` 이 verify 5/7(등록 61/81)
 - 위치: 제품 crates/cli/src/run.rs 기본 인자, crates/core/src/pipeline.rs (main 779edb7, feat/perf-e2e 6cad08f 동일)
 - 문제: 인자 없이 `skylens-stream synth <폴더>` 로 만든 장면에 인자 없이 `run` 을 돌리면 3구역·40.4 s 에 끝나지만 `verify` 가 5/7: registered FAIL(초벌 61/81, 정밀 61/81), preview_vs_refined FAIL(최근접 중앙 최대 > 6 m, 높이 차 중앙 inf). refined_overlap 0.070 m 는 통과. 320×240 장면은 3/7(refined_overlap 41.0 m).
 - 실패 상황: 사용자가 README 대로 합성 장면 → run → verify 를 하면 종료 코드 1. `pipeline_e2e` 는 시험 전용 설정이라 이것을 잡지 못함.
@@ -2646,6 +2646,7 @@
   - 2026-10-04 14:35 총괄: 원인 확인 — `DatasetConfig::default()` SPAN 12(SPEC §1 기본값)이면 기본 장면 27위치가 3구역으로 쪼개지고, 다른 카메라 겹침은 위치 차 12~40 에서만 생겨(F-197) 구역마다 등록 61/81. feat/default-path a498195 는 기본 SPAN 을 48 로 바꿔 7/7·종료 0(새 시험 `default_path`)이지만 SPEC 기본값 변경이고 기본 경로가 1구역이 되어 구역 흐름을 기본에서 시험하지 못함 → PR 보류, SPEC §1 SPAN 기본값 또는 구역 분할 규칙(다른 카메라 짝이 구역 안에 들도록) 결정 필요. 열림 유지
   - 2026-10-04 15:55 총괄: SPAN 12 유지 안 시도 — feat/region-camera-offset 0b5326e(R·L 보조 위치 +24 를 등록에만): 인자 없는 경로 7/7·종료 0·81/81, 새 시험 `default_path` 통과. 그러나 `pipeline_arrival` 재정렬 잔차 0.698 m > 0.6 m 로 실패 → PR 보류, 열림 유지. 320×240 의 41 m 도 같은 뿌리(experiment/small-image-overlap 6ee14dc)
 
+  - 2026-10-04 16:32 총괄: feat/region-cross-extend 85dd7fe → PR #64. 구역 밖 보조 사진(앞 F 40·뒤 R·L 구역 시작 +40, 등록·BA 전용), SPAN 12 유지. 총괄 재확인: fmt·clippy 통과, core lib 328 통과, `cargo test --release -p skylens-stream` 전부 통과(`default_path` 1·`pipeline` 5·`pipeline_arrival` 2·`pipeline_e2e` 2·`pipeline_regions` 3·`pipeline_stream` 1·`pipeline_stream_order` 1·`run` 6·`verify` 24 외). 960×540 기본 7/7·81/81(experiment/helper-cost d5a245a). 320×240 은 여전히 3/7(구역 0 F·L 0/28 등록) — 별도 항목 필요
 ### F-344 [닫힘] (심각도: 낮음) — `timing` 시험이 같은 프로세스의 `timing::reset()` 과 겹치면 깨질 수 있다
 - 위치: 제품 crates/core/src/timing.rs:81~86 (feat/perf-e2e 6cad08f), reset 호출 crates/core/src/pipeline.rs:1913
 - 문제: `ACC` 는 전역이고 core lib 시험은 병렬로 돈다. 흐름 시험이 `reset()` 을 부르면 `accumulates_by_name` 의 `to_json`·`table` 단언(`position(..).unwrap()`)이 빈 누적을 보고 실패한다. 이번 커밋이 단언을 하나 더 늘림.
