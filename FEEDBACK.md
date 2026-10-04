@@ -2703,13 +2703,13 @@
 - 확인 기준: SPEC 에 등록 입력 범위 문구가 있음.
 - 이력: PR #64 검토, 2026-10-04 16:47 감독 등록. 병합을 막지 않음.
 
-### F-350 [열림] (심각도: 높음) — 확대 검출 기본값(800 미만 자동)이 480×270 편대 장면 등록을 132 → 88 로 떨어뜨린다
+### F-350 [처리됨-검증대기] (심각도: 높음) — 확대 검출 기본값(800 미만 자동)이 480×270 편대 장면 등록을 132 → 88 로 떨어뜨린다
 - 위치: 제품 crates/core/src/features.rs:283 `upscale_below: 800`, 587~598 `detect_and_describe` (feat/small-image-features a278542, PR #66)
 - 문제: 긴 변 800 미만 사진은 설정 없이 모두 2배 확대 검출로 바뀐다. `cargo test --release -p skylens-core --lib` 에서 main 은 통과하는 시험 두 개가 깨진다: `sparse::tests::formation_scene_registers_all_and_meets_floors`(480×270, 44위치, 특징 상한 1200) 등록 88/132(정답 132, 위치 정밀 회전 중앙 7.48°), `pipeline::diag::preview_default_pose_error_bounds`(320×180) `new.placed_rot_med < 0.6 * old.placed_rot_med` 실패. 같은 두 시험이 main 779edb7 에서는 2/2 통과(122.6 s). `cargo test --release -p skylens-stream` 에서도 `pipeline_stream_order::stream_order_events_and_numbers_match_sequential` 실패(pipeline_stream_order.rs:176) — 구역 0 등록 12/36(cam1 만, cam0·cam2 전부 미등록), 구역 1 8/24. 이 시험은 직전 #64·#65 검토(main 기준)에서 1/1 통과.
 - 실패 상황: 480×270 처럼 상한(1200~1500)에 이미 닿는 해상도에서는 확대가 특징 수를 늘리지 못하고 작은 축척 쪽으로 몰아, 다른 카메라 짝이 줄어드는 것으로 보인다(연구 노트도 480×270 은 54/81 그대로라고 적음). 320×240 개선과 바꾸어 다른 해상도를 깨뜨림.
 - 고칠 것: (1) 확대 조건을 '확대 전 검출 수가 상한에 못 미칠 때' 또는 긴 변 기준을 낮추는 식으로 좁히거나, 기본 끔 + run 옵션으로 켜기. (2) 어느 쪽이든 두 시험의 바닥값을 풀지 말 것. (3) 480×270·640×360 등록을 노트 표에 다시.
 - 확인 기준: `cargo test --release -p skylens-core --lib`·`-p skylens-stream` 전부 통과(위 세 시험 포함), 320×240 7/7 유지 수치가 노트에 있음.
-- 이력: PR #66 검토, 2026-10-04 감독 등록. 병합 막음.
+- 이력: PR #66 검토, 2026-10-04 감독 등록. 병합 막음. → 2026-10-04 19:40 총괄: cd9a360(원래 검출이 상한 절반 미만일 때만 확대 특징으로 모자란 만큼 채움) 재확인 — fmt·clippy 통과, `cargo test --release -p skylens-core --lib` 328 통과·0 실패·30 무시(745 s, formation_scene_registers_all_and_meets_floors·preview_default_pose_error_bounds 포함), `-p skylens-stream` 전부 통과(pipeline 5·pipeline_arrival 2·pipeline_e2e 2·pipeline_regions 3·pipeline_stream 1·pipeline_stream_order 1·ply_info 4·run 6·synth_args 6·verify 24). 머리 b97a3ea(시험만 변경) `--lib features` 16 통과. PR #66 라벨 다시
 
 ### F-351 [처리됨-검증대기] (심각도: 낮음) — 새 시험 이름은 '더 많이 검출'인데 실제로는 확대 쪽이 적고, 수를 비교하지 않는다
 - 위치: 제품 crates/core/src/features.rs:1188 `small_image_upscaled_detects_more_with_original_coords`
