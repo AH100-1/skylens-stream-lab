@@ -35,6 +35,12 @@
 - 왼쪽 짝을 낮은 가중으로 BA 에만 넣는 방법, 삼각측량 각이 큰 간선만 고르는 방법은 시도하지 못했다.
 - 한 장면·한 번씩 측정(반복 편차 모름). 구역 설정을 바꿀 때 구역 간 값이 같이 움직이는 것을 보면 편차가 0.1 m 이상일 수 있다.
 
+## 시험 (39e5bcc, 4 코어 측정 기계, 스레드 2)
+
+- default_path 1 통과(192 s), pipeline_stream_order 1 통과(15 s), cross_pair_overlap 2/2, fmt 통과.
+- core lib 전체: 329 통과·1 실패·30 무시(326 s). 실패는 `pipeline::diag::preview_default_pose_error_bounds` 의 마지막 단언 `new.placed_rot_med < 0.6 * old.placed_rot_med`. 이 브랜치의 변경(짝 일정 환산·왼쪽 짝 트랙 제외)이 초벌 회전 중앙에 준 영향으로 보이나, 변경 전 브랜치에서 같은 시험이 통과하는지는 확인하지 못했다.
+- 노트 설정 480x270 81/81·7/7 은 이번에 다시 재지 않았다(코드 변경 없음).
+
 ## 제품 브랜치·커밋
 
 - feat/cross-pair-overlap, 39e5bcc (변경 없음).
