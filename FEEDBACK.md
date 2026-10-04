@@ -2554,3 +2554,27 @@
 - 고칠 것: 실측 수치로 채우고 주석을 단언에 맞춘다.
 - 확인 기준: 주석 수치 = 시험 출력.
 - 이력: PR #57 검토, 2026-10-04 09:25 감독 등록. 병합을 막지 않음.
+
+### F-333 [열림] (심각도: 높음) — PR #58 이 base(feat/dense-accuracy) 와 충돌하고, base 의 F-317·F-318 처리분을 되돌린다
+- 위치: 제품 crates/core/src/dense.rs:615-690 `DepthStage`·`depth_stage`, :757 `speckle_min_px`, :1013 `depth_error`, :1282 `speckle_effect_by_width` (feat/dense-pose-robust c704bf6)
+- 문제: 분기점이 db596a3 이라 base 의 463d345(반점 크기 하한 4 화소, `DepthStage.src` 로 사진 번호 유지, 오차 분해에 반점 제거 적용)가 없다. `git merge origin/feat/dense-accuracy` 가 dense.rs 에서 충돌한다. 이 브랜치 상태로는 `depth_error`·`speckle_effect_by_width` 가 `s.views[i]` 를 쓰고(준비 실패 사진이 있으면 정답 영상이 어긋남, F-318 재발), `speckle_min_px` 에 하한이 없어 80×45 에서 2 화소·8×8 에서 0 이 된다. `speckle_floor_scales_with_map_area` 시험도 사라진다.
+- 실패 상황: 충돌 해결 시 이 브랜치 쪽을 고르면 닫힌 F-317·F-318 이 다시 열린다. PR 은 지금 병합 불가.
+- 고칠 것: feat/dense-accuracy 를 이 브랜치에 merge 하고 충돌을 base 쪽 `src`·하한·오차 분해 반점 제거를 살리는 방향으로 해결. 면적 비례로 위쪽(960 → 400 화소)을 키우는 변경은 `clamp(SPECKLE_MIN_PX_FLOOR, ..)` 위에 얹고, 하한 시험을 960×540 = 400 으로 고쳐 유지. 그 위에서 `pipeline_e2e`(#57 상한) 재측정.
+- 확인 기준: `git merge-base --is-ancestor origin/feat/dense-accuracy HEAD` 성공, dense.rs 에 `src` 와 `SPECKLE_MIN_PX_FLOOR` 존재, `speckle_floor_scales_with_map_area` 통과, `pipeline_e2e` 2/2 출력이 노트에.
+- 이력: PR #58 검토, 2026-10-04 09:45 감독 등록(F-329 와 같은 충돌, 사진 번호 유지 되돌림 추가). 병합을 막음.
+
+### F-334 [열림] (심각도: 낮음) — bench `--full` 이 위치 간격 4 를 물려받아 SPEC 규모 의미가 바뀐다
+- 위치: 제품 crates/core/benches/pipeline.rs:13·:187 `Sched::extract`, :286 (feat/bench-schedule f34494c)
+- 문제: 기본 일정이 formation·간격 4 라 `--full`(위치 80)은 위치 번호 0..=316 을 쓴다. 표는 여전히 "SPEC 기준 규모 `--positions 80`" 이라 설명한다. 또 걸러낸 뒤에도 `scene.config.positions` 는 29(기본)로 남아 남은 시점 수와 다르다.
+- 실패 상황: 예전 `--full` 시간과 새 `--full` 시간을 같은 규모로 비교.
+- 고칠 것: 표에 `--full` 은 간격 4 를 쓴다고 적거나 `--full` 일 때 간격 기본 1. 걸러낸 뒤 config 를 쓰지 않는다는 주석.
+- 확인 기준: 표 설명과 `--full` 실제 위치 번호 범위가 같음.
+- 이력: PR #59 검토, 2026-10-04 09:45 감독 등록. 병합을 막지 않음.
+
+### F-335 [열림] (심각도: 낮음) — F–R·F–L 위치 차 +20 다른 카메라 간선 12개 중 5개가 2° 초과
+- 위치: 제품 crates/core/src/matching.rs `bench_views_formation_schedule_averages_all_views` (+20 은 출력만)
+- 문제: 실측 +24: 다른 카메라 6/6 정상·정렬 중앙 0.494°. +20: F–R 2/6·F–L 3/6 이 2° 초과(전체 5/63, 7.9%), 정렬 중앙 0.456°. main 기본 일정 시작값이 20 이다.
+- 실패 상황: 흐름 기본 일정의 +20 간선이 회전 평균에 틀린 간선을 넣음(이번 장면에서는 강건 가중으로 흡수).
+- 고칠 것: +20 오차 간선의 원인(겹침 부족 vs 대칭 모호성)을 노트에, 기본 시작값을 24 로 올릴지 결정.
+- 확인 기준: 노트에 +20·+24 간선별 오차 표와 기본값 결정.
+- 이력: PR #59 검토, 2026-10-04 09:45 감독 등록. 병합을 막지 않음.
