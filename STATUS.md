@@ -1,18 +1,18 @@
 # 현재 상태
 
 - 상태: 쉬는 중
-- 마지막 갱신: 2026-10-04T12:52Z (12:06Z 시작분)
+- 마지막 갱신: 2026-10-04T13:00Z (12:06Z 시작분)
 - 이번 회차 결론: main 779edb7 이 이미 이미지 폴더(+GPS) → … → 스냅샷·manifest 를 끝까지 잇고 있어(#46) 새 연결 묶음은 만들지 않음. 트랙(#15)·위치 평균(#37)·PatchMatch(#6)는 이미 병합됨. 이번 회차는 PR #60 CI 실패, 구역 기울기, 낮음 항목 정리. **F-316 처리 → PR #61**.
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
   | dense-robust-small (F-316) | `feat/dense-robust-small` 18d7f05 → **PR #61**(review-requested) | — | 총괄 재확인: fmt·clippy 통과, `--lib refine_center` 4/4. 작업자 core lib 329 통과·30 무시, `pipeline_e2e` 2/2 점 수 11186/20188(main 과 같음). F-324·F-325·F-326(반점 제거, #54)·F-320(poses_io, #55)은 main 에 코드가 없어 손대지 않음 |
   | pipeline-stream-anchor (#60 CI·F-338·F-339) | `feat/pipeline-stream-anchor` d81070a(회차 끝까지 새 커밋 없음) | experiment/pipeline-stream-anchor | 진행 중, 시간 안에 끝나지 않음. 브랜치에 푸시되면 다음 회차에 재확인 |
-  | pose-accuracy (시드 2 기울기, 점 평면 법선 위 방향) | `feat/pose-accuracy` 358e098(회차 끝까지 새 커밋 없음) | experiment/pose-accuracy | 진행 중, 시간 안에 끝나지 않음 |
+  | pose-accuracy (시드 2 기울기, 점 평면 법선 위 방향) | `feat/pose-accuracy` f25c8d6(PR 없음) | experiment/pose-accuracy 909c57f | 미달·기본 끔(`up_plane: false`). 총괄 재확인: fmt·clippy 통과, `--lib align` 31/31(새 `robust_plane_recovers_tilted_ground_normal`: 3° 기운 지면·지붕 이상치 40%·시드 10개, 법선 오차 < 0.3°). 구역 기울기 끔/위 사전항 x축/평면 법선: 시드 1 구역 0 2.123/0.422/0.468°, 구역 1 0.829/0.137/0.794°, 시드 2 구역 0 1.229/1.079/1.292°, 구역 1 0.644/0.715/1.004°. 원인: BA 포즈가 구역 안에서 휨(최선 전역 회전 뒤에도 x축 수평 어긋남 시드 2 0.73/0.87~1.03°) — 정렬로는 못 고침, BA 쪽 수평 제약 필요. 합성 지형 자체의 평면 법선이 0.87/0.64° 기울어 평면 방식은 편향 |
 - 끝까지 흐름 진척: main 779edb7 에서 전부 연결(변화 없음).
 - 다음 할 일:
   1. PR #60 `pipeline_arrival` 실패 수정 결과 재확인(정밀↔정밀 재정렬에서 공유 쌍이 적을 때 밀집 정합 채택 판정) → 통과하면 라벨 다시.
-  2. pose-accuracy 점 평면 법선 위 방향 결과로 시드 1·2 구역 기울기 ≤ 0.5° 여부 판정.
+  2. 구역 기울기: 정렬이 아닌 정밀 BA 에 카메라 x축 수평(roll) 약한 사전항을 넣어 구역 안 휨을 줄이고 시드 1·2 ≤ 0.5° 재측정.
   3. #54·#55 반영 뒤 F-320·F-324·F-325·F-326.
 - 막힌 점:
   - PR #60 CI 실패 그대로(위 1).
