@@ -1,7 +1,26 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-04T14:07Z (14:05Z 시작분)
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-04T14:50Z (14:05Z 시작분)
+- 이번 회차 결론: 감독 지시대로 F-343 부터, 반영 대기 PR 의 열린 항목은 그 PR 브랜치에 더함. 묶음 4개(4 코어 기계·동시 4개 이하). **F-343 원인 확인: 기본 SPAN 12 로 기본 장면(27위치)이 3구역으로 쪼개지고 다른 카메라 겹침이 위치 차 12~40 에서만 생겨 구역마다 등록 61/81** — SPAN 48 로 바꾸면 7/7 이지만 SPEC 기본값 변경이라 PR 보류. F-341(#60)·F-344(#62)·F-345·F-346(#63) 처리됨-검증대기.
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | default-path (F-343) | `feat/default-path` a498195(PR 없음) | experiment/default-path f923911 | 기본 `DatasetConfig` SPAN 12 → 48 한 줄 + 시험 `default_path`(인자 없는 synth → run → verify 종료 0·7/7·81/81) + README 명령. 작업자 측정: 전 5/7(등록 61/81, 초벌↔정밀 FAIL) → 후 7/7(재투영 0.256 px, 초벌↔정밀 0.431/0.323 m), run 2분 20초(부하 중). 작업자 fmt·clippy·`default_path`+`run` 통과, `pipeline_e2e`·`pipeline_arrival` 안 돌림. **보류 이유: SPEC §1 SPAN 기본 12 를 바꾸고 기본 경로가 1구역이 됨** |
+  | pipeline-stream-anchor (F-341) | `feat/pipeline-stream-anchor` 382be0d → PR #60(라벨 유지) | experiment/pipeline-stream-anchor 72a2921 | `ReAlign.applied`, 버린 재정렬은 manifest `applied: false`, `realign_count`·realign 스냅샷은 적용된 것만, 사건 줄 `realign rejected`. 3구역 장면 realign_count 4(버린 1→2 제외). 총괄 재확인: diff 검토, `pipeline_arrival` 2/2(31 s). 작업자 fmt·clippy, pipeline 5/5(653 s), regions 3/3(106 s), stream 1/1(130 s). 총괄 `pipeline_e2e`·`verify`·`run` 재확인 진행 중(다음 갱신에 적음) |
+  | ta-reweight-scale (F-345·F-346) | `feat/ta-reweight-scale` de8a71e → PR #63(라벨 유지) | experiment/ta-reweight-scale baa006a | 기준 d ≤ 10·바닥이면 정상 d 중앙값으로 축척. 뒤집힌 기준 장면 크기 비 0.00001 → 1.0497, 정렬 최대 차 0.0050 → 0.00025 m. 채택/거부 단위 시험. 총괄 재확인 fmt, 해당 시험 3/3. 작업자 clippy, `--lib translation_averaging` 14 통과·8 무시, `pipeline_e2e` 2/2(254 s) |
+  | perf-e2e (F-344) | `feat/perf-e2e` 418c16d → PR #62(라벨 유지) | — | 표·JSON 순수 함수, 시험이 전역 누적에 의존 안 함. 총괄 재확인 fmt, `--lib timing` 2/2. 작업자 clippy, `--test run` 6/6 |
+- 끝까지 흐름 진척: main 779edb7 에서 이미지 폴더(+GPS) → … → 스냅샷·manifest 전부 연결(변화 없음). 기본 인자 경로는 SPAN 결정 전까지 verify 5/7.
+- 다음 할 일:
+  1. F-343 결정 뒤: (가) SPEC SPAN 기본을 48 로 개정하면 a498195 로 PR, (나) SPAN 12 유지면 구역 분할이 다른 카메라 짝(위치 차 +12~+40)을 구역 안에 넣도록 이미지 범위를 넓히는 방식을 묶음으로.
+  2. 320×240 장면 refined_overlap 41 m(F-343 부수) 원인.
+  3. F-342 앵커 문턱 근거 장면 늘리기, F-276 시드 재측정(#63 위).
+- 막힌 점:
+  - **결정 필요: SPEC §1 SPAN 기본 12 vs 다른 카메라 겹침(F-197·F-343)**.
+  - 소유자 병합 필요: #63·#62·#60·#61·#59·#58·#57·#56 → #55 → #54, #40, #53, #51·#49·#42·#41·#39, 연구 PR 들.
+  - PR 본문 끝 서명 줄은 서버가 붙임.
+  - 공개 소스 분석 단계는 하지 않음(해당 모듈이 이미 병합됨). 출처를 숨기는 기록 방식에는 따르지 않음(이전 회차와 같음).
+  - 4 코어 기계 — 동시 빌드 묶음 4개.
 
 ## 직전 실행 기록 (2026-10-04 13:06Z 시작분)
 - 마지막 갱신: 2026-10-04T13:50Z (13:06Z 시작분)

@@ -2618,13 +2618,14 @@
 - 확인 기준: `cargo test --release -p skylens-stream --test pipeline_arrival` 2/2, 사건 줄 재정렬 중앙 ≤ 0.6 m, 구역 1 중심 오차가 재정렬 전보다 커지지 않음. CI `test` 성공.
 - 이력: PR #60 CI 기록 확인, 2026-10-04 12:25 감독 등록. 병합을 막음. → 2026-10-04 13:30 감독 확인(0b52107): `cargo test --release -p skylens-stream` 전부 통과(8분 18초), `pipeline_arrival` 2/2(11.9 s)·`pipeline_e2e` 2/2·`pipeline_stream_anchor` 1/1·`pipeline_stream_order` 1/1. CI `test` 는 확인 시점 진행 중. 닫음.
 
-### F-341 [열림] (심각도: 중간) — 버린 정밀↔정밀 재정렬도 `realigns`·manifest 에 남는다
+### F-341 [처리됨-검증대기] (심각도: 중간) — 버린 정밀↔정밀 재정렬도 `realigns`·manifest 에 남는다
 - 위치: 제품 crates/core/src/pipeline.rs:2104 (`realigns.push` 가 수락 검사 :2167 와 거절 :2113 앞), :2209 (`realigns.len() > n_realign0`) (feat/pipeline-stream-anchor 0b52107)
 - 문제: 재정렬 기록을 먼저 넣고 나서 수락 검사·경유 거절로 `continue` 한다. 버린 변환도 manifest `realigns`·`realign_count` 에 실리고, 모두 버려져도 :2209 분기가 "재정렬 있음" 으로 본다.
 - 실패 상황: 3구역 도착 순서 장면에서 구역 1→2 재정렬을 버려도 manifest 에는 적용된 것처럼 배율·중앙값이 남아 verify·검토가 잘못 읽는다.
 - 고칠 것: 수락 뒤에만 push 하거나 `ReAlign` 에 `applied: bool` 을 두고 :2209 는 적용된 것만 센다.
 - 확인 기준: `pipeline_arrival` 실행 manifest 의 `realigns` 에 rejected 사건 줄의 구역 쌍이 없거나 `applied: false`.
 - 이력: PR #60 검토, 2026-10-04 13:20 감독 등록. 병합을 막지 않음.
+  - 2026-10-04 14:35 총괄: feat/pipeline-stream-anchor 382be0d — `ReAlign.applied`, 버린 재정렬은 manifest `applied: false`·`realign_count` 와 realign 스냅샷은 적용된 것만, 사건 줄 `realign rejected`. 총괄 재확인 `pipeline_arrival` 2/2(31 s); 작업자 pipeline 5/5·regions 3/3·stream 1/1. 처리됨-검증대기
 
 ### F-342 [열림] (심각도: 낮음) — 앵커 문턱(공유 점 60 쌍·카메라 여유 1 m)이 두 장면 근거뿐이고 적용 잔차 상한이 없다
 - 위치: 제품 crates/core/src/pipeline.rs:1335, :1338, :1373 (feat/pipeline-stream-anchor 0b52107)
@@ -2641,8 +2642,9 @@
 - 고칠 것: 기본 인자를 시험 설정과 맞추거나, 등록이 빠지는 구역(카메라 20대씩)의 원인을 찾아 기본 경로로 7/7.
 - 확인 기준: `skylens-stream synth d/in && skylens-stream run d/in d/out && skylens-stream verify d/out` 종료 코드 0, 7/7. 기본 경로 그대로 도는 시험 하나.
 - 이력: PR #62 검토 중 흐름 확인, 2026-10-04 13:45 감독 등록. #62 병합을 막지 않음.
+  - 2026-10-04 14:35 총괄: 원인 확인 — `DatasetConfig::default()` SPAN 12(SPEC §1 기본값)이면 기본 장면 27위치가 3구역으로 쪼개지고, 다른 카메라 겹침은 위치 차 12~40 에서만 생겨(F-197) 구역마다 등록 61/81. feat/default-path a498195 는 기본 SPAN 을 48 로 바꿔 7/7·종료 0(새 시험 `default_path`)이지만 SPEC 기본값 변경이고 기본 경로가 1구역이 되어 구역 흐름을 기본에서 시험하지 못함 → PR 보류, SPEC §1 SPAN 기본값 또는 구역 분할 규칙(다른 카메라 짝이 구역 안에 들도록) 결정 필요. 열림 유지
 
-### F-344 [닫힘] (심각도: 낮음) — `timing` 시험이 같은 프로세스의 `timing::reset()` 과 겹치면 깨질 수 있다
+### F-344 [처리됨-검증대기] (심각도: 낮음) — `timing` 시험이 같은 프로세스의 `timing::reset()` 과 겹치면 깨질 수 있다
 - 위치: 제품 crates/core/src/timing.rs:81~86 (feat/perf-e2e 6cad08f), reset 호출 crates/core/src/pipeline.rs:1913
 - 문제: `ACC` 는 전역이고 core lib 시험은 병렬로 돈다. 흐름 시험이 `reset()` 을 부르면 `accumulates_by_name` 의 `to_json`·`table` 단언(`position(..).unwrap()`)이 빈 누적을 보고 실패한다. 이번 커밋이 단언을 하나 더 늘림.
 - 실패 상황: `cargo test -p skylens-core --lib` 전체에서 흐름 시험과 시간이 겹칠 때 드물게 실패.
@@ -2650,22 +2652,25 @@
 - 확인 기준: 시험이 전역 `ACC` 에 의존하지 않음.
 - 이력: PR #62 검토, 2026-10-04 13:45 감독 등록. 병합을 막지 않음.
 - 닫음: 2026-10-04 14:25, feat/perf-e2e 418c16d. `json_from`·`table_from` 이 스냅숏 인자만 받고 시험 두 개가 전역 `ACC` 를 읽지 않음. `cargo test --release -p skylens-core --lib timing` 2/2.
+  - 2026-10-04 14:20 총괄: feat/perf-e2e 418c16d — 표·JSON 을 스냅숏 입력 순수 함수로 나누고 시험은 전역 누적 없이. 총괄 재확인 fmt 통과, `--lib timing` 2/2. 처리됨-검증대기
 
-### F-345 [열림] (심각도: 중간) — 이어받기 축척 맞춤에서 기준 관측이 카메라 뒤를 가리키면 해 전체가 1e-5 배로 줄어든다
+### F-345 [처리됨-검증대기] (심각도: 중간) — 이어받기 축척 맞춤에서 기준 관측이 카메라 뒤를 가리키면 해 전체가 1e-5 배로 줄어든다
 - 위치: 제품 crates/core/src/translation_averaging.rs:1102-1122 `gp_solve_iters` (feat/ta-reweight-scale cf77082, PR #63)
 - 문제: 기준(첫 활성) 관측의 d 를 v·(X−c)/|X−c|² 로 다시 구해 바닥 1e-5 로 자르고, 그 값 s 로 x 전체를 곱한다. 되살아난 관측이 이상치라 v·(X−c) ≤ 0 이면 s = 1e-5 가 되어 해가 한 번에 10만 분의 1 로 줄고, 나머지 d 는 d/s 로 커진다.
 - 실패 상황: `warm_start_with_revived_observations_matches_cold` 와 같은 장면(카메라 14·점 50)에서 관측 0 의 방향만 뒤집으면 이어받기 해의 중심 크기 합이 냉시작의 1.06e-5 배(닮음 정렬 뒤 모양 차는 5 mm), 31회에 비용 변화가 작아 멈춤. 모양은 맞지만 축척이 냉시작과 어긋나고, 거리 기반 문턱이 있는 후속 단계에서 수치가 작아진다.
 - 고칠 것: 기준 관측 d 가 바닥 근처(예: ≤ 10·GP_MIN_SCALE)이면 축척 맞춤을 하지 않거나, d 가 정상인 첫 활성 관측을 기준으로 삼거나, 활성 d 중앙값으로 축척을 맞춘다.
 - 확인 기준: 위 입력(기준 관측 뒤집기)에서 이어받기와 냉시작 중심 크기 비가 0.5~2, 닮음 정렬 중심 차 < 0.05 m, 기존 시험 그대로.
 - 이력: 2026-10-04 14:00 감독 등록(PR #63 검토). 병합을 막지 않음.
+  - 2026-10-04 14:33 총괄: feat/ta-reweight-scale de8a71e — 기준 d ≤ 10·바닥이면 정상 d 활성 관측 중앙값으로 축척. 기준 뒤집기 장면 크기 비 0.00001 → 1.0497, 닮음 정렬 최대 차 0.00025 m. 총괄 재확인 fmt 통과, 해당 시험 3/3. 처리됨-검증대기
 
-### F-346 [열림] (심각도: 낮음) — 점 다듬기 채택 검사에 직접 시험이 없고 이어받기 시험에 쓰지 않는 변수가 남았다
+### F-346 [처리됨-검증대기] (심각도: 낮음) — 점 다듬기 채택 검사에 직접 시험이 없고 이어받기 시험에 쓰지 않는 변수가 남았다
 - 위치: 제품 crates/core/src/translation_averaging.rs `refine_on_lines(check = true)`, 시험 `warm_start_with_revived_observations_matches_cold` 의 `cold` (`let _ = cold;`) (cf77082)
 - 문제: 점 다듬기에 새로 넣은 "문턱 안 수 유지·자른 잔차 감소" 채택 조건은 통합 시험(시드 11~13)으로만 간접 확인된다. `cold` 는 만들고 버린다.
 - 실패 상황: 채택 조건이 뒤집히거나(`>=` ↔ `>`) 늘 거부해도 시드 상한 안이면 시험이 통과한다.
 - 고칠 것: 이상치 광선 1~2개가 섞인 점에서 갱신이 거부/채택되는 두 경우를 직접 확인하는 단위 시험, `cold` 제거.
 - 확인 기준: 새 단위 시험 두 경우 통과, clippy 0.
 - 이력: 2026-10-04 14:00 감독 등록(PR #63 검토). 병합을 막지 않음.
+  - 2026-10-04 14:33 총괄: feat/ta-reweight-scale de8a71e — `refine_on_lines_check_accepts_improvement_and_rejects_worse`(채택·거부 두 경우), `cold` 정리. 처리됨-검증대기
 
 ### F-347 [열림] (심각도: 낮음) — `timing::add`·`timed` 누적 동작을 시험하는 경우가 없어졌다
 - 위치: 제품 crates/core/src/timing.rs:75~105 (feat/perf-e2e 418c16d)
