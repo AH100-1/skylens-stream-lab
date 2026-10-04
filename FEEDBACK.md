@@ -2754,3 +2754,27 @@
 - 확인 기준: 고정 사진 하나에 5 m 오차를 넣은 단위 시험에서 변환을 거부, 앵커 켬 27위치에서 사건 줄에 잔차 표시.
 - 이력: PR #64 1d51876 검토, 2026-10-04 20:40 등록. 앵커 꺼짐이라 병합을 막지 않음.
 
+
+### F-356 [열림] (심각도: 중간) — 480×270 81/81 복구(확대 채움 + 특징 3000 + 투표)를 지키는 시험이 없고 `--upscale-fill`·`--pair-vote` 인자 해석도 시험되지 않는다
+- 위치: 제품 crates/cli/src/run.rs:25~32, crates/core/src/pipeline.rs:963~1012 (feat/vote-upscale b32db2e, PR #67)
+- 문제: PR 의 핵심 결과(480×270 54/81 → 81/81, 7/7)는 연구 노트의 수동 실행 1회뿐이다. 새 시험은 `upscale_fill_adds_features_only_when_requested`(검출 수)와 기존 `cross_camera_vote_drops_only_wrong_rotations`(sparse 단위)뿐이라 `vote_pairs` 의 `PairMatch → VoteEdge` 변환·카메라 번호(`views.0.0`)·정밀 시작점 연결이 깨져도 시험은 통과한다. CLI 두 인자도 `tests/run.rs` 에 없다.
+- 실패 상황: 이후 `pipeline.rs` 를 고치다 정밀 시작점(`sparse_init_with`)에서 `pair_vote` 를 빠뜨리면 노트가 적은 대로 초벌 81/81·정밀 54/81 로 갈리지만 어떤 시험도 알려 주지 않는다.
+- 고칠 것: (1) `tests/run.rs` 에 `--upscale-fill --pair-vote` 해석 시험, (2) 무시(#[ignore]) 표시라도 480×270·`--max-features 3000 --upscale-fill --pair-vote` 에서 등록 81/81 을 단언하는 시험, (3) `vote_pairs` 에 틀린 F–L 간선을 섞은 `PairMatch` 목록 단위 시험.
+- 확인 기준: 세 시험이 있고 통과(무시 시험은 `--ignored` 로 1회 통과 출력을 노트에).
+- 이력: PR #67 b32db2e 검토, 2026-10-04 등록. 선택 옵션(기본 끔)이라 병합을 막지 않음.
+
+### F-357 [열림] (심각도: 낮음) — `sparse::reconstruct` 에서는 카메라 쌍 투표가 선택이 아니라 늘 켜져 있다
+- 위치: 제품 crates/core/src/sparse.rs:326 `let results = vote_cross_camera_pairs(inputs, results);` (PR #67, 4d28805 에서 들어옴)
+- 문제: `run` 경로는 `--pair-vote` 기본 끔인데 `reconstruct` 는 조건 없이 투표한다. 지금은 `run` 에 연결되지 않은 경로라 영향은 시험(`formation_scene_registers_all_and_meets_floors`)뿐이지만 두 경로의 기본이 다르다.
+- 실패 상황: `reconstruct` 를 다시 쓰는 작업에서 투표 끔과 결과 비교가 불가능.
+- 고칠 것: `SparseConfig` 에 같은 이름의 선택(기본은 `PipelineConfig` 와 맞춤)을 두거나 노트·문서 주석에 늘 켜짐을 적는다.
+- 확인 기준: 설정 항목 또는 주석, sparse 시험 통과.
+- 이력: PR #67 b32db2e 검토, 2026-10-04 등록. 병합을 막지 않음.
+
+### F-358 [열림] (심각도: 낮음) — 투표 무리를 후보 하나 둘레 5° 별 모양으로 고르므로 틀린 해가 서로 가까우면 틀린 쪽이 이긴다
+- 위치: 제품 crates/core/src/sparse.rs:208~222 (`vote_keep`, PR #67)
+- 문제: 노트도 적었듯 맞는 간선이 2개 미만이거나 틀린 해 셋 이상이 같은 방향(예: 같은 평면 퇴화 해)으로 5° 안에 몰리면 맞는 간선을 뺀다. 최대 무리 수가 같을 때만 정상 수 합으로 가르므로 맞는 2개 + 틀린 2개(가까움)면 가중치만으로 정해진다.
+- 실패 상황: 짝이 적은 구역, 카메라 둘 장면, 비행 축 대칭 장면.
+- 고칠 것: 최대 무리가 전체의 절반 이하이거나 둘째 무리와 수가 같으면 그 카메라 쌍은 거르지 않고 두고, 사건 줄(`vote_stat`)에 남긴다.
+- 확인 기준: 맞는 2 + 틀린 2(서로 3° 안) 단위 시험에서 간선을 빼지 않음.
+- 이력: PR #67 b32db2e 검토, 2026-10-04 등록. 병합을 막지 않음.
