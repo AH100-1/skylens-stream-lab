@@ -2755,26 +2755,26 @@
 - 이력: PR #64 1d51876 검토, 2026-10-04 20:40 등록. 앵커 꺼짐이라 병합을 막지 않음.
 
 
-### F-356 [열림] (심각도: 중간) — 480×270 81/81 복구(확대 채움 + 특징 3000 + 투표)를 지키는 시험이 없고 `--upscale-fill`·`--pair-vote` 인자 해석도 시험되지 않는다
+### F-356 [처리됨-검증대기] (심각도: 중간) — 480×270 81/81 복구(확대 채움 + 특징 3000 + 투표)를 지키는 시험이 없고 `--upscale-fill`·`--pair-vote` 인자 해석도 시험되지 않는다
 - 위치: 제품 crates/cli/src/run.rs:25~32, crates/core/src/pipeline.rs:963~1012 (feat/vote-upscale b32db2e, PR #67)
 - 문제: PR 의 핵심 결과(480×270 54/81 → 81/81, 7/7)는 연구 노트의 수동 실행 1회뿐이다. 새 시험은 `upscale_fill_adds_features_only_when_requested`(검출 수)와 기존 `cross_camera_vote_drops_only_wrong_rotations`(sparse 단위)뿐이라 `vote_pairs` 의 `PairMatch → VoteEdge` 변환·카메라 번호(`views.0.0`)·정밀 시작점 연결이 깨져도 시험은 통과한다. CLI 두 인자도 `tests/run.rs` 에 없다.
 - 실패 상황: 이후 `pipeline.rs` 를 고치다 정밀 시작점(`sparse_init_with`)에서 `pair_vote` 를 빠뜨리면 노트가 적은 대로 초벌 81/81·정밀 54/81 로 갈리지만 어떤 시험도 알려 주지 않는다.
 - 고칠 것: (1) `tests/run.rs` 에 `--upscale-fill --pair-vote` 해석 시험, (2) 무시(#[ignore]) 표시라도 480×270·`--max-features 3000 --upscale-fill --pair-vote` 에서 등록 81/81 을 단언하는 시험, (3) `vote_pairs` 에 틀린 F–L 간선을 섞은 `PairMatch` 목록 단위 시험.
 - 확인 기준: 세 시험이 있고 통과(무시 시험은 `--ignored` 로 1회 통과 출력을 노트에).
-- 이력: PR #67 b32db2e 검토, 2026-10-04 등록. 선택 옵션(기본 끔)이라 병합을 막지 않음.
+- 이력: PR #67 b32db2e 검토, 2026-10-04 등록. 선택 옵션(기본 끔)이라 병합을 막지 않음. → 2026-10-04 22:28 총괄: feat/vote-tests e29110c(PR #68) — `tests/run.rs` 인자 해석 시험, `tests/vote_upscale.rs` 무시 시험(480×270·3000·확대 채움·투표, `--ignored` 1회 81/81·117 s), `vote_pairs_drops_only_wrong_cross_edges`. 총괄 재확인: fmt·clippy 0, `--test run` 7, `--lib cross_camera_vote vote_pairs` 3, core lib 333 통과·30 무시(445 s). CLI 시험은 종료 코드만 보고 설정값은 읽지 않음(연구 PR #101).
 
-### F-357 [열림] (심각도: 낮음) — `sparse::reconstruct` 에서는 카메라 쌍 투표가 선택이 아니라 늘 켜져 있다
+### F-357 [처리됨-검증대기] (심각도: 낮음) — `sparse::reconstruct` 에서는 카메라 쌍 투표가 선택이 아니라 늘 켜져 있다
 - 위치: 제품 crates/core/src/sparse.rs:326 `let results = vote_cross_camera_pairs(inputs, results);` (PR #67, 4d28805 에서 들어옴)
 - 문제: `run` 경로는 `--pair-vote` 기본 끔인데 `reconstruct` 는 조건 없이 투표한다. 지금은 `run` 에 연결되지 않은 경로라 영향은 시험(`formation_scene_registers_all_and_meets_floors`)뿐이지만 두 경로의 기본이 다르다.
 - 실패 상황: `reconstruct` 를 다시 쓰는 작업에서 투표 끔과 결과 비교가 불가능.
 - 고칠 것: `SparseConfig` 에 같은 이름의 선택(기본은 `PipelineConfig` 와 맞춤)을 두거나 노트·문서 주석에 늘 켜짐을 적는다.
 - 확인 기준: 설정 항목 또는 주석, sparse 시험 통과.
-- 이력: PR #67 b32db2e 검토, 2026-10-04 등록. 병합을 막지 않음.
+- 이력: PR #67 b32db2e 검토, 2026-10-04 등록. 병합을 막지 않음. → 2026-10-04 22:28 총괄: feat/vote-tests e29110c(PR #68) — `SparseConfig::pair_vote`(기본 true, 문서 주석), `reconstruct` 는 켬일 때만 투표. core lib 333 통과.
 
-### F-358 [열림] (심각도: 낮음) — 투표 무리를 후보 하나 둘레 5° 별 모양으로 고르므로 틀린 해가 서로 가까우면 틀린 쪽이 이긴다
+### F-358 [처리됨-검증대기] (심각도: 낮음) — 투표 무리를 후보 하나 둘레 5° 별 모양으로 고르므로 틀린 해가 서로 가까우면 틀린 쪽이 이긴다
 - 위치: 제품 crates/core/src/sparse.rs:208~222 (`vote_keep`, PR #67)
 - 문제: 노트도 적었듯 맞는 간선이 2개 미만이거나 틀린 해 셋 이상이 같은 방향(예: 같은 평면 퇴화 해)으로 5° 안에 몰리면 맞는 간선을 뺀다. 최대 무리 수가 같을 때만 정상 수 합으로 가르므로 맞는 2개 + 틀린 2개(가까움)면 가중치만으로 정해진다.
 - 실패 상황: 짝이 적은 구역, 카메라 둘 장면, 비행 축 대칭 장면.
 - 고칠 것: 최대 무리가 전체의 절반 이하이거나 둘째 무리와 수가 같으면 그 카메라 쌍은 거르지 않고 두고, 사건 줄(`vote_stat`)에 남긴다.
 - 확인 기준: 맞는 2 + 틀린 2(서로 3° 안) 단위 시험에서 간선을 빼지 않음.
-- 이력: PR #67 b32db2e 검토, 2026-10-04 등록. 병합을 막지 않음.
+- 이력: PR #67 b32db2e 검토, 2026-10-04 등록. 병합을 막지 않음. → 2026-10-04 22:28 총괄: feat/vote-tests e29110c(PR #68) — 최대 무리가 둘째 무리와 같거나, 절반 이하이면서 밖에 2개 이상 모인 무리가 있으면 그 쌍은 거르지 않고 `vote_stat` 에 `skipped_pairs` 로 셈(절반 이하 조건만으로는 기존 맞는 3 + 흩어진 틀린 4 시험이 깨져 조건을 덧붙임). `cross_camera_vote_keeps_pair_on_tie` 통과.
