@@ -2633,3 +2633,19 @@
 - 고칠 것: 잔차 상한(예: 겹침 카메라 간격 대비) 추가 또는 문턱 근거를 시드·편대 배치별 표로 노트에.
 - 확인 기준: 노트에 시드 ≥3 개 표, 또는 잔차 상한 거절 시험 하나.
 - 이력: PR #60 검토, 2026-10-04 13:20 감독 등록. 병합을 막지 않음.
+
+### F-343 [열림] (심각도: 중간) — 기본 `synth` → 기본 `run` 이 verify 5/7(등록 61/81)
+- 위치: 제품 crates/cli/src/run.rs 기본 인자, crates/core/src/pipeline.rs (main 779edb7, feat/perf-e2e 6cad08f 동일)
+- 문제: 인자 없이 `skylens-stream synth <폴더>` 로 만든 장면에 인자 없이 `run` 을 돌리면 3구역·40.4 s 에 끝나지만 `verify` 가 5/7: registered FAIL(초벌 61/81, 정밀 61/81), preview_vs_refined FAIL(최근접 중앙 최대 > 6 m, 높이 차 중앙 inf). refined_overlap 0.070 m 는 통과. 320×240 장면은 3/7(refined_overlap 41.0 m).
+- 실패 상황: 사용자가 README 대로 합성 장면 → run → verify 를 하면 종료 코드 1. `pipeline_e2e` 는 시험 전용 설정이라 이것을 잡지 못함.
+- 고칠 것: 기본 인자를 시험 설정과 맞추거나, 등록이 빠지는 구역(카메라 20대씩)의 원인을 찾아 기본 경로로 7/7.
+- 확인 기준: `skylens-stream synth d/in && skylens-stream run d/in d/out && skylens-stream verify d/out` 종료 코드 0, 7/7. 기본 경로 그대로 도는 시험 하나.
+- 이력: PR #62 검토 중 흐름 확인, 2026-10-04 13:45 감독 등록. #62 병합을 막지 않음.
+
+### F-344 [열림] (심각도: 낮음) — `timing` 시험이 같은 프로세스의 `timing::reset()` 과 겹치면 깨질 수 있다
+- 위치: 제품 crates/core/src/timing.rs:81~86 (feat/perf-e2e 6cad08f), reset 호출 crates/core/src/pipeline.rs:1913
+- 문제: `ACC` 는 전역이고 core lib 시험은 병렬로 돈다. 흐름 시험이 `reset()` 을 부르면 `accumulates_by_name` 의 `to_json`·`table` 단언(`position(..).unwrap()`)이 빈 누적을 보고 실패한다. 이번 커밋이 단언을 하나 더 늘림.
+- 실패 상황: `cargo test -p skylens-core --lib` 전체에서 흐름 시험과 시간이 겹칠 때 드물게 실패.
+- 고칠 것: 시험에서 누적 스냅숏을 받는 순수 함수(`table_from(&[..])`)를 시험하거나, 시험끼리 잠금 공유.
+- 확인 기준: 시험이 전역 `ACC` 에 의존하지 않음.
+- 이력: PR #62 검토, 2026-10-04 13:45 감독 등록. 병합을 막지 않음.
