@@ -1,7 +1,32 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-04T02:06Z (02:05Z 시작분)
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-04T02:52Z (02:05Z 시작분)
+- 이번 회차 결론: **2구역 synth → run → verify 가 처음으로 7/7**. 초벌 카메라 중심만 회전 고정으로 다듬는 단계(점–카메라 광선 제약, Huber, 5바퀴, 2° 관측·1° 삼각측량각 거르기)를 넣어 2구역 stride 1 초벌↔정밀 높이 차 중앙 최대 4.715 → 1.048 m, 최근접 4.118 → 0.943 m, 초벌 정렬 잔차 4.965 → 0.735 m. 다듬기 자체 0.06 s. 단구역도 7/7(높이 차 0.266 m). 가지 `feat/pipeline-preview-pos` b50b837(= feat/pipeline-scope + 다듬기 + 시험 기대 갱신). 위치 평균 F-290 은 점 번호 압축·점 소거 축소 계통까지(PR #37 5b21293), 규모 기준은 아직 미달.
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | pipeline-preview-pos | `feat/pipeline-preview-pos` 6845ede → b50b837 (PR 없음) | experiment/pipeline-preview-pos, 연구 PR #73 | 위 결론. 총괄 재확인(4 코어, 부하 2~9): fmt·clippy 통과, core `pipeline` 8 통과·2 무시, cli `pipeline` 4 통과(단구역·PatchMatch·2구역·preview_ba, `…translation_averaging` 제외). 2구역 시험 기대를 '높이 차 < 2 m 통과'로, 점쌍 하한을 SPEC 1000 으로(실측 1178, 이전 1211) |
+  | ta-sparse (F-290) | `feat/translation-averaging` 66c8246·5b21293 (PR #37 갱신) | experiment/ta-sparse dbedeb6, 연구 PR #78 | 점 번호 압축, 점 소거 n_cam×n_cam 촐레스키. 총괄 재확인: fmt·clippy(5b21293 에서 clippy 한 곳 고침) 통과, `translation_averaging` 10 통과·8 무시. 240장×4000 관측 무시 시험은 부하 17 에서 772 s(기준 60 s) — 축소 행렬 구성 비용 남음 |
+  | pipeline-preview-rot | `feat/pipeline-preview-rot` ff759d5 (진단 옵션, 기본값 불변, PR 없음) | experiment/pipeline-preview-rot 8f1ce73, 연구 PR #74 | stride 1 회전 평균 직후 0.16°, 초벌 포즈 2.75°(95% 2.98°) = 좌표계 맞춤의 공통 오프셋. 간선 거르기·가중 10가지 모두 개선 없음. 간격 1 간선이 가장 정확(0.077°) |
+  | pipeline-refined-link | `feat/pipeline-refined-link` 5da7f05+1 (기본 꺼짐, PR 없음) | 노트 없음 | BA 고정 점 사전항 + 이웃 정밀 구역 연결: 새 롤+연결 σ 1 px 겹침 차 0.379 m(연결 점 131), 새 롤 단독 0.300, 예전 롤 0.285 — 미달, legacy_roll 유지 |
+  | pipeline-dense-width | `feat/pipeline-dense-width` 32110bb (구간 시간·측정 시험, PR 없음) | experiment/pipeline-dense-width 2b67514, 연구 PR #75 | 정답 자세 구역 하나(48장), 부하 12: 폭 96/240/480/960 합계 21/36/51/103 s, 표면 중앙 0.040/0.036/0.038/0.036 m, 점 2.8만/20만/87만/356만. 960 은 추정 86%. README 예시 폭 240 권장 |
+  | patchmatch-f293c (F-293·F-292) | `feat/patchmatch-f293c` 0bbbc34 (측정 시험만) | experiment/patchmatch-f293c 50561fa(연구 PR #77), experiment/patchmatch-f292 a600af6 | 폭 480: skip 0 표면 중앙/95% 0.0114/0.0581 m·점 717k, skip 0.08 0.0331/0.1369 m·695k·시간 −20%. timing_960 은 부하 15 에서 2.44~2.55 s(낮은 부하 값 여전히 없음) |
+  | pipeline-two-region-notes (F-295) | `feat/pipeline-two-region-notes` 439e3b2 | experiment/pipeline-two-region-notes f51b7f3, 연구 PR #76 | 주석 = 출력(다듬기 이전 기준). preview-pos 가지에서 다시 갱신됨 |
+- 끝까지 흐름 진척: synth → run → verify 가 단구역·2구역 모두 **7/7** (`feat/pipeline-preview-pos`). 흐름 PR #46(03f6009)은 아직 이전 머리 — pipeline-scope 계열은 #37 판 위치 평균 경로 시험이 규모 문제(F-290)로 끝나지 않아 올리지 않음.
+- 다음 할 일:
+  1. F-290 마무리: 축소 행렬을 블록 단위·병렬로 구성(또는 블록 야코비 PCG), 반복마다 재분해 줄이기 → `synthetic_single_region_translation_averaging` 이 끝나게 한 뒤 `feat/pipeline-preview-pos` 를 #46 으로 올림.
+  2. 초벌 공통 회전 오프셋(stride 1 2.75°) 분해: GPS 방향 맞춤과 롤 선택 중 어디인지. 다듬기 뒤 정답 대비 중심 중앙·공통 회전 뺀 높이 차 측정.
+  3. legacy_roll: 공유 영상 기반 닮음(양방향 재투영 비율)으로 먼저 맞추고 공유 점 상수 관측으로 BA, 연결 점 수 늘리기.
+  4. README 예시 `--dense-width 240` 반영(P04 몫), 정밀 경로 skip_cost 기본값 결정.
+- 막힌 점:
+  - 소유자 병합 필요: #46, #37·#6, #50, #49·#39~#42, #51.
+  - 결정 필요: PatchMatch 정밀 경로 skip_cost 기본 0(F-293 표 근거), 초벌 정렬 닮음 + 보정장 허용(SPEC §3.7), F-197, F-209 확인 기준, F-251.
+  - 이번 회차는 4 코어 기계 부하가 11~17 로 높아 시간 측정값(F-292 0.7 s, F-290 60 s, 구역 30 s)은 판정에 쓸 수 없음.
+  - 연구 PR #73~#78 본문 끝에 저장소 쪽에서 붙는 꼬리말 한 줄이 남음(수정해도 다시 붙음).
+
+## 직전 실행 기록 (2026-10-04 01:05Z 시작분)
+- 마지막 갱신: 2026-10-04T01:37Z
 - 이번 회차 결론: 흐름 머리(PR #46, 03f6009)는 그대로. 2구역 초벌↔정밀 높이 차(4.4~4.6 m, 기준 2 m)의 원인을 분리 — **초벌 카메라 위치 오차(중심 중앙 1.09 m)가 stride 1 의 짧은 기선(상위 3 이웃 기선 각 중앙 6.7°)에서 깊이 오차로 증폭**된 것이며 밀집 깊이·구역 간 정렬·롤 규칙 탓이 아님. F-296 확인 기준(흐름 가지의 위치 평균·PatchMatch 파일 = 각 PR 머리)을 `feat/pipeline-scope` 에서 충족했으나, #37 머리 판의 `gp_solve` 가 흐름 입력에서 14분 넘게 끝나지 않아 #46 은 갱신하지 않음. F-231·F-306 고침(PR #51, CI 통과).
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
