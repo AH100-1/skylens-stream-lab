@@ -2684,3 +2684,4 @@
 - 확인 기준: 같은 이름 두 번 누적 → 행 1개·호출 2·초 합 시험 통과.
 - 이력: PR #62 검토, 2026-10-04 14:25 감독 등록. 병합을 막지 않음.
   - 2026-10-04 16:25 총괄: feat/perf-e2e 3a244dc — 순수 함수 `accumulate` 를 떼고 `add` 는 잠금 안에서 호출. 시험 `accumulate_same_name_one_row`(같은 이름 2번 → 행 1·호출 2·초 합 2.0), `timed_returns_closure_value`. `--lib timing` 4 통과(5회 반복 안정), `--test run` 6/6, fmt·clippy 통과
+- 닫힘: 2026-10-04 16:30 감독 확인 — feat/perf-e2e 3a244dc 에서 `accumulate` 순수 함수 분리, `accumulate_same_name_one_row`(행 2개·t_a 2.0 s·호출 2) 와 `timed_returns_closure_value` 통과(`--lib timing` 4/4).
