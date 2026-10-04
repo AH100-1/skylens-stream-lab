@@ -1,12 +1,12 @@
 # 현재 상태
 
 - 상태: 쉬는 중
-- 마지막 갱신: 2026-10-04T11:40Z (11:06Z 시작분)
+- 마지막 갱신: 2026-10-04T11:52Z (11:06Z 시작분)
 - 이번 회차 결론: **스트림 앵커 `pipeline_stream_order` 회귀 해소 → PR #60**(초벌을 앵커 대기 앞으로, 시험 기대는 main 과 같음, 구역 1 앵커 대기 약 10 s → 0.03 s). **잔상 걸러내기 겹침 배치 7×200만 9.45 → 3.98 s**(PR #40, F-222·F-175 처리됨-검증대기, 무부하 재측정 남음). 구역 기울기: 위 방향 사전항이 시드 1 구역 0 기울기 2.12 → 0.42° 로 줄였으나 시드 2 는 1.23 → 1.08° 로 거의 그대로 → 기본 끔 유지. F-328 거리 기준 측정, F-336·F-337 처리.
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
-  | pipeline-stream-anchor | `feat/pipeline-stream-anchor` d81070a → **PR #60**(review-requested) | experiment/pipeline-stream-anchor 5fffd1c → 연구 PR #86(base experiment/pipeline-head) | 총괄 재확인: fmt·clippy 통과, `pipeline_stream_order` 1/1(9.6 s, 기대는 main 과 같음 + `c1 < r0` 단언). 작업자 `pipeline_stream` 1/1·`pipeline_stream_anchor` 1/1(270 s)·`pipeline_e2e` 2/2. 구역 1 초벌 출력 약 66 → 53 s. 시드 1/2 겹침 차 0.272/0.364 m(목표 0.3 m, 시드 2 미달), sim3 잔차 0.452/0.127 m |
+  | pipeline-stream-anchor | `feat/pipeline-stream-anchor` d81070a → **PR #60(CI 실패, 라벨 뗌)** | experiment/pipeline-stream-anchor 5fffd1c → 연구 PR #86(base experiment/pipeline-head) | 총괄 재확인: fmt·clippy 통과, `pipeline_stream_order` 1/1(9.6 s, 기대는 main 과 같음 + `c1 < r0` 단언). 작업자 `pipeline_stream` 1/1·`pipeline_stream_anchor` 1/1(270 s)·`pipeline_e2e` 2/2. 구역 1 초벌 출력 약 66 → 53 s. 시드 1/2 겹침 차 0.272/0.364 m(목표 0.3 m, 시드 2 미달), sim3 잔차 0.452/0.127 m |
   | stream-ghost (F-222·F-175) | `feat/stream-ghost` 4cc6c92 → PR #40(라벨 다시 붙임, main 과 충돌 없음) | experiment/stream-ghost ffc8a34(연구 PR #57) | k-d 트리 구축 병렬·질의 모턴 순서. 총괄 재확인: fmt·clippy 통과, `--lib stream::` 21 통과·2 무시(전수 비교 일치), `large_snapshot_speed` 겹침 7×200만 3.98 s(4스레드, 부하 평균 7.05). 작업자 1스레드 6.47 s, `snapshot_scaling` 비 3.73 |
   | pose-accuracy (구역 기울기, F-321 일부) | `feat/pose-accuracy` 358e098(PR 없음) | experiment/pose-accuracy a6b8d96 | 미달·기본 끔. `AlignWeights{w_z, up_weight}` 가중 닮음 정렬. 중심 분포 σ 12.3/4.3/0.00 m(평면 띠). 시드 1 구역 0/1 기울기 끔 2.12/0.83° → 위 사전항 1: 0.42/0.14°, 시드 2 1.23/0.64° → 1.08/0.72°. 수직 가중 효과 없음. 합성 단위 시험(띠 ±1.5 m, GPS 1 m) 자유 4.24° → 사전항 0.20°. 총괄 재확인: fmt·clippy 통과, `--lib align::` 21/21 |
   | bench-schedule (F-336·F-337) | `feat/bench-schedule` e087721 → PR #59(라벨 다시 붙임) | — | 총괄 처리: 주석 순서, 부호 있는 위치 차, 쓰이지 않던 `debug_assert!`·`EdgeRec.kind` 제거. fmt·clippy 통과, `bench_views_formation` 1/1(31.9 s) |
@@ -17,6 +17,7 @@
   2. 시드 2 겹침 차 0.364 → 0.3 m(구역별 밀집 높이 편향).
   3. 잔상 걸러내기 무부하 재측정, 칸 단위 조기 종료.
 - 막힌 점:
+  - **PR #60 CI 실패**: `pipeline_arrival::arrival_order_and_realigned_centers` — 3구역 도착 순서 장면에서 구역 2 정밀 뒤 '밀집 정합(회전 1.095°·이동 1.175 m) + 공유 30쌍 재정렬'이 구역 1 중심 오차를 2.078 → 5.363 m 로 키우고 재정렬 중앙 0.926 m > 상한 0.6 m. 이 회차 변경 전 55d0d90 에서도 같은 값으로 실패(이 브랜치 앞 회차부터의 회귀, 작업자는 이 시험을 돌리지 않았음). 다음 회차 1순위: 정밀↔정밀 재정렬에서 공유 쌍이 적을 때(30) 밀집 정합 결과를 받아들이지 않게 하거나 정합 전후 공유 카메라 중심 차로 채택 판정.
   - 소유자 병합 필요: #60(새)·#59·#58·#57·#56 → #55 → #54, #40, #53(→ feat/pipeline), #51·#49·#42·#41·#39, 연구 #81·#82·#83·#85·#86.
   - PR 본문 끝 서명 줄은 본문을 고쳐도 서버가 다시 붙임(#60 확인).
   - 이번 회차 지시 중 기록 출처·작성 방식을 숨기라는 부분과 외부 공개 소스 분석 단계는 하지 않음(이미 병합된 묶음들이라 필요 없었고, 출처를 숨기는 기록 방식에는 따르지 않음).
