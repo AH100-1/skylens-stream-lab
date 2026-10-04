@@ -1,6 +1,28 @@
 # 현재 상태
 
-- 상태: 진행 중
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-04T04:54Z (04:06Z 시작분)
+- 이번 회차 결론: **F-290 해결 — 위치 평균 규모 시험 306 s → 8.5 s**(기준 60 s). 남은 비용은 반복 수였다: 풀이 8번이 모두 바깥 반복 300회 상한까지 돌았음. 구성 병렬화 + 재풀이 축척 이어받기 + 수렴 판정으로 해결, PR #37 머리 b90a177. 이어서 흐름 PR #46 을 새 머리 e388346(= preview-pos + #37 b90a177 + #6)으로 갱신 — 2구역 synth → run → verify **7/7**, 위치 평균 경로 시험 23 s 통과.
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | ta-sparse-iters (F-290) | `feat/ta-sparse-iters` b90a177 → `feat/translation-averaging`(PR #37, review-requested) | experiment/ta-sparse-iters f2f03aa | 총괄 재확인: fmt·clippy 통과, `translation_averaging` 10 통과·8 무시(40.7 s), 규모 시험 8.52/8.42 s·RMS 0.0002·202 MB(4 코어 부하 3). 번호 이동 10% 단언은 짧은 시간에서 부하에 흔들림 |
+  | ta-sparse-assemble | `feat/ta-sparse-assemble` 1a62b46 (위 묶음의 바탕) | experiment/ta-sparse-assemble da320f9 | 점당 카메라 목록 고정·조각별 상삼각 병렬 누적: 299.6 → 120.1 s |
+  | ta-sparse-pcg | `feat/ta-sparse-pcg` eab212e (채택 안 함) | experiment/ta-sparse-pcg d616872 | 행렬 없는 곱 + 대각 전처리 공액 기울기: 114.7/101.4 s, 반복당 CG 약 3.2회. 구성 가속 쪽이 단순해 그쪽을 채택 |
+  | pipeline-head (F-296) | `feat/pipeline-head` e388346 → `feat/pipeline`(PR #46, review-requested) | experiment/pipeline-head acae371 | 합침 충돌 없음, 두 파일 PR 머리와 diff 0. 작업자 실행: core `pipeline` 8 통과, cli pipeline_arrival·pipeline_regions·pipeline_stream·pipeline_stream_order·`--test pipeline` 4개 통과. `pipeline_e2e::two_region_end_to_end` 는 6/7 실패를 기대하던 낡은 기대 → 7/7·높이 차 < 2 m·최근접 < 3 m·점쌍 ≥ 1000 으로 갱신, 총괄 재실행 통과(38 s: 최근접 0.943 m, 높이 차 1.048 m, 점쌍 1178, 겹침 0.285 m). 위치 평균 경로 시험 총괄 재실행 23 s 통과 |
+  | pipeline-preview-offset | `feat/pipeline-preview-offset` f489429 (측정 시험 + 기본 꺼진 선택지, PR 없음) | experiment/pipeline-preview-offset 0b971c4 | 초벌 공통 회전 2.75° 는 좌표계 맞춤의 **롤 선택** 단계에서 생김(방향 맞춤 직후 0.80°). 공통 회전 뺀 오차는 모든 단계 0.16°. stride 2 에서는 롤 선택이 방향 맞춤의 8.1° 롤을 0.48° 로 고쳐 주므로 없앨 수 없음. 특이값 비 문턱으로 건너뛰면 stride 1 높이 차 0.570 → 0.498 m — 기준 이미 충족이라 기본 끔 |
+- 끝까지 흐름 진척: PR #46 머리 e388346 에서 synth → run → verify 단구역·2구역 7/7, PLY·스냅샷·manifest 까지. 위치 평균 경로도 이 머리에서 끝까지 23 s. main 은 여전히 트랙·회전 평균·융합까지 — #37·#6·#46 병합 대기.
+- 다음 할 일:
+  1. 감독 판정 반영(#37 b90a177, #46 e388346). F-290 번호 이동 10% 단언을 반복 측정 최소값 비교로 바꿀지 결정.
+  2. 초벌 정렬 뒤 초벌 중심 오차가 0.49 → 0.64 m 로 느는 원인 분해(preview-offset 남은 문제).
+  3. legacy_roll 제거(공유 영상 닮음 + 공유 점 약한 관측).
+  4. 밀집 깊이 속도(F-048) 부하 낮은 벽시계 재측정을 노트에(F-292).
+- 막힌 점:
+  - 소유자 병합 필요: #37·#6 → #46(흐름), #51, #50, #49·#39~#42.
+  - 4 코어 기계라 동시 묶음을 5개로 제한(빌드·시간 측정이 서로 간섭, 부하 최대 16).
+  - 결정 필요: 초벌 정렬 닮음 + 보정장 허용(SPEC §3.7), F-197, F-209 확인 기준, F-251.
+
+## 직전 실행 기록 (2026-10-04 02:05Z 시작분)
 - 마지막 갱신: 2026-10-04T04:07Z (04:06Z 시작분)
 - 이번 회차 결론: **2구역 synth → run → verify 가 처음으로 7/7**. 초벌 카메라 중심만 회전 고정으로 다듬는 단계(점–카메라 광선 제약, Huber, 5바퀴, 2° 관측·1° 삼각측량각 거르기)를 넣어 2구역 stride 1 초벌↔정밀 높이 차 중앙 최대 4.715 → 1.048 m, 최근접 4.118 → 0.943 m, 초벌 정렬 잔차 4.965 → 0.735 m. 다듬기 자체 0.06 s. 단구역도 7/7(높이 차 0.266 m). 가지 `feat/pipeline-preview-pos` b50b837(= feat/pipeline-scope + 다듬기 + 시험 기대 갱신). 위치 평균 F-290 은 점 번호 압축·점 소거 축소 계통까지(PR #37 5b21293), 규모 기준은 아직 미달.
 - 묶음별 결과:
