@@ -2524,29 +2524,29 @@
 - 확인 기준: 주석과 단언이 같은 비율.
 - 이력: PR #57 검토, 2026-10-04 08:55 감독 등록. 병합을 막지 않음. → 2026-10-04 09:27 작업자(feat/pipeline-numbers 078b676, PR #57: 주석을 실측·단언 비율에 맞춤, `--test pipeline` 7/7 통과) → 2026-10-04 10:25 감독 확인: 078b676 주석 = `synthetic_single_region_translation_averaging --nocapture` 출력(등록 120/120, 중심 0.245/0.508 m, 표면 0.390 m), 주석 "2.5분의 1 미만" = 단언 `/ 2.5`. 닫힘
 
-### F-329 [처리됨-검증대기] (심각도: 중간) — 밀집 이웃 설정 PR 이 base 의 반점 크기 하한과 충돌한다
+### F-329 [닫힘] (심각도: 중간) — 밀집 이웃 설정 PR 이 base 의 반점 크기 하한과 충돌한다
 - 위치: 제품 crates/core/src/dense.rs:750-765 `speckle_min_px` (feat/dense-pose-robust c704bf6, PR #58 → feat/dense-accuracy)
 - 문제: base(463d345)는 `clamp(4, 100)`, 이 PR 은 상한 없는 면적 비례. 가지가 base 의 이전 커밋에서 갈라져 `--no-ff` 병합이 충돌한다.
 - 실패 상황: 병합 불가. 하한 4 화소가 빠지면 아주 작은 지도에서 F-328 이 다시 생긴다.
 - 고칠 것: base 를 합치고 `(…).max(SPECKLE_MIN_PX_FLOOR)` 처럼 하한 유지·상한만 푼다.
 - 확인 기준: feat/dense-accuracy 에 충돌 없이 합쳐짐, 80 폭 2→4 화소 확인, `pipeline_e2e` 점 수 10302·18575 유지.
-- 이력: PR #58 검토, 2026-10-04 09:25 감독 등록. → 2026-10-04 10:27 작업자(feat/dense-pose-robust f8fcf2b: 하한 4 유지·상한만 풂, 충돌 없이 base 포함, `pipeline_e2e` 10302·18575 유지)
+- 이력: PR #58 검토, 2026-10-04 09:25 감독 등록. → 2026-10-04 10:27 작업자(feat/dense-pose-robust f8fcf2b: 하한 4 유지·상한만 풂, 충돌 없이 base 포함, `pipeline_e2e` 10302·18575 유지) → 2026-10-04 10:40 감독 확인(f8fcf2b): `git merge-tree` 로 feat/dense-accuracy 9ca267b 와 충돌 없음, `speckle_min_px` = 면적 비례 `.max(4)`(80×45 → 4 단언), `pipeline_e2e` 2/2 점 10302·18575. 닫힘
 
-### F-330 [처리됨-검증대기] (심각도: 중간) — 반점 크기 문턱 변경이 스트림 기본 출력을 바꾸는데 "기본값 불변" 으로 적혀 있다
+### F-330 [닫힘] (심각도: 중간) — 반점 크기 문턱 변경이 스트림 기본 출력을 바꾸는데 "기본값 불변" 으로 적혀 있다
 - 위치: 제품 crates/core/src/dense.rs:757 (PR #58), crates/cli/tests/pipeline_stream.rs
 - 문제: `pipeline_stream` 스냅샷 점 수 #54 머리 [236 … 6696, final 8291] → #58 [365 … 7056, final 8722]. `pipeline_e2e` 는 10302·18575 로 같음. 본문은 이웃 설정만 기본 불변이라 적고 스트림 변화·품질 영향은 없음.
 - 실패 상황: 기본 경로 결과가 설명 없이 바뀜.
 - 고칠 것: 스트림 경로 깊이 지도 크기와 바뀐 문턱, 점 수·표면 거리 변화를 노트·PR 본문에.
 - 확인 기준: 노트에 스트림 전후 수치, 본문 수정.
-- 이력: PR #58 검토, 2026-10-04 09:25 감독 등록. 병합을 막지 않음. → 2026-10-04 10:27 작업자(feat/dense-pose-robust f8fcf2b: 하한 4 화소 복구로 `pipeline_stream` 스냅샷 [236, 4432, 6696, 8291] 로 base 와 같아짐. 80×45 지도 2/4 화소 문턱 비교표를 노트(experiment/dense-pose-robust c457fbf)에: 스윕 4918/4341점·중앙 0.1486/0.1397 m, PatchMatch 2383/1100점·0.1465/0.1177 m)
+- 이력: PR #58 검토, 2026-10-04 09:25 감독 등록. 병합을 막지 않음. → 2026-10-04 10:27 작업자(feat/dense-pose-robust f8fcf2b: 하한 4 화소 복구로 `pipeline_stream` 스냅샷 [236, 4432, 6696, 8291] 로 base 와 같아짐. 80×45 지도 2/4 화소 문턱 비교표를 노트(experiment/dense-pose-robust c457fbf)에: 스윕 4918/4341점·중앙 0.1486/0.1397 m, PatchMatch 2383/1100점·0.1465/0.1177 m) → 2026-10-04 10:40 감독 확인(f8fcf2b): `pipeline_stream` 1/1 스냅샷 [236, 4432, 6696, 8291] 로 base 와 같음, 노트 c457fbf 의 스트림 전후 수치와 일치. 닫힘
 
-### F-331 [열림] (심각도: 낮음) — 사진별 최소 각·이웃 채움·상한 각에 무시되지 않는 단위 시험이 없다
+### F-331 [닫힘] (심각도: 낮음) — 사진별 최소 각·이웃 채움·상한 각에 무시되지 않는 단위 시험이 없다
 - 위치: 제품 crates/core/src/view_selection.rs:170-298 `select_neighbors_with` (PR #58)
 - 문제: `auto_min_quantile`·`min_keep`·`max_angle_deg` 는 `#[ignore]` 측정 시험에서만 쓰인다.
 - 실패 상황: 비대칭 점수(thr[i]≠thr[j])·채움 순서가 깨져도 CI 통과.
 - 고칠 것: 작은 장면에서 세 선택지별 이웃 목록을 단언하는 빠른 시험.
 - 확인 기준: 채움 조건 `<` → `<=` 변이에서 시험 실패.
-- 이력: PR #58 검토, 2026-10-04 09:25 감독 등록. 병합을 막지 않음. → 2026-10-04 10:27 작업자 일부(feat/dense-pose-robust f8fcf2b: 무시되지 않는 `neighbor_config_options_on_tiny_scene` 추가 — min/max 각·자동 분위·min_keep 별 이웃 목록 단언. 채움 `<`→`<=` 변이는 안쪽 `>=` break 때문에 동등 변이라 실패시킬 수 없음; 안쪽 `>=`→`>`·`.min(k)` 제거 변이는 실패 확인)
+- 이력: PR #58 검토, 2026-10-04 09:25 감독 등록. 병합을 막지 않음. → 2026-10-04 10:27 작업자 일부(feat/dense-pose-robust f8fcf2b: 무시되지 않는 `neighbor_config_options_on_tiny_scene` 추가 — min/max 각·자동 분위·min_keep 별 이웃 목록 단언. 채움 `<`→`<=` 변이는 안쪽 `>=` break 때문에 동등 변이라 실패시킬 수 없음; 안쪽 `>=`→`>`·`.min(k)` 제거 변이는 실패 확인) → 2026-10-04 10:40 감독 확인(f8fcf2b): `neighbor_config_options_on_tiny_scene` 이 무시 없이 lib 실행에서 통과. 채움 `<`→`<=` 는 동치 변이라는 설명 타당(안쪽 `>= want` 가 먼저 끊음). 닫힘
 
 ### F-332 [닫힘] (심각도: 낮음) — 위치 평균 경로 시험 설명에 자리표시자가 남아 있다
 - 위치: 제품 crates/cli/tests/pipeline.rs:348 `TA_MEASURED`, 다듬기 시험 주석 "3분의 1 이하"(단언은 /2.5)
@@ -2555,13 +2555,13 @@
 - 확인 기준: 주석 수치 = 시험 출력.
 - 이력: PR #57 검토, 2026-10-04 09:25 감독 등록. 병합을 막지 않음. → 2026-10-04 10:25 감독 확인: 078b676 주석 = `synthetic_single_region_translation_averaging --nocapture` 출력(등록 120/120, 중심 0.245/0.508 m, 표면 0.390 m), 주석 "2.5분의 1 미만" = 단언 `/ 2.5`. 닫힘
 
-### F-333 [처리됨-검증대기] (심각도: 높음) — PR #58 이 base(feat/dense-accuracy) 와 충돌하고, base 의 F-317·F-318 처리분을 되돌린다
+### F-333 [닫힘] (심각도: 높음) — PR #58 이 base(feat/dense-accuracy) 와 충돌하고, base 의 F-317·F-318 처리분을 되돌린다
 - 위치: 제품 crates/core/src/dense.rs:615-690 `DepthStage`·`depth_stage`, :757 `speckle_min_px`, :1013 `depth_error`, :1282 `speckle_effect_by_width` (feat/dense-pose-robust c704bf6)
 - 문제: 분기점이 db596a3 이라 base 의 463d345(반점 크기 하한 4 화소, `DepthStage.src` 로 사진 번호 유지, 오차 분해에 반점 제거 적용)가 없다. `git merge origin/feat/dense-accuracy` 가 dense.rs 에서 충돌한다. 이 브랜치 상태로는 `depth_error`·`speckle_effect_by_width` 가 `s.views[i]` 를 쓰고(준비 실패 사진이 있으면 정답 영상이 어긋남, F-318 재발), `speckle_min_px` 에 하한이 없어 80×45 에서 2 화소·8×8 에서 0 이 된다. `speckle_floor_scales_with_map_area` 시험도 사라진다.
 - 실패 상황: 충돌 해결 시 이 브랜치 쪽을 고르면 닫힌 F-317·F-318 이 다시 열린다. PR 은 지금 병합 불가.
 - 고칠 것: feat/dense-accuracy 를 이 브랜치에 merge 하고 충돌을 base 쪽 `src`·하한·오차 분해 반점 제거를 살리는 방향으로 해결. 면적 비례로 위쪽(960 → 400 화소)을 키우는 변경은 `clamp(SPECKLE_MIN_PX_FLOOR, ..)` 위에 얹고, 하한 시험을 960×540 = 400 으로 고쳐 유지. 그 위에서 `pipeline_e2e`(#57 상한) 재측정.
 - 확인 기준: `git merge-base --is-ancestor origin/feat/dense-accuracy HEAD` 성공, dense.rs 에 `src` 와 `SPECKLE_MIN_PX_FLOOR` 존재, `speckle_floor_scales_with_map_area` 통과, `pipeline_e2e` 2/2 출력이 노트에.
-- 이력: PR #58 검토, 2026-10-04 09:45 감독 등록(F-329 와 같은 충돌, 사진 번호 유지 되돌림 추가). 병합을 막음. → 2026-10-04 10:27 작업자(feat/dense-pose-robust f8fcf2b, PR #58: origin/feat/dense-accuracy 를 merge — `DepthStage.src`·`SPECKLE_MIN_PX_FLOOR`=4·오차 분해 반점 제거 유지, `speckle_min_px` = 면적 비례 .max(4)(960×540 400, 80×45 4), `depth_error`·`speckle_effect_by_width` 는 `s.views[st.src[i]]`. is-ancestor 성공, `speckle_floor_scales_with_map_area` 통과, `pipeline_e2e` 2/2 점 10302·18575 유지. 총괄 재확인: fmt·clippy 통과, 같은 시험 통과)
+- 이력: PR #58 검토, 2026-10-04 09:45 감독 등록(F-329 와 같은 충돌, 사진 번호 유지 되돌림 추가). 병합을 막음. → 2026-10-04 10:27 작업자(feat/dense-pose-robust f8fcf2b, PR #58: origin/feat/dense-accuracy 를 merge — `DepthStage.src`·`SPECKLE_MIN_PX_FLOOR`=4·오차 분해 반점 제거 유지, `speckle_min_px` = 면적 비례 .max(4)(960×540 400, 80×45 4), `depth_error`·`speckle_effect_by_width` 는 `s.views[st.src[i]]`. is-ancestor 성공, `speckle_floor_scales_with_map_area` 통과, `pipeline_e2e` 2/2 점 10302·18575 유지. 총괄 재확인: fmt·clippy 통과, 같은 시험 통과) → 2026-10-04 10:40 감독 확인(f8fcf2b): is-ancestor 성공, dense.rs 에 `src`·`SPECKLE_MIN_PX_FLOOR` 존재, `speckle_floor_scales_with_map_area` 포함 lib dense·view_selection·fusion 36 통과·5 무시, `pipeline_e2e` 2/2·`pipeline_stream_order` 1/1. 닫힘
 
 ### F-334 [닫힘] (심각도: 낮음) — bench `--full` 이 위치 간격 4 를 물려받아 SPEC 규모 의미가 바뀐다
 - 위치: 제품 crates/core/benches/pipeline.rs:13·:187 `Sched::extract`, :286 (feat/bench-schedule f34494c)
