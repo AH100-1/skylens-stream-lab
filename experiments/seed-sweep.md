@@ -42,7 +42,7 @@ GPS 정렬 요약: 시드 4 구역2 정상 37/37 척도 0.9957 잔차 중앙 2.0
 
 - 제품 feat/seed-sweep(feat/seed3-collapse 63e5056 위). 명령: `SKYLENS_TILT_SEED=<시드> RAYON_NUM_THREADS=2 cargo test --release -j 2 -p skylens-stream --test default_tilt -- --ignored --nocapture`.
 - 진단 추가(환경 변수 `SKYLENS_REGION_DIAG` 있을 때만, 기본 동작 불변): GPS 정렬 직후 사진 자세 단계 `aligned`, 시험 쪽에서 단계마다 전역 회전 Q 의 각과 연직 기울기 출력.
-- 시드 3·5 는 정렬 단계 진단 이전 빌드(시드 5), 시드 3 은 진단 추가 빌드, 시드 4 는 두 빌드로 쟀고 결과는 같다.
+- 시드 5 는 정렬 단계 진단을 넣기 전 빌드, 시드 3 은 넣은 뒤 빌드로 쟀고, 시드 4 는 두 빌드로 모두 재서 결과가 같다.
 
 ## 남은 문제
 
