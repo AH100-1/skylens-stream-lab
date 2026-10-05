@@ -136,7 +136,7 @@
 
 ### 시험
 
-- 4 코어 측정 기계(스레드 2), 진단 시험만 추가한 d98f904 에서: default_path 통과(298 s), pipeline_stream_order 통과(30 s), cross_pair_overlap 2/2 통과(0.4 s), preview_default_pose_error_bounds 통과(69 s), cargo fmt --check·clippy(-D warnings) 통과. 진단 시험  는 무시 표시이며 단독 실행 51 s.
+- 4 코어 측정 기계(스레드 2), 진단 시험만 추가한 d98f904 에서: default_path 통과(298 s), pipeline_stream_order 통과(30 s), cross_pair_overlap 2/2 통과(0.4 s), preview_default_pose_error_bounds 통과(69 s), cargo fmt --check·clippy(-D warnings) 통과. 진단 시험 `diag_track_angles_by_pair_kind` 는 무시 표시이며 단독 실행 51 s.
 - 이번에는 core lib 전체를 돌리지 않았다(관련 시험만). 제품 코드 동작 변경이 없다.
 
 ### 제품 브랜치·커밋
