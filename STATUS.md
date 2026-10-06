@@ -7,7 +7,7 @@
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
   | rig-rel-attach(전체 시험, 총괄) | `feat/rig-rel-attach` dd55252 | — | core lib 345 통과·31 무시(622 s), dataset_synth 2, perf_structure 6, default_path 1(593 s), helper_latency 2·1 무시, pipeline 5/5(687 s), pipeline_arrival 2/2 — 실패 0. pipeline_e2e 이후(regions·stream·run·verify·ply_info·synth_args)는 실행 시간 한도로 끊겨 미확인 |
-  | rig-rel-attach-seeds | 제품 커밋 없음 | experiment/rig-rel-attach(노트 갱신 진행 중일 수 있음) | 시드 1·2·3·4 verify 7/7, 정밀 겹침 차 중앙 최대 0.119/0.264/0.134/0.098 m. 구역별 회전 표·기준선 비교는 노트 참고(이 회차 끝까지 확인 못 함) |
+  | rig-rel-attach-seeds | 제품 커밋 없음 | experiment/rig-rel-attach afebb67 | 시드 1~4 verify 7/7·81/81. 구역별 최종 FR/L 회전 18개 값이 7c854d1(노트 값)과 소수 둘째 자리까지 같음 — 나빠짐 없음, 효과는 시드5 한정. 시드4 구역2 FR 3.09°(공통 기울기 2.92°)는 그대로. 장착 표본 구역별 14/30/35개, L 대 0 약 113°. 기준선 재측정은 못 함 |
   | rig-tail-combo | `feat/rig-tail-combo` 9b488f1(dd55252 + b1e779d·6129885) | experiment/rig-tail-combo(진행 중일 수 있음) | 시드5 7/7·81/81, 시드1 7/7·81/81, matching 단위 시험 통과. 시드1 짝 변화 여부(/tmp 로그 기준 측정 중)는 노트 참고 |
 - 끝까지 흐름 진척: main 4825669 에서 전부 연결(변화 없음), 기본 경로 7/7(81/81, 3구역). #76 → #77 → #78 위에 rig-rel-attach 를 얹으면 시드 1~4 7/7 유지, rig-tail-combo 까지면 시드5 도 7/7.
 - 다음 할 일:
