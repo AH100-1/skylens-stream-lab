@@ -8,7 +8,7 @@
   |---|---|---|---|
   | #93 재확인 | `feat/tracks-layer-neighbors` 2bd2213 (#95 f6ef6e8 포함) | — | 총괄: fmt 통과, clippy 0, `--lib tracks` 24 통과·9 무시(269 s). 라벨 유지 |
   | preview-pose-error (F-424) | `feat/preview-pose-error` 85982b2, PR #96 (base feat/pipeline-poses, 병합됨) | experiment/preview-pose-error 3018a7c, PR #165 | 초벌 자체(유사변환 후) preview_01 0.736/1.234·preview_02 0.556/1.217 m, 출력 좌표 대 정답 3.678/6.348·1.887/2.737 m, 공유 32/32·10/10 → 오차는 초벌 → 정밀 정렬 잔차. preview_00 정렬 안 됨·정답 맞춤 퇴화. 총괄: fmt 통과, clippy 0, `--test pipeline_poses` 두 시험 통과(166 s), 출력 = 주석 |
-  | tracks-trifocal (F-385) | `feat/tracks-trifocal` f66ad22 (2bd2213 위, 측정 코드만, PR 없음) | experiment/tracks-trifocal 1955c0f, PR #166 | 카메라 간 참 거름/오대응 거름(100%·40%): 끔 6.80/99.03·9.85/98.57, 전이 1 px 1 시점 1.83/99.03·4.36/98.57(무리 −0.10/−0.45%p), 양의 깊이 ×1 1.55/98.93·2.59/98.42(선 방향 무리 −2.75/−1.13%p), 결합 2.85·5.34. 동시 만족 없음. 총괄: fmt 통과, clippy 0, `--lib tracks` 재시험 중 |
+  | tracks-trifocal (F-385) | `feat/tracks-trifocal` f66ad22 (2bd2213 위, 측정 코드만, PR 없음) | experiment/tracks-trifocal 1955c0f, PR #166 | 카메라 간 참 거름/오대응 거름(100%·40%): 끔 6.80/99.03·9.85/98.57, 전이 1 px 1 시점 1.83/99.03·4.36/98.57(무리 −0.10/−0.45%p), 양의 깊이 ×1 1.55/98.93·2.59/98.42(선 방향 무리 −2.75/−1.13%p), 결합 2.85·5.34. 동시 만족 없음. 총괄: fmt 통과, clippy 0, `--lib tracks` 24 통과·9 무시(225 s) |
   | dense-depth-range (단구역 95%) | `feat/dense-depth-range` 745e8b3 (선택 사항만, 기본 끔, PR 없음) | experiment/dense-depth-range 3084980, PR #167 | main 기준 켬 1.357 m·끔 1.247 m(앞선 1.214/0.932 는 밀집 사슬 값). 시점별 깊이 범위 켬/끔 거의 같음(가까운 끝 중앙 24.82/23.40, 먼 끝 46.78/46.35). 확대 유래 점 제외 1.393, 분위 10~90% 1.380, 둘 다 1.350 — 개선 없음, 가설 기각. 희소 점의 약 80% 가 확대 유래. 총괄: 노트 기준선 서술만 바로잡음 |
 - 끝까지 흐름 진척: main(#96 은 feat/pipeline-poses 로 병합)에서 전부 연결, 변화 없음.
 - 다음 할 일:
