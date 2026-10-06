@@ -7,7 +7,7 @@
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
   | zone-rig-ba | `feat/zone-rig-ba` 0a38bee(변경 없음) | experiment/zone-rig-ba 3df2ff0 | 시드 1·2 σ 0/3°: 7/7·81/81, 구역 0·1 값 동일, 구역 2 L 회전 −0.11°/−0.24°, FR ±0.01°. 시드 3·5, σ 1.5° 미측정 |
-  | seed5-drop-trace | `feat/seed5-drop-trace` 00bdd2d(변경 없음) | experiment/seed5-drop-trace 2e725f2 | 시드 1~4 7/7·81/81, 떨어진 성분 없음. 총괄 재확인: fmt 통과, clippy 0, `cargo test --release` 중 core lib 348 통과·31 무시, dataset_synth 2, perf_structure 6, cli 단위 3, default_path 1, helper_latency 2 통과; pipeline 이후는 마감 전 미확인. #80 이 대신하므로 PR 은 만들지 않음 |
+  | seed5-drop-trace | `feat/seed5-drop-trace` 00bdd2d(변경 없음) | experiment/seed5-drop-trace 2e725f2 | 시드 1~4 7/7·81/81, 떨어진 성분 없음. 총괄 재확인: fmt 통과, clippy 0, `cargo test --release` 중 core lib 348 통과·31 무시, dataset_synth 2, perf_structure 6, cli 단위 3, default_path 1, helper_latency 2 통과, 이후 pipeline 등 나머지도 모두 통과 — 전체 `cargo test --release --no-fail-fast` 실패 0. #80 이 대신하므로 PR 은 만들지 않음 |
 - 끝까지 흐름 진척: main 7ffb0d8 에서 전부 연결(변화 없음), 기본 경로 7/7(81/81, 3구역). #76 → #77 → #78 → #80 병합 대기.
 - 다음 할 일:
   1. #80 검토 항목 F-379·F-380 처리(직전 회차 다음 할 일 그대로).
