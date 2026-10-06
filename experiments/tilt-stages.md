@@ -25,7 +25,7 @@ BA 15 회(기본):
 | BA 후 `ba_out` | 0.473 (+0.435) | 0.248 (+0.015) | +0.748/-0.277/-0.143 (0.810) | 0.425 |
 | GPS 정렬 후 `gps_aligned` | 0.473 (+0.435) | 0.248 | +0.748/-0.277/-0.143 (0.810) | 0.425 |
 | 최종 출력 카메라 | 0.473 (+0.435) | 0.248 | +0.748/-0.277/-0.143 (0.810) | 0.425 |
-| (참고) GPS 위치 자체 | - | - | +0.721/-0.278/-0.142 (0.786) | - |
+| (비교) GPS 위치 자체 | - | - | +0.721/-0.278/-0.142 (0.786) | - |
 
 BA 반복 사이(위 방향 오차 중심 Kabsch 기준 / 평균 상대 회전 기준 / 중심 기울기 크기, BA 후 → GPS 정렬 후):
 
@@ -57,5 +57,5 @@ BA 반복 사이(위 방향 오차 중심 Kabsch 기준 / 평균 상대 회전 �
 
 ## 제품 브랜치·커밋
 - 제품 `feat/tilt-stages` (부모 origin/feat/frame-tilt 9d70c13): 측정 시험 `crates/cli/tests/tilt_stages.rs` 와 `crates/core/src/pipeline.rs` 의 진단용 단계 스냅숏·스위치(기본 동작 불변).
-- 커밋 해시는 아래 줄 참고.
+- 커밋 해시는 아래 줄에 있다.
 - 제품 커밋 e709deb (feat/tilt-stages). 측정 명령: `cargo test --release -p skylens-stream --test tilt_stages -- --ignored --nocapture`(약 2분), BA 반복 변경은 `TILT_BA_ITERS=3`, 대안은 `TILT_REFINED_START=1`.
