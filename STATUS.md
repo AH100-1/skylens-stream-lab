@@ -1,14 +1,14 @@
 # 현재 상태
 
 - 상태: 쉬는 중
-- 마지막 갱신: 2026-10-06T07:50Z (07:06Z 시작분)
+- 마지막 갱신: 2026-10-06T07:52Z (07:06Z 시작분)
 - 이번 회차 결론: **시드5 의 빠진 1장(camL_0078)은 실행 간 비결정성 때문이 아니다.** 구역2 왼쪽 카메라 자기 사진 5장(68·71·74·77·80)이 정면·오른쪽과 이어지는 짝 없이 따로 떨어진 성분이 되는데, 떨어진 성분 붙이기의 최소 크기가 6장이라 건너뛰어졌다. 최소 크기를 6 → 5 로 바꾸면 시드5 81/81·7/7(1회 측정). 같은 입력을 3회 반복하면 poses 가 바이트 단위로 같다. 앞서 본 "CLI 7/7" 은 `synth` 가 시드 인자 없이 시드 1 만 만들기 때문으로 보인다. 구역 L 사진이 적을 때 정밀 BA 에 FR–L 상대 회전 약한 사전항(σ 3°, 기본 끔)을 넣으면 시드4 구역2 최종 FR/L 이 3.09/1.55 → 2.52/1.17° 다. 단 이 값은 비용 항이 빠진 빌드로 잰 것이라 다시 재야 하고, 롤 후보는 여전히 갈리지 않는다. F-273 은 구역 ≥2 의 겹침·정렬·높이 차를 verify 기준 상수로 판정하는 시험을 추가했다. 새 PR 은 없다(세 묶음 모두 마감 안에 총괄 재확인을 끝내지 못함). 4 코어 기계라 동시 묶음은 3개.
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
-  | seed5-drop-trace | `feat/seed5-drop-trace` f182275(photo-rescue f319445 위; pipeline.rs `DETACHED_MIN_PHOTOS` 6→5, 시드5 반복 실행 시험) | experiment/seed5-drop-trace 98b0429 | 수정 전 3회 모두 80/81·6/7, 바이트 동일. 수정 후 81/81·7/7(정밀 재투영 0.229 px, 1회). 시드 1~4·전체 시험 미실행, 총괄 재확인 못 함 |
+  | seed5-drop-trace | `feat/seed5-drop-trace` 00bdd2d(f182275 + 단위 시험 setup(5)→setup(4) 조정; photo-rescue f319445 위; pipeline.rs `DETACHED_MIN_PHOTOS` 6→5, 시드5 반복 실행 시험) | experiment/seed5-drop-trace 340f03b | 수정 전 3회 모두 80/81·6/7, 바이트 동일. 수정 후 81/81·7/7(정밀 재투영 0.229 px, 1회, `seed5_repeat_runs` 565 s), `--lib pipeline` 23 통과·2 무시. 시드 1~4·전체 시험 미실행, 총괄 재확인 못 함 |
   | zone-rig-ba | `feat/zone-rig-ba` 0a38bee(seed4-zone2-tilt 위; ba.rs 상대 회전 사전항, `rig_ba_sigma_deg` 기본 0, L 1~8장일 때만) | experiment/zone-rig-ba 414d7ed | 시드4 구역2: BA 뒤 L 4.48 → 3.58°, 최종 FR/L 3.09/1.55 → 2.52/1.17°, 구역0·1 변화 없음, 7/7. 26bea7b(비용 항 누락)로 잰 값이고, 0a38bee 는 ba 단위 시험 19 통과만. 시드 1·2·3·5 미측정, 기본 끔 |
-  | pipeline-multizone-test(F-273) | `feat/pipeline-multizone-test` 712f2fd(main 위; default_path.rs·pipeline_e2e.rs·README) | experiment/pipeline-multizone-test 7a625ab | 기본 경로 3구역, README 2구역 BA 15/10 모두 7/7. 겹침 ≤0.157 m, 높이 차 ≤0.445 m, 정렬 잔차 ≤0.308 m, 스케일 차 최대 5.77%(기본 경로). BA 10/15 차 0.005 m. 작업 측 시험 통과(612 s·585 s). 총괄 재확인: fmt 통과·clippy 0, 시험 재실행은 마감으로 끝내지 못함 |
+  | pipeline-multizone-test(F-273) | `feat/pipeline-multizone-test` 712f2fd(main 위; default_path.rs·pipeline_e2e.rs·README) | experiment/pipeline-multizone-test 7a625ab | 기본 경로 3구역, README 2구역 BA 15/10 모두 7/7. 겹침 ≤0.157 m, 높이 차 ≤0.445 m, 정렬 잔차 ≤0.308 m, 스케일 차 최대 5.77%(기본 경로). BA 10/15 차 0.005 m. 작업 측 시험 통과(612 s·585 s). 총괄 재확인: fmt 통과·clippy 0, `default_args_synth_run_verify` 재실행 통과(360 s), `pipeline_e2e` 는 마감 제한 시간(420 s)에 끊겨 미확인 |
 - 끝까지 흐름 진척: main 4825669 에서 전부 연결(변화 없음), 기본 경로 7/7(81/81, 3구역). #76 → #77 → #78 병합 대기. seed5-drop-trace 가 들어가면 짝 일정을 바꾸지 않고 시드5 7/7 가능(F-197 과 무관).
 - 다음 할 일:
   1. seed5-drop-trace: 시드 1~4 에서 최소 크기 5 로 결과가 바뀌는지와 전체 `cargo test --release` 확인 뒤 PR(구제 코드 없이 한 줄 변경 + 시험만으로 나누는 안도 검토).
