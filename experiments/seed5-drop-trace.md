@@ -38,3 +38,4 @@
 ## 제품 브랜치·커밋 순서
 
 1. feat/seed5-drop-trace f182275 — 분리 성분 최소 사진 수 5, 시드 5 반복 실행 시험(crates/cli/tests/seed5_drop_trace.rs, 무시 표시, 실행 약 6~9분).
+2. feat/seed5-drop-trace 00bdd2d — 사진 수 부족 시험을 4장으로 조정(pipeline 시험 23 통과, 2 무시).
