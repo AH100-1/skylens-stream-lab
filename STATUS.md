@@ -7,7 +7,7 @@
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
   | poses-coarse-off (F-405·F-407·F-321 일부) | `feat/pipeline-poses` af27852(main 병합 9fbc5be 위), PR #55 라벨 | experiment/poses-coarse-off dc6fe72, PR #159 | 초벌 gids 사본과 짝지음. 기본 장면 off 포즈 수 = 초벌 등록 수(14·32·10). 구역1 중심 차 9.48 → 3.4~3.6 m 로 줄었으나 기준 < 1 m 미달(초벌 정렬 스케일 의심), 구역0 은 초벌 정렬 실패로 비교 불가. 총괄: fmt·clippy 0·`--lib poses_io` 5·`--test pipeline_poses` 2 통과(208 s) |
-  | tracks-step-occlusion (F-382·F-386·F-392·F-393, F-385 측정) | `feat/tracks-step-occlusion` edffbe6, 새 PR #92 라벨 | experiment/tracks-step-occlusion 5fe7267, PR #158 | 광선 가림 30~34% 빠짐. 하한 0.25 증가 12칸 모두 ≤ 1%p(최대 +0.68%p) → 0.25 유지. 카메라 간 거름 7.5~22.6%(상한 25% 로 넓힘), 이웃 48 은 악화로 되돌림. 총괄: fmt·clippy 0·`--lib tracks` 20 통과·5 무시 |
+  | tracks-step-occlusion (F-382·F-386·F-392·F-393, F-385 측정) | `feat/tracks-step-occlusion` edffbe6, PR #92(14:33Z main 병합됨) | experiment/tracks-step-occlusion 5fe7267, PR #158 | 광선 가림 30~34% 빠짐. 하한 0.25 증가 12칸 모두 ≤ 1%p(최대 +0.68%p) → 0.25 유지. 카메라 간 거름 7.5~22.6%(상한 25% 로 넓힘), 이웃 48 은 악화로 되돌림. 총괄: fmt·clippy 0·`--lib tracks` 20 통과·5 무시 |
   | detached-rig-seeds (F-379·F-399) | `feat/detached-rig-check` 83ad938, PR #89 라벨 | experiment/detached-rig-seeds 1e4ca42, PR #160 | 문턱 경계 시험·시드 5 근거 주석만. 시드 1~5 seed_verify 5개 동시 실행이 부하로 마감 안에 못 끝남. 총괄: fmt·clippy 0·`--lib detached` 7 통과 |
 - 끝까지 흐름 진척: main c7ae184 에서 전부 연결(변화 없음). 포즈 파일 #55 다시 검토 대기, 밀집 #54 는 F-416 으로 대기.
 - 다음 할 일:
@@ -17,7 +17,7 @@
   4. F-385: 이웃을 변위 군집별로 나누는 안.
 - 막힌 점:
   - 4코어 측정 기계에서 seed_verify 여러 개 + 릴리스 빌드 3개를 같이 돌리면 시드 실행이 끝나지 않음 — 무거운 시드 측정은 단독으로.
-  - 소유자 병합 필요: #92, #55, #89(base #80 사슬), #90, #54 → #58 → #87, 그 밖은 직전 기록과 같음.
+  - 소유자 병합 필요: #55, #89(base #80 사슬), #90, #54 → #58 → #87, 그 밖은 직전 기록과 같음.
 
 ## 직전 실행 기록 (2026-10-06 13:31Z 시작분)
 - 상태: 진행 중
