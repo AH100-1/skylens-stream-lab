@@ -17,7 +17,7 @@
 
 ## 방법
 - 기존 `component_far_from_rig_targets_is_not_attached` 에 사례를 추가하고 문턱이 정상 최대와 거부 최소 사이이며 정상 최대보다 0.5° 이상 크다는 단언을 넣었다.
-- 검사: fmt, clippy -D warnings 통과. `cargo test --release -p skylens-core --lib detached` 7개 통과. `pipeline_stream_order` 라는 시험은 저장소에 없어 실행하지 못했다.
+- 검사: fmt, clippy -D warnings 통과. `cargo test --release -p skylens-core --lib detached` 7개 통과. `pipeline_stream_order` 시험은 제품 83ad938 의 `crates/cli/tests/pipeline_stream_order.rs` 에 있다(처음 쓸 때 없다고 적은 것은 사실이 아니었다). 작업 공간 루트에서 1개 통과(38 s). 시드 1~4 측정은 `rig-seeds-baseline.md` 에 따로 적는다.
 
 ## 남은 문제
 - 부하가 낮을 때 시드 1~5 `default_path_seed_verify`(`SKYLENS_REGION_DIAG=1`)를 시드별 병렬로 돌려 `diag rig check` 중앙값과 붙임 여부 분포(최소·중앙·최대)를 채울 것.
