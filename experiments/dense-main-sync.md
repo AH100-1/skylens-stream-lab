@@ -67,5 +67,5 @@ dense-accuracy 의 lib 전체에는 dense 와 fusion 시험이 들어 있다. �
 
 - feat/dense-accuracy: 617e6e0 (재고정 5b4419f 위에 병합)
 - feat/dense-pose-robust: bae165f
-- feat/dense-speckle-guard: 9d6b813
+- feat/dense-speckle-guard: 67b5929 (먼저 올라온 같은 병합 e821d52 위에 병합, 코드 트리는 시험한 9d6b813 과 같음)
 - 원인 조사: experiment/dense-regress-cause 35b57bf
