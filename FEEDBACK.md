@@ -2474,6 +2474,7 @@
 - 확인 기준: 2구역 시험 출력에 구역별 포즈 수와 겹침 사진 회전·중심 차가 찍힘.
 - 이력: PR #55 검토, 2026-10-04 07:50 감독 등록. 병합을 막지 않음. → 2026-10-04 09:35 작업자 일부(feat/pose-accuracy 1230e08, PR 없음: `BaRefine` 선택지(손실·바퀴·거르기·초점)와 측정 시험. 잔차 95% 0.55 px·최대 2.6 px 로 이상치가 거의 없어 손실·재삼각·거르기 모두 효과 없음, 초점 정제는 회전 악화. 오차 큰 사진은 줄 양 끝 좌우 카메라(camR_0023 9.9°). 정렬 방식이 기존 0.388° 측정과 달라 재측정 필요 — 열림)
 - 2026-10-06 13:20Z 작업자 일부(제품 feat/pose-test-bounds 6b8ecaf, base feat/pipeline-poses, PR 없음·총괄 미검증, 연구 노트 없음): 목표 0.2°/1° 상수·#[ignore] 측정, 2구역 시험(구역 [0,26)·[22,40), 포즈 78/54, 겹침 12장). 겹침 사진 구역 간 회전 차 중앙 0.90°·최대 7.73°, 중심 차 중앙 0.53 m — 구역 간 회전 정합 약함(새 문제 후보)
+- 2026-10-06 14:30Z 작업자 일부(제품 feat/pipeline-poses af27852(main c7ae184 병합 9fbc5be 위, PR #55), 연구 experiment/poses-coarse-off dc6fe72(PR #159). 총괄 재확인: fmt 통과, clippy 0, `--lib poses_io` 5, `--test pipeline_poses` 2 통과(208 s)): `--coarse-back off` 경로 시험 추가(구역별 포즈 수·중심 차 출력). 회전 목표 0.2°/1° 와 2구역 파일 시험은 feat/pose-test-bounds 쪽 그대로
 
 ### F-322 [닫힘] (심각도: 중간) — 기본 경로(스윕)·960 폭에서 반점 제거 효과를 잰 적이 없다
 - 위치: 제품 crates/core/src/dense.rs:757-764(`SPECKLE_*`, `speckle_min_px`), :823(`region_cloud_impl`), crates/core/src/pipeline.rs:98(기본 Sweep) (feat/dense-accuracy 463d345)
@@ -2989,6 +2990,7 @@
 - 확인 기준: 시드 1~5 seed_verify 에서 7/7·81/81 유지(또는 시드5 80/81 로 되돌아가더라도) 붙은 모든 L 성분의 회전 오차 ≤ 3°.
 - 이력: PR #80 a340473 검토, 2026-10-06 09:45Z 등록. 기록만, 병합을 막지 않음. → 2026-10-06 10:38Z 작업자 부분 처리(feat/detached-rig-check bb46454, a340473 위): 원인 — 첫 붙이기 때 장착 목표 0/5 라 롤 경로 미적용, 두 번째 붙이기는 목표 5/5 로 롤 경로가 돌았지만(롤 36.5°) 목표 대비 9.92° 가 남음 = 비행 축 롤 하나로 안 줄어드는 기울기. 붙이기 직전 장착 목표와의 각거리 중앙 3° 초과면 거부. 시드5: 거부되어 정밀 80/81·verify 6/7(등록 항목), 붙은 L 성분은 모두 ≤ 3°. 시드 1~4 미측정이라 열림 유지 → 2026-10-06 12:45Z 작업자 처리(제품 `feat/detached-rig-check` bb46454, PR #89 base feat/detached-min5; 연구 experiment/detached-rig-check bb4604a, PR #152): 시드 1~4 seed_verify 7/7·81/81, 구역2 L/FR 1.10/1.08, 1.28/1.65, 0.95/1.81, 1.55/3.06° — 기준선과 같음(떨어진 성분 없음). 시드5 는 거부로 80/81·6/7, 붙은 L 성분 모두 ≤ 3°(앞 측정). 3축 장착 상대 회전 안은 미시험. 총괄 재확인 fmt 통과, clippy 0, `--lib detached` 6 통과 → 2026-10-06 13:15Z 총괄: PR #89 머리 bb46454 에서 CI `pipeline_stream_order` 실패(구역 1 초벌 직후 점 수 1749 ≠ 804), base feat/detached-min5 에서는 같은 시험 통과 — 로컬 재현. 이 작은 장면에서 거부 검사가 구역0 cam0 12장(중앙 4.27°)과 구역1 cam1 8장(중앙 74.35°)을 거부한다. 구역1 장착 추정(상대 38.7°/88.4°)이 구역0(72.5°/110.3°)과 크게 달라 목표 자체가 틀린 경우에도 거부함. 장착 추정 신뢰 조건(표본 수·구역 간 일치) 없이 거부하면 안 됨 → 열림으로 되돌리고 #89 라벨 뗌 → 2026-10-06 13:30Z 감독 덧붙임: 목표 회전이 짝 FR 사진 하나의 자세에 기대어 그 오차가 그대로 들어간다. 기준선 정상 구역도 FR 회전 3.06°(시드4 구역2)·FR–L 상대 4.33°(시드4), 노트의 정상 시드5 구역1 L 성분 2.37° 로 문턱 3° 가 목표 오차 수준과 같다. 신뢰 조건과 함께 목표를 같은 위치 짝들 평균으로 만들거나 정상 구역 각거리 분포로 문턱을 정할 것 → 2026-10-06 14:20Z 감독 확인 닫음(PR #89 6c12f06): fmt 통과, clippy 0, `--lib detached` 7 통과, `--test pipeline_stream_order` 1 통과(22 s). 변이: `rig_trust` 를 항상 믿음으로 바꾸면 `pipeline_stream_order` 가 구역 1 초벌 점 1749 ≠ 804 로 다시 실패 — 신뢰 조건이 CI 실패를 실제로 막음. 시드 1~4 는 떨어진 성분이 없어(bb46454 측정) 이 머리의 바뀐 경로(`merge_detached_components` 안 거부 목표·`rig_trusted`)를 타지 않으므로 기준선과 같음. 시드5 80/81·6/7, 붙은 L ≤ 3°(작업자 측정). 문턱 여유(정상 최대 2.47°)는 F-420 에 기록
 - 2026-10-06 13:27Z 대안 측정(제품 feat/rig-rel-rot ca94d46, 연구 experiment/rig-rel-rot 5989232, PR 없음): 장착 목표에 3축 보정 후 붙이기 — 시드5 81/81·7/7 이지만 구역2 L 정답 대비 4.39°(목표 대비 0.02°), 장착 목표 자체가 약 4.4° 어긋남. 거부안(bb46454) 유지가 기준에 맞음 → 2026-10-06 13:45Z 작업자 추가 측정(제품 `feat/detached-rig-3axis` acdf68e, feat/detached-rig-check 위, 기본 꺼짐 `DETACHED_RIG_FULL_ROTATION`; 연구 experiment/detached-rig-3axis 9c9e6a5): 3축 장착 회전 안을 켜면 시드5 정밀 81/81·verify 7/7, 붙인 직후 목표 각거리 중앙 0.02° 지만 구역2 L 정답 대비 4.50°(롤만 9.10°), FR–L 상대 합친 직후 2.96° → 최종 4.18°. 목표가 다른 구역 L 장착 평균이라 그 편향을 물려받고 정밀 단계에서 다시 벌어짐 → ≤ 3° 미달, 거부안(80/81·6/7) 유지. 3축 기울기 복원 단위 시험 ≤ 0.1° 통과, `--lib detached` 7 통과(총괄 재확인 fmt 통과·`--lib detached` 7). 시드 1~4 켠 상태 미측정 → 2026-10-06 13:52Z 작업자 처리(제품 feat/detached-rig-check 6c12f06, PR #89; 연구 experiment/detached-rig-check d21211c): 장착 추정 신뢰 조건(카메라별 표본 ≥ 8, 평균 회전에서 벗어난 각 중앙 ≤ 3°)을 두고 믿지 못하면 거부 검사를 건너뜀, 검사 목표는 같은 위치 주 모델 사진들의 목표 회전 평균. 작은 장면 퍼짐 14.7~57.9°(불신, 건너뜀) → `pipeline_stream_order` 통과. 시드5 퍼짐 0.01~1.62°(신뢰), 각거리 중앙 구역0 L 0.38°·구역1 L 2.47°·구역2 L 5장 10.05°(거부), 80/81·verify 6/7 로 bb46454 와 같음, 붙은 L 성분 ≤ 3°. 시드 1~4 미측정, 문턱 3° 여유 얇음(정상 2.47°). 총괄 재확인 fmt·clippy 0, `--lib detached` 7, `--test pipeline_stream_order` 1 통과
+- 2026-10-06 14:40Z 작업자 시도(제품 feat/detached-rig-check 83ad938(PR #89), 연구 experiment/detached-rig-seeds 1e4ca42(PR #160). 총괄 재확인: fmt 통과, clippy 0, `--lib detached` 7 통과): 시드 1~5 seed_verify 를 4코어 측정 기계에서 동시에 돌렸으나 마감 안에 끝나지 않음 — 시드 1~4 기준선·각거리 분포 미측정. 문턱 주석은 시드 5 값만
 
 ### F-380 [닫힘] (심각도: 낮음) — 문턱 경계(정확히 5장) 받아들임 시험이 없다
 - 위치: 제품 crates/core/src/pipeline.rs:5128 `too_few_photos_or_gps_inliers_are_not_attached` (PR #80 a340473)
@@ -3156,6 +3158,7 @@
 - 고칠 것: 목표 오차 2°(Some)·4°(None) 단언을 더하고, NaN 중앙값은 거부한다. F-379 의 신뢰 조건을 고칠 때 함께.
 - 확인 기준: 문턱 2° 또는 5° 변이에서 `--lib detached` 실패.
 - 이력: PR #89 bb46454 검토, 2026-10-06 13:30Z 등록. 기록만. #89 는 F-379(CI `pipeline_stream_order` 실패)로 이미 불합격. → 2026-10-06 13:52Z 작업자 처리(제품 6c12f06, PR #89): 목표 오차 0·2·2.6° Some, 3.4·4·10° None, NaN 목표 None, 목표 없음 Some(주석 명시). 문턱 변이 2.0°·5.0° 모두 `--lib detached` 실패 확인. 총괄 재확인 `--lib detached` 7 통과 → 2026-10-06 14:20Z 감독 확인 닫음(PR #89 6c12f06): 목표 오차 0·2·2.6° 붙음, 3.4·4·10° 거부, NaN 목표 거부, 빈 목표 GPS 판정만 — `--lib detached` 7 통과
+- 2026-10-06 14:35Z 작업자 추가 보강(제품 feat/detached-rig-check 83ad938(PR #89), 연구 experiment/detached-rig-seeds 1e4ca42(PR #160). 총괄 재확인: fmt 통과, clippy 0, `--lib detached` 7 통과): 경계 2.47·2.95° 붙음, 3.05·10.05° 거부, 정상 최대 2.47° < 문턱 < 거부 10.05° 와 여유 ≥ 0.5° 단언
 
 ### F-400 [열림] (심각도: 낮음) — 무한 좌표 한 점이 구역 정렬 전체를 실패시키는 동작을 시험이 고정한다
 - 위치: 제품 crates/core/src/stream.rs:1294 `robust_fit_degenerate_inputs_are_none`(무한 한 점 단언), :198 `robust_fit` (PR #91 8fa1b10)
@@ -3196,13 +3199,14 @@
 - 확인 기준: 같은 변이에서 시험 1건 이상 실패.
 - 이력: PR #90 검토, 2026-10-06 13:50Z 등록. 기록만. → 2026-10-06 13:49Z 작업자 처리(제품 1f64d68, PR #90): 중복 구역 번호·해석 실패 이름 FAIL, `a.0 > plo` 는 경계 규칙 비교로 대체(경계 비교 변이 시 `region_structure_follows_span_ovl_rule` 실패), [0,14)·[0,26), hi<lo, hi==lo, 한쪽 폴더 빈 경우 시험. 총괄 재확인 같음 → 2026-10-06 14:05Z 감독 확인: `duplicate_region_files_and_bad_names_fail` 통과. 닫음.
 
-### F-405 [열림] (심각도: 높음) — `--coarse-back off` 에서 초벌 포즈 파일이 사진 이름과 포즈를 엇갈려 쓴다
+### F-405 [처리됨-검증대기] (심각도: 높음) — `--coarse-back off` 에서 초벌 포즈 파일이 사진 이름과 포즈를 엇갈려 쓴다
 - 위치: 제품 crates/core/src/pipeline.rs (feat/pipeline-poses 1e645df :2548 `rec.gids.iter().zip(&rec.coarse_poses)`), 원인 main c9b304b :2082 `rec.gids = g`(정밀 다시 등록 목록으로 바꿈)
 - 문제: `coarse_poses` 는 초벌 목록(앞 보조 + 구역) 순서인데, 정밀 다시 등록이 일어나면 `rec.gids` 가 앞 보조 + 뒤 보조 + 구역 순서로 바뀐다. 색인으로 짝지어 뒤 보조 수만큼 밀린다. 브랜치 분기(779edb7) 뒤 main 에 들어온 다시 등록 경로와 합쳐질 때 생기며 글자 충돌은 없다.
 - 실패 상황: 기본 합성 장면(`--span 12`) + `--coarse-back off`: preview_00 42장 중 5장만 남고 중심 오차 중앙 29.6 m, preview_01 11.3 m. `on` 이면 0.66 m·0.48 m. 정밀 파일은 영향 없음.
 - 고칠 것: 초벌 포즈를 gid 열쇠로 저장하거나 초벌 gids 사본과 짝짓는다.
 - 확인 기준: 같은 장면 + `off` 에서 preview_00·01 포즈 수 = 초벌 등록 수, 중심 오차 중앙 < 1 m. 작은 SPAN + `off` 경로 시험 추가(F-321 과 함께).
 - 이력: PR #55 1e645df(main c9b304b 와 시험 병합) 검토, 2026-10-06 13:55Z 등록. #55 불합격. 2026-10-06 14:10Z 재검토(머리 2d21716, main 합치기만): `off` 에서 preview_00 초벌 14장 중 5장, 같은 사진 정밀 중심 대비 중앙 29.2 m·preview_01 11.0 m — 열림 유지, #55 불합격.
+- 2026-10-06 14:30Z 작업자 처리(제품 feat/pipeline-poses af27852(main c7ae184 병합 9fbc5be 위, PR #55), 연구 experiment/poses-coarse-off dc6fe72(PR #159). 총괄 재확인: fmt 통과, clippy 0, `--lib poses_io` 5, `--test pipeline_poses` 2 통과(208 s)): 초벌 gids 사본(`coarse_gids`)과 짝지음. 기본 장면 `--span 12 --coarse-back off` 포즈 수 수정 전→후 구역0 6→14, 구역1 30→32, 구역2 10→10(= 초벌 등록 수). 같은 사진 정밀 중심 대비 중앙: 구역1 9.48 → 3.37~3.56 m, 구역2 1.57 m, 구역0 은 초벌이 한 카메라만 등록해 공유 사진 0 → 초벌 정렬 실패(`aligned:false`), 비교 불가. 확인 기준 "중앙 < 1 m" 는 미달 — 짝 엇갈림이 아닌 초벌 정렬 스케일 문제로 보임(거리 따라 3.0 → 3.7 m, 구역 간 스케일 차 0.175 경고). 시험 `coarse_back_off_preview_poses_stay_paired` 는 포즈 수 = registered 를 단언, 중심 차 상한 4.3 m. 수정 전 재현 수치가 감독 측정(5장·29.2 m)과 다름
 
 ### F-406 [열림] (심각도: 낮음) — 같은 사진의 정밀 중심이 `poses.txt` 와 `poses/refined_*.json` 에서 다르다
 - 위치: 제품 crates/core/src/pipeline.rs 포즈 JSON 쓰기(`rsim` 적용) 대 `poses.txt`·`PipelineResult.centers/rotations`(재정렬 전) (PR #55)
@@ -3212,12 +3216,13 @@
 - 확인 기준: 문서에 기재, 안 쓰는 필드 없음.
 - 이력: PR #55 검토, 2026-10-06 13:55Z 등록. 기록만.
 
-### F-407 [열림] (심각도: 낮음) — 포즈 시험이 정렬 전 회전 오차를 단언하지 않고 주석 실측값이 지금 값과 다르다
+### F-407 [처리됨-검증대기] (심각도: 낮음) — 포즈 시험이 정렬 전 회전 오차를 단언하지 않고 주석 실측값이 지금 값과 다르다
 - 위치: 제품 crates/cli/tests/pipeline_poses.rs:155~156, 207~210 (PR #55)
 - 문제: 출력은 GPS 동-북-위인데 전역 회전을 맞춘 뒤 오차만 단언. 주석 정렬 전 중앙 0.652° 대 main 병합 후 1.140°(최대 1.592°).
 - 고칠 것: 정렬 전 중앙·최대에 상한, 주석을 병합 후 값으로.
 - 확인 기준: `rot raw` 에 단언, 주석·출력 일치.
 - 이력: PR #55 검토, 2026-10-06 13:55Z 등록. 기록만.
+- 2026-10-06 14:30Z 작업자 처리(제품 feat/pipeline-poses af27852(main c7ae184 병합 9fbc5be 위, PR #55), 연구 experiment/poses-coarse-off dc6fe72(PR #159). 총괄 재확인: fmt 통과, clippy 0, `--lib poses_io` 5, `--test pipeline_poses` 2 통과(208 s)): 정렬 전 회전 중앙 < 1.4°·최대 < 1.95° 단언(실측 1.1398°/1.5920°), 주석 갱신
 
 ### F-408 [열림] (심각도: 중간) — 정렬 문서·시험이 GPS 잡음이 `spread_m` 과 위 방향 판정에 들어간다고 적지만 실제로는 들어가지 않는다
 - 위치: 제품 crates/core/src/align.rs 모듈 문서 13~16줄, `formation_second_axis_spread_matches_doc` 1182~1191줄, `formation_threshold_sensitivity` 1200~1243줄 (main fcd4baf, PR #69). 연구 experiments/align-doc-std.md '남은 문제' 첫 항목.
