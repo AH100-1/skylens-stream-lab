@@ -16,7 +16,7 @@
   | fusion-neighbors (F-113) | `feat/fusion-neighbors` f4b29f8 (시험만, PR 없음) | 2dbff72 | 48장 960×540 CPU 6.45 s, 벽시계 7.6~9.6 s(부하 20). 총괄 미검증 |
   | rig-rel-rot (F-379 3축 안) | `feat/rig-rel-rot` | experiment/rig-rel-rot | 회차 끝까지 결과 못 받음 — 브랜치 확인 필요 |
   | tracks-step-cross (F-385·F-386) | `feat/tracks-step-cross` 3bc9459 (PR 없음) | 3bc2e6a | 카메라 간 거름 대부분 시차 차이 ≥160 px 외톨이 점. 상한 배수 3→8: 단차 100% 간 6.94→2.51%, 40% 간 7.83→4.43%(12~24 배도 4.18%) — 3% 미달, 기본값 유지. F-386 상한 0.025. 최종 코드 `--lib tracks` 전체 미실행, 총괄 미검증 |
-  | ta-schur-mem (F-308~F-311) | `feat/ta-schur-mem` | experiment/ta-schur-mem | 회차 끝까지 결과 못 받음 |
+  | ta-schur-mem (F-308~F-311) | `feat/ta-schur-mem` 934fd42 (PR 없음) | 노트 없음 | 부분 행렬 버퍼 재사용(240장·4스레드 7.4 → 2.3 MB 추정), 고정 조각 64·스레드 1/4 중심 차 ≤1e-12, 슈어 S·b 1e-12·밀집 해 1e-9 시험. 반복 300 상한 도달 원인 미확인(F-309 일부). F-311 은 시간 비율 단언을 RMS 비트 일치로 바꿨으나 절대 한도 60 → 300 s 완화 — 검토 필요. `--lib translation_averaging` 13 통과·8 무시, 총괄 미검증 |
 - 끝까지 흐름 진척: main ca15f20 에서 전부 연결(변화 없음), 기본 경로 7/7(81/81, 3구역).
 - 다음 할 일:
   1. rig-rel-rot·tracks-step-cross·ta-schur-mem 브랜치 머리 확인 → 다시 빌드·시험 뒤 PR.
