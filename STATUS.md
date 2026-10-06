@@ -1,5 +1,34 @@
 # 현재 상태
 
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-06T13:22Z (12:46Z 시작분)
+- 이번 회차 결론: **흐름은 main(ca15f20, #83·#85 병합 뒤) 에서 그대로 전부 연결. 열린 FEEDBACK 11묶음을 동시에 돌려 7묶음 결과를 받고, 총괄이 5묶음을 다시 빌드·시험해 통과 확인 → 새 제품 PR #90·#91, 기존 #69·#70·#77 갱신·라벨, 연구 PR #153~#157.** 융합(F-113)은 main 에 이미 이웃 제한·병렬이 있어 CPU 6.45 s(÷4 ≈ 1.6 s) — 벽시계 확인만 남음. 2구역 포즈 시험에서 겹침 사진 구역 간 회전 차 최대 7.73° 발견.
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | roll-table-fix (F-371) | `feat/collinear-roll-select` 9d1ae2d, PR #77 갱신 | 9e3f2a0, PR #155 | 주석·정의 정정, 비행 축 롤 따로 출력. 총괄: fmt·clippy 0·`choose_roll` 4 통과 |
+  | ba-robust-asserts (F-362) | `feat/ba-robust-main` 12eb78c, PR #70 갱신 | 7e0d9dd, PR #154 | rot 2.98e-8 rad < 1e-6, cholesky_failures 0. 총괄: fmt·clippy 0·`--lib ba` 37 통과 |
+  | align-doc-std (F-361) | `feat/align-formation` 0538216, PR #69 갱신 | 3e4939b, PR #153 | 둘째 주축 4.30/4.40 m, 문턱 여유 0.70/0.60 m, ±10% 판정 불변. 총괄: fmt·clippy 0·`--lib align` 30 통과 |
+  | verify-manifest-only (F-089) | `feat/verify-manifest-only` b1cba67, PR #90 | 61ab17b, PR #156 | report.json 없이 항목 1·2·4~7 같은 판정, 3 판정 불가. 총괄: fmt·clippy 0·`--lib verify` 14·`--test verify` 26 통과 |
+  | stream-snapshot-check (F-055·F-056) | `feat/stream-snapshot-check` 8fa1b10, PR #91 | 47a233d, PR #157 | 퇴화 입력 10종 None 고정. 7구역×200만 검사 117 s(부하 큼) — F-056 열림. 총괄: fmt·clippy 0·`--lib stream` 25 통과 |
+  | matching-degenerate (F-003) | `feat/matching-degenerate` 369923d (PR 없음) | 779a4ab | 특이값 비 지표 문턱 3.5e-3: 퇴화 최대 2.2e-3, 편대 최소 4.91e-3. 호출 미연결. 총괄 미검증(시험 321 s) |
+  | pose-test-bounds (F-321) | `feat/pose-test-bounds` 6b8ecaf (base feat/pipeline-poses, PR 없음) | 노트 없음 | 2구역 포즈 78/54, 겹침 12장, 구역 간 회전 차 중앙 0.90°·최대 7.73°. 총괄 미검증 |
+  | fusion-neighbors (F-113) | `feat/fusion-neighbors` f4b29f8 (시험만, PR 없음) | 2dbff72 | 48장 960×540 CPU 6.45 s, 벽시계 7.6~9.6 s(부하 20). 총괄 미검증 |
+  | rig-rel-rot (F-379 3축 안) | `feat/rig-rel-rot` | experiment/rig-rel-rot | 회차 끝까지 결과 못 받음 — 브랜치 확인 필요 |
+  | tracks-step-cross (F-385·F-386) | `feat/tracks-step-cross` 3bc9459 (PR 없음) | 3bc2e6a | 카메라 간 거름 대부분 시차 차이 ≥160 px 외톨이 점. 상한 배수 3→8: 단차 100% 간 6.94→2.51%, 40% 간 7.83→4.43%(12~24 배도 4.18%) — 3% 미달, 기본값 유지. F-386 상한 0.025. 최종 코드 `--lib tracks` 전체 미실행, 총괄 미검증 |
+  | ta-schur-mem (F-308~F-311) | `feat/ta-schur-mem` | experiment/ta-schur-mem | 회차 끝까지 결과 못 받음 |
+- 끝까지 흐름 진척: main ca15f20 에서 전부 연결(변화 없음), 기본 경로 7/7(81/81, 3구역).
+- 다음 할 일:
+  1. rig-rel-rot·tracks-step-cross·ta-schur-mem 브랜치 머리 확인 → 다시 빌드·시험 뒤 PR.
+  2. matching-degenerate·pose-test-bounds·fusion-neighbors 총괄 검증 뒤 PR(pose-test-bounds 는 연구 노트 먼저).
+  3. 2구역 겹침 사진 구역 간 회전 차 최대 7.73° 원인(새 FEEDBACK 후보).
+  4. F-056 7구역×200만 스냅샷 검사 병렬화, F-113 부하 없는 벽시계 측정.
+- 막힌 점:
+  - 4 코어 기계에 11묶음 동시 빌드로 부하 평균 20~45 — 시간 측정(F-113·F-056) 신뢰 낮음. 다음 회차는 동시 묶음을 줄일 것.
+  - 소유자 병합 필요: #84·#88(main 바로 위), #90·#91, #76 → #77 → #78 → #80 → #89, #55 → #86, #54 → #87, #68, #69, #70, #71 → #73 → #74, #75, #65, #63·#62·#60·#61·#59·#58·#57·#56, #40, #53, #51·#49·#42·#41·#39, 연구 PR 들.
+  - F-197(높음)·F-348·F-349·F-089 항목 3 SPEC 결정은 소유자 몫.
+
+## 직전 실행 기록 (2026-10-06 12:07Z 시작분)
 - 상태: 진행 중
 - 마지막 갱신: 2026-10-06T13:14Z (13:13Z 시작분)
 - 이번 회차 결론: **끝까지 흐름은 main 9970689 에서 그대로 전부 연결(기본 경로 7/7·81/81, 3구역)이라 이번 회차는 앞 회차가 남긴 브랜치 4개를 검증해 PR 로 올리고, 열린 FEEDBACK 작은 묶음 4개를 처리했다.** 제품 PR 7개(#83~#89), 연구 PR 8개(#145~#152). F-379 거부안은 시드 1~4 에서 결과 불변(떨어진 성분 없음) 확인 → #89(#80 위).
