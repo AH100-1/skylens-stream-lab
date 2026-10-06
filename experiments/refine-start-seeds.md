@@ -36,7 +36,9 @@
 
 기본 경로(인자 없는 synth → run, 기본 구역 3개, 시드 1). 위 방향·회전은 구역별로 구해 평균. 등록은 구역 합산(보조 사진 포함 여부 확인 못 함), verify 7/7 둘 다.
 - 끔: ROW default seed 1 끔 | up 1.715 | rot 0.930/0.833/1.052 | center 0.4265/0.9402 | rms 0.247 | surf 0.3932/1.2007 | reg 105 | verify 7/7 | 176s
-- 켬: (측정 시간 초과로 끝내지 못함)
+- 켬: ROW default seed 1 켬 | up 1.221 | rot 0.912/0.747/0.996 | center 0.3115/0.9455 | rms 0.251 | surf 0.4671/1.2618 | reg 105 | verify 7/7 | 120s
+
+끔 대비 켬: 위 방향 -0.494 도(1.715 → 1.221), 중심 중앙 -0.115 m, 표면 중앙 +0.074 m(나빠짐), 표면 95% +0.061 m(나빠짐). 이 시드 하나에서는 위 방향만 좋아지고 점 표면 거리는 나빠졌다.
 
 ## 방법
 - 시험 `crates/cli/tests/refine_start_seeds.rs`(`#[ignore]`). 시드별로 장면을 만들어 같은 입력을 스위치 끔/켬으로 `run_pipeline` 한 뒤, 정답과 비교한다. 스위치는 `stage_diag_refined_start`(진단용, 기본 꺼짐)이며 코드는 바꾸지 않았다. 기본 경로는 같은 시험 안에서 기본 장면·`DatasetConfig::default`·`PipelineConfig::default` 로 돌린다(프로세스로 돌리는 `default_path` 와 같은 설정).
