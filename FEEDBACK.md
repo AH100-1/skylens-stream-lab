@@ -3163,28 +3163,28 @@
 - 확인 기준: 주석·본문이 `git diff` 와 일치.
 - 이력: PR #91 8fa1b10 검토, 2026-10-06 13:40Z 등록. 기록만.
 
-### F-402 [처리됨-검증대기] (심각도: 높음) — 파일 이름만으로 판정한 등록 사진(항목 1)이 끝쪽 위치를 잃은 실행도 통과시킨다
+### F-402 [닫힘] (심각도: 높음) — 파일 이름만으로 판정한 등록 사진(항목 1)이 끝쪽 위치를 잃은 실행도 통과시킨다
 - 위치: 제품 crates/core/src/verify.rs:253 `total_positions`, :259 `derive_registered`, :212 `derived_item` (PR #90 b1cba67)
 - 문제: 전체 위치 수를 남아 있는 파일 이름 hi 의 최댓값으로 정해, 마지막 구역이 통째로 빠지거나 잘려도 "전부 등록" 이 된다. report.json 이 있어도 그 `registered.total` 을 이름에서 센 3×N 과 비교하지 않고 두 판정을 AND 만 한다.
 - 실패 상황: 마지막 구역 이름을 pos10-26 → pos10-20 으로 바꾼 출력(report 없음)에서 항목 1 "60/60" 통과, 종료 코드 2 로 정상 출력과 구별 불가. 마지막 구역 두 파일을 지운 출력에 report.json(240/240)을 그대로 두어도 항목 1 "42/42; report.json 240/240" 통과.
 - 고칠 것: report 가 없으면 범위에 빈틈이 있을 때만 FAIL, 빈틈이 없으면 "판정 불가"(입력 위치 수를 출력이 갖고 있지 않음) — 또는 기대 위치 수를 인자로 받는다. report 가 있으면 total == 3×N, 구역 번호 집합·positions == hi−lo 까지 함께 요구.
 - 확인 기준: 위 두 경우를 시험으로 만들어 항목 1 이 PASS 가 아님.
-- 이력: PR #90 b1cba67 검토, 2026-10-06 13:50Z 등록. 두 경우 손으로 재현함. #90 불합격. → 2026-10-06 13:35Z 감독 덧붙임: 범위가 온전해도 등록 부족이 사라진다. 시험 고정물 `reg_preview: 60`(78 중) 그대로 report.json 이 있으면 항목 1 FAIL·종료 1, report.json 만 지우면 항목 1 PASS·종료 2. 파일 이름 hi−lo 는 계획된 구역 경계(stream.rs:906)라 등록 결과를 담지 않으므로, report 가 없을 때 항목 1 은 빈틈 FAIL 외에는 판정 불가로 두는 것이 맞다. `report_json_removal_keeps_verdicts` 에 이 경우를 넣을 것. → 2026-10-06 13:49Z 작업자 처리(제품 feat/verify-manifest-only 1f64d68·5161545, PR #90; 연구 experiment/verify-manifest-only 1fa39ff): report 없으면 빈틈 있을 때만 FAIL·없으면 판정 불가, report 있으면 report 구역 목록(번호·positions == hi−lo)과 파일 일치 요구. 두 재현 경우 모두 PASS 아님(이름 축소: report 없음 판정 불가/있음 FAIL, 끝 구역 삭제+report 240/240: FAIL). total == 3×N 조건은 기존 정상 출력(total 240, 이름 끝 26)과 맞지 않아 넣지 않음. 총괄 재확인 fmt·clippy 0, `--lib verify` 19, `--test verify` 26 통과
+- 이력: PR #90 b1cba67 검토, 2026-10-06 13:50Z 등록. 두 경우 손으로 재현함. #90 불합격. → 2026-10-06 13:35Z 감독 덧붙임: 범위가 온전해도 등록 부족이 사라진다. 시험 고정물 `reg_preview: 60`(78 중) 그대로 report.json 이 있으면 항목 1 FAIL·종료 1, report.json 만 지우면 항목 1 PASS·종료 2. 파일 이름 hi−lo 는 계획된 구역 경계(stream.rs:906)라 등록 결과를 담지 않으므로, report 가 없을 때 항목 1 은 빈틈 FAIL 외에는 판정 불가로 두는 것이 맞다. `report_json_removal_keeps_verdicts` 에 이 경우를 넣을 것. → 2026-10-06 13:49Z 작업자 처리(제품 feat/verify-manifest-only 1f64d68·5161545, PR #90; 연구 experiment/verify-manifest-only 1fa39ff): report 없으면 빈틈 있을 때만 FAIL·없으면 판정 불가, report 있으면 report 구역 목록(번호·positions == hi−lo)과 파일 일치 요구. 두 재현 경우 모두 PASS 아님(이름 축소: report 없음 판정 불가/있음 FAIL, 끝 구역 삭제+report 240/240: FAIL). total == 3×N 조건은 기존 정상 출력(total 240, 이름 끝 26)과 맞지 않아 넣지 않음. 총괄 재확인 fmt·clippy 0, `--lib verify` 19, `--test verify` 26 통과 → 2026-10-06 14:05Z 감독 확인(5161545): `registered_last_region_renamed_is_not_pass`·`registered_last_region_files_deleted_with_report_fails`·`registered_without_report_is_undecided_when_gapless` 통과, report 없으면 빈틈 없을 때 pass=false·판정 불가로 고정되어 PASS 불가. `--lib verify` 19, `--test verify` 26 통과. 닫음.
 
-### F-403 [처리됨-검증대기] (심각도: 중간) — 항목 2 구역 범위 검사가 구역 규칙·번호 연속을 보지 않는다
+### F-403 [닫힘] (심각도: 중간) — 항목 2 구역 범위 검사가 구역 규칙·번호 연속을 보지 않는다
 - 위치: 제품 crates/core/src/verify.rs:277~317 `derive_region_images` (PR #90)
 - 문제: 이웃이 겹치는지만 보고 [start−OVL, start+SPAN+OVL) 규칙, 구역 번호 0..K 연속, 마지막 구역 hi = N 을 보지 않는다. "구역 사진 수" 는 3×(hi−lo) 로 정의해 실제로 센 값이 아닌데 "42장" 처럼 적는다.
 - 실패 상황: [0,14)·[13,26)(겹침 1), 번호 0·2 만 있는 출력이 통과. 카메라 한 대가 빠진 구역도 report 없으면 통과.
 - 고칠 것: 구역 0·1 에서 SPAN·OVL 을 추정해 나머지 구역 경계를 맞춰 보고, 측정 문구를 "위치 범위 구조 검사(사진 수는 출력에 없음)" 로.
 - 확인 기준: 겹침 1칸·번호 건너뜀·마지막 꽉 찬 구역 세 경우 FAIL 시험.
-- 이력: PR #90 검토, 2026-10-06 13:50Z 등록. → 2026-10-06 13:49Z 작업자 처리(제품 feat/verify-manifest-only 1f64d68·5161545, PR #90): 구역 0·1 에서 SPAN·OVL 추정, 번호 0..K 연속·[kS−O, kS+S+O)·끝 구역 범위 검사, 문구 "위치 범위 구조 검사(사진 수는 출력에 없음)". 겹침 1칸·번호 건너뜀·경계 어긋남 FAIL 시험. 구역 하나뿐이면 시작 0 만 봄. 총괄 재확인 같음
+- 이력: PR #90 검토, 2026-10-06 13:50Z 등록. → 2026-10-06 13:49Z 작업자 처리(제품 feat/verify-manifest-only 1f64d68·5161545, PR #90): 구역 0·1 에서 SPAN·OVL 추정, 번호 0..K 연속·[kS−O, kS+S+O)·끝 구역 범위 검사, 문구 "위치 범위 구조 검사(사진 수는 출력에 없음)". 겹침 1칸·번호 건너뜀·경계 어긋남 FAIL 시험. 구역 하나뿐이면 시작 0 만 봄. 총괄 재확인 같음 → 2026-10-06 14:05Z 감독 확인: SPAN = (h0+l1)/2, OVL = (h0−l1)/2 와 끝 구역 hi ∈ (kS+O, kS+S+O] 가 stream.rs `split_regions` 규칙과 맞음. `region_structure_follows_span_ovl_rule` 통과. 닫음.
 
-### F-404 [처리됨-검증대기] (심각도: 낮음) — 같은 구역 번호 파일 중복·이름 깨진 파일을 조용히 넘기고, `a.0 > plo` 조건을 시험이 못 잡는다
+### F-404 [닫힘] (심각도: 낮음) — 같은 구역 번호 파일 중복·이름 깨진 파일을 조용히 넘기고, `a.0 > plo` 조건을 시험이 못 잡는다
 - 위치: 제품 crates/core/src/verify.rs:876 `region_positions`, :291, 시험 :1481 `region_images_checks_ranges` (PR #90)
 - 문제: refined_01_pos10-26 과 refined_01_pos20-26 이 함께 있으면 디렉터리 순서로 하나가 덮이고 경고 없음. :291 `a.0 > plo` 를 지워도 시험 전부 통과(변이 확인).
 - 고칠 것: 중복·해석 실패 이름을 FAIL 사유로, [0,14)·[0,26), hi<lo, 한쪽 폴더만 빈 경우 시험 추가.
 - 확인 기준: 같은 변이에서 시험 1건 이상 실패.
-- 이력: PR #90 검토, 2026-10-06 13:50Z 등록. 기록만. → 2026-10-06 13:49Z 작업자 처리(제품 1f64d68, PR #90): 중복 구역 번호·해석 실패 이름 FAIL, `a.0 > plo` 는 경계 규칙 비교로 대체(경계 비교 변이 시 `region_structure_follows_span_ovl_rule` 실패), [0,14)·[0,26), hi<lo, hi==lo, 한쪽 폴더 빈 경우 시험. 총괄 재확인 같음
+- 이력: PR #90 검토, 2026-10-06 13:50Z 등록. 기록만. → 2026-10-06 13:49Z 작업자 처리(제품 1f64d68, PR #90): 중복 구역 번호·해석 실패 이름 FAIL, `a.0 > plo` 는 경계 규칙 비교로 대체(경계 비교 변이 시 `region_structure_follows_span_ovl_rule` 실패), [0,14)·[0,26), hi<lo, hi==lo, 한쪽 폴더 빈 경우 시험. 총괄 재확인 같음 → 2026-10-06 14:05Z 감독 확인: `duplicate_region_files_and_bad_names_fail` 통과. 닫음.
 
 ### F-405 [열림] (심각도: 높음) — `--coarse-back off` 에서 초벌 포즈 파일이 사진 이름과 포즈를 엇갈려 쓴다
 - 위치: 제품 crates/core/src/pipeline.rs (feat/pipeline-poses 1e645df :2548 `rec.gids.iter().zip(&rec.coarse_poses)`), 원인 main c9b304b :2082 `rec.gids = g`(정밀 다시 등록 목록으로 바꿈)
@@ -3264,3 +3264,11 @@
 - 고칠 것: 필드 문서에 중복을 센다고 적거나 따로 센다. 노트 표에 정규화 끔 대조 행을 넣는다.
 - 확인 기준: 문서와 셈이 일치, 노트 표에 대조 행(rot 3.7e-5, 중심 차 7.0e-7).
 - 이력: PR #70 12eb78c 검토, 2026-10-06 등록. F-409·F-410 과 함께 ba.rs 를 다음에 고칠 때.
+
+### F-415 [열림] (심각도: 낮음) — `reg_preview: 60` 고정물이 CLI 시험에 들어가지 않았다
+- 위치: 제품 crates/cli/tests/verify.rs:558 `report_json_removal_keeps_verdicts` (PR #90 5161545)
+- 문제: 13:35 지시는 등록 부족(60/78) 고정물을 이 시험에 넣는 것이었는데, 시험은 항목 1·3 을 비교에서 빼고 고정물도 3개 그대로다. 라이브러리 시험으로 같은 성질이 확인되지만 실행 파일 수준의 종료 코드(있으면 1, 없으면 2)는 묶여 있지 않다.
+- 실패 상황: report 가 없을 때 항목 1 을 PASS 로 되돌리는 변경이 CLI 시험에서는 잡히지 않을 수 있다.
+- 고칠 것: `reg_preview: 60` 고정물로 report 있음 → 항목 1 FAIL·종료 1, 없음 → 판정 불가·종료 2 를 단언.
+- 확인 기준: 해당 단언 추가 후 `--test verify` 통과.
+- 이력: PR #90 5161545 검토, 2026-10-06 14:05Z 등록. 병합을 막지 않음. 다음에 verify 시험을 고칠 때 함께.
