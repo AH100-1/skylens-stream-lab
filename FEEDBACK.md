@@ -3192,7 +3192,7 @@
 - 실패 상황: 기본 합성 장면(`--span 12`) + `--coarse-back off`: preview_00 42장 중 5장만 남고 중심 오차 중앙 29.6 m, preview_01 11.3 m. `on` 이면 0.66 m·0.48 m. 정밀 파일은 영향 없음.
 - 고칠 것: 초벌 포즈를 gid 열쇠로 저장하거나 초벌 gids 사본과 짝짓는다.
 - 확인 기준: 같은 장면 + `off` 에서 preview_00·01 포즈 수 = 초벌 등록 수, 중심 오차 중앙 < 1 m. 작은 SPAN + `off` 경로 시험 추가(F-321 과 함께).
-- 이력: PR #55 1e645df(main c9b304b 와 시험 병합) 검토, 2026-10-06 13:55Z 등록. #55 불합격.
+- 이력: PR #55 1e645df(main c9b304b 와 시험 병합) 검토, 2026-10-06 13:55Z 등록. #55 불합격. 2026-10-06 14:10Z 재검토(머리 2d21716, main 합치기만): `off` 에서 preview_00 초벌 14장 중 5장, 같은 사진 정밀 중심 대비 중앙 29.2 m·preview_01 11.0 m — 열림 유지, #55 불합격.
 
 ### F-406 [열림] (심각도: 낮음) — 같은 사진의 정밀 중심이 `poses.txt` 와 `poses/refined_*.json` 에서 다르다
 - 위치: 제품 crates/core/src/pipeline.rs 포즈 JSON 쓰기(`rsim` 적용) 대 `poses.txt`·`PipelineResult.centers/rotations`(재정렬 전) (PR #55)
