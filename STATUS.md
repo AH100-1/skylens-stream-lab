@@ -1,23 +1,21 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-06T15:07Z (15:06Z 시작분 진행 중; 아래 결론은 14:07Z 시작분)
-- 이번 회차 결론: **끝까지 흐름은 main c7ae184 에서 그대로 전부 연결. 측정 기계 4코어라 감독 지시대로 동시 묶음 3개: F-405(#55 초벌 포즈 짝) 수정, 단차 장면 광선 가림(F-382·F-386·F-392·F-393) 새 PR #92, F-379 시드 확인(미완).** F-416(#54 단구역 95% 상한)은 이번 회차에 손대지 못함.
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-06T15:45Z (14:34Z 시작분)
+- 이번 회차 결론: **밀집 묶음(#54 → #58 → #87)을 main a1d2ad5 에 맞추고 F-416 원인 확인.** 단구역 95% 0.932 → 1.214 m 는 main #67(6a8bb90)이 긴 변 800 px 미만 사진의 2배 확대 검출 보충을 기본으로 켠 탓(`upscale_below` 0 이면 0.932·10302점 그대로). 중심 오차는 좋아짐. 상한·주석·README 를 현재 출력으로 다시 잡음.
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
-  | poses-coarse-off (F-405·F-407·F-321 일부) | `feat/pipeline-poses` af27852(main 병합 9fbc5be 위), PR #55 라벨 | experiment/poses-coarse-off dc6fe72, PR #159 | 초벌 gids 사본과 짝지음. 기본 장면 off 포즈 수 = 초벌 등록 수(14·32·10). 구역1 중심 차 9.48 → 3.4~3.6 m 로 줄었으나 기준 < 1 m 미달(초벌 정렬 스케일 의심), 구역0 은 초벌 정렬 실패로 비교 불가. 총괄: fmt·clippy 0·`--lib poses_io` 5·`--test pipeline_poses` 2 통과(208 s) |
-  | tracks-step-occlusion (F-382·F-386·F-392·F-393, F-385 측정) | `feat/tracks-step-occlusion` edffbe6, PR #92(14:33Z main 병합됨) | experiment/tracks-step-occlusion 5fe7267, PR #158 | 광선 가림 30~34% 빠짐. 하한 0.25 증가 12칸 모두 ≤ 1%p(최대 +0.68%p) → 0.25 유지. 카메라 간 거름 7.5~22.6%(상한 25% 로 넓힘), 이웃 48 은 악화로 되돌림. 총괄: fmt·clippy 0·`--lib tracks` 20 통과·5 무시 |
-  | detached-rig-seeds (F-379·F-399) | `feat/detached-rig-check` 83ad938, PR #89 라벨 | experiment/detached-rig-seeds 1e4ca42, PR #160 | 문턱 경계 시험·시드 5 근거 주석만. 시드 1~5 seed_verify 5개 동시 실행이 부하로 마감 안에 못 끝남. 총괄: fmt·clippy 0·`--lib detached` 7 통과 |
-- 끝까지 흐름 진척: main c7ae184 에서 전부 연결(변화 없음). 포즈 파일 #55 다시 검토 대기, 밀집 #54 는 F-416 으로 대기.
+  | dense-regress-cause (F-416) | 없음(조사만) | experiment/dense-regress-cause 35b57bf | 9ca267b+6a8bb90 에서 1.2205 m·11460점, 같은 트리 upscale 끔 → 0.932·10302. #64 영향 없음. 1 m 넘는 점 3.9% → 9.8% |
+  | dense-main-sync (F-416·F-417·F-408) | feat/dense-accuracy 617e6e0, feat/dense-pose-robust bae165f, feat/dense-speckle-guard 67b5929 | experiment/dense-main-sync cb44eed | 세 머리 `pipeline_e2e` 3/3·`pipeline` 7/7(작업자 측정). 단구역 상한 95% 1.46·중앙 0.47, 2구역 95% 0.64(출력 0.527 의 1.21배)·중앙 0.18, 정밀 재투영 0.213 ± 0.03 px. 총괄: speckle-guard 머리 fmt 통과만 — 시간 초과로 전체 시험 재확인 못 해 라벨 안 붙임 |
+- 끝까지 흐름 진척: main a1d2ad5 에서 전부 연결(변화 없음).
 - 다음 할 일:
-  1. F-416: #54 단구역 95% 0.932 → 1.214 m 악화 원인을 main 합치기 전후로 가르기, 그 뒤 #58 → #87.
-  2. F-405 남은 것: off 경로 구역1 초벌 중심 3.4 m(스케일) — 초벌의 정밀 좌표 정렬 스케일 확인.
-  3. F-379: 시드 1~5 seed_verify 를 한 번에 하나씩(부하 낮을 때) 돌려 기준선·각거리 분포 채우기.
-  4. F-385: 이웃을 변위 군집별로 나누는 안.
+  1. #87 머리 67b5929 에서 clippy·`--test pipeline_e2e`·`--test pipeline` 재확인 뒤 #54·#58·#87 라벨, FEEDBACK F-416·F-417·F-408 처리됨-검증대기로.
+  2. 확대 검출 보충이 표면 95% 를 0.93 부근으로 유지하게 할 수 있는지(응답 하한, 보충 특징의 삼각측량 제외).
 - 막힌 점:
-  - 4코어 측정 기계에서 seed_verify 여러 개 + 릴리스 빌드 3개를 같이 돌리면 시드 실행이 끝나지 않음 — 무거운 시드 측정은 단독으로.
-  - 소유자 병합 필요: #55, #89(base #80 사슬), #90, #54 → #58 → #87, 그 밖은 직전 기록과 같음.
+  - 14:07Z 시작분과 시간이 겹쳐 feat/dense-accuracy·feat/dense-speckle-guard 에 두 쪽이 따로 다시 잡기 커밋을 올림(ef2a07a, e821d52). 병합으로 합쳤고 dense-accuracy 는 이쪽 수치(main #92 포함 측정)를 택함.
+  - feat/dense-speckle-guard 이력의 옛 커밋 하나의 메시지에 기록 규칙에 어긋나는 줄이 있음 — 남의 이력이라 고쳐 쓰지 않음, 병합 시 squash 권장.
+  - 소유자 병합 필요: 직전 기록과 같음.
 
 ## 직전 실행 기록 (2026-10-06 13:31Z 시작분)
 - 상태: 진행 중
