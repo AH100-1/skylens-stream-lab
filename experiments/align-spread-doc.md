@@ -28,7 +28,7 @@
 ## 방법
 - 모듈 문서의 잡음 문장을 정정. 띠 시험은 잡음 σ 2 m 로 높여 잡음이 새어 들어오면 0.1 m 를 넘기게 했다.
 - 민감도 시험의 판정 값은 같은 입력에 위 방향을 줘서 읽은 `spread_m` 이다(위 방향 없이는 `None` 이라 읽을 수 없음). 문턱 0.05 m 안에서는 두 적합 차이로 갈릴 수 있어 일치 단언에서 제외.
-- 변이 확인: `spread_m` 을 정상 대응의 GPS 점(`enu`)에서 계산하도록 임시로 바꾸면 새 단언 3개가 실패한다. `formation_second_axis_spread_matches_doc`(σ 2 m 에서 `spread_m[1]` 4.548 m, 띠 4.404 m 와 차 0.144 m > 0.1), `formation_threshold_sensitivity`(σ 1 m, `spread_m[1]` 4.045 m 대 잡음 없는 값 3.872 m, 차 0.17 m), 기존 `gps_alignment_formation_strip_tilt`(위 방향 없는 정렬이 `None` 이어야 하는데 정렬됨). 되돌린 뒤 30개 모두 통과. 참고로 σ 1 m 의 띠 시험만으로는 같은 변이에서 4.389 m 라 0.1 m 단언을 통과했다(변이를 못 잡음). 그래서 σ 를 2 m 로 올렸다.
+- 변이 확인: `spread_m` 을 정상 대응의 GPS 점(`enu`)에서 계산하도록 임시로 바꾸면 새 단언 3개가 실패한다. `formation_second_axis_spread_matches_doc`(σ 2 m 에서 `spread_m[1]` 4.548 m, 띠 4.404 m 와 차 0.144 m > 0.1), `formation_threshold_sensitivity`(σ 1 m, `spread_m[1]` 4.045 m 대 잡음 없는 값 3.872 m, 차 0.17 m), 기존 `gps_alignment_formation_strip_tilt`(위 방향 없는 정렬이 `None` 이어야 하는데 정렬됨). 되돌린 뒤 30개 모두 통과. 덧붙여 σ 1 m 의 띠 시험만으로는 같은 변이에서 4.389 m 라 0.1 m 단언을 통과했다(변이를 못 잡음). 그래서 σ 를 2 m 로 올렸다.
 - 시험: `cargo test --release -p skylens-core --lib align` 30 통과, fmt·작업공간 clippy `--all-targets -D warnings` 통과.
 
 ## 남은 문제
