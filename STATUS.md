@@ -14,12 +14,12 @@
   | matching-degenerate (F-003) | `feat/matching-degenerate` 369923d (PR 없음) | 779a4ab | 특이값 비 지표 문턱 3.5e-3: 퇴화 최대 2.2e-3, 편대 최소 4.91e-3. 호출 미연결. 총괄 미검증(시험 321 s) |
   | pose-test-bounds (F-321) | `feat/pose-test-bounds` 6b8ecaf (base feat/pipeline-poses, PR 없음) | 노트 없음 | 2구역 포즈 78/54, 겹침 12장, 구역 간 회전 차 중앙 0.90°·최대 7.73°. 총괄 미검증 |
   | fusion-neighbors (F-113) | `feat/fusion-neighbors` f4b29f8 (시험만, PR 없음) | 2dbff72 | 48장 960×540 CPU 6.45 s, 벽시계 7.6~9.6 s(부하 20). 총괄 미검증 |
-  | rig-rel-rot (F-379 3축 안) | `feat/rig-rel-rot` | experiment/rig-rel-rot | 회차 끝까지 결과 못 받음 — 브랜치 확인 필요 |
+  | rig-rel-rot (F-379 3축 안) | `feat/rig-rel-rot` ca94d46 (base bb46454, PR 없음) | 5989232 | 시드5 3축 보정안 81/81·7/7 이지만 구역2 L 정답 대비 4.39°(목표 대비 9.92 → 0.02°) — 목표 자체가 정답에서 약 4.4° 어긋남, `zone_rotation_error_limit` 실패. 거부안(#89) 유지 권장. 시드 1~4 미측정 |
   | tracks-step-cross (F-385·F-386) | `feat/tracks-step-cross` 3bc9459 (PR 없음) | 3bc2e6a | 카메라 간 거름 대부분 시차 차이 ≥160 px 외톨이 점. 상한 배수 3→8: 단차 100% 간 6.94→2.51%, 40% 간 7.83→4.43%(12~24 배도 4.18%) — 3% 미달, 기본값 유지. F-386 상한 0.025. 최종 코드 `--lib tracks` 전체 미실행, 총괄 미검증 |
   | ta-schur-mem (F-308~F-311) | `feat/ta-schur-mem` 934fd42 (PR 없음) | 노트 없음 | 부분 행렬 버퍼 재사용(240장·4스레드 7.4 → 2.3 MB 추정), 고정 조각 64·스레드 1/4 중심 차 ≤1e-12, 슈어 S·b 1e-12·밀집 해 1e-9 시험. 반복 300 상한 도달 원인 미확인(F-309 일부). F-311 은 시간 비율 단언을 RMS 비트 일치로 바꿨으나 절대 한도 60 → 300 s 완화 — 검토 필요. `--lib translation_averaging` 13 통과·8 무시, 총괄 미검증 |
 - 끝까지 흐름 진척: main ca15f20 에서 전부 연결(변화 없음), 기본 경로 7/7(81/81, 3구역).
 - 다음 할 일:
-  1. rig-rel-rot·tracks-step-cross·ta-schur-mem 브랜치 머리 확인 → 다시 빌드·시험 뒤 PR.
+  1. 시드5 구역2 장착 상대 회전 목표가 정답에서 4.4° 어긋나는 원인(장착 회전 추정) — 3축 보정안은 PR 하지 않음. tracks-step-cross·ta-schur-mem 총괄 검증 뒤 PR(ta-schur-mem 은 연구 노트·F-311 300 s 완화 재검토 먼저).
   2. matching-degenerate·pose-test-bounds·fusion-neighbors 총괄 검증 뒤 PR(pose-test-bounds 는 연구 노트 먼저).
   3. 2구역 겹침 사진 구역 간 회전 차 최대 7.73° 원인(새 FEEDBACK 후보).
   4. F-056 7구역×200만 스냅샷 검사 병렬화, F-113 부하 없는 벽시계 측정.
