@@ -21,6 +21,7 @@
 - [x] T13 `verify` — 2026-10-02 병합, 제품 0afc818 (F-066 통합 시험·F-089·F-180·F-181 남음) — SPEC §4 검증을 `skylens-stream verify <폴더>` 로. 실패 시 종료 코드 1.
 - [x] E01 `pipeline` — 2026-10-04 병합, 제품 779edb7 (PR #46, F-312~F-316 남음) — synth → run → verify 끝까지, 단구역·2구역 7/7.
 - [x] `vote-upscale` — 2026-10-04 병합, 제품 6a8bb90 (PR #67, `small-image-features` #66 b97a3ea 포함, F-356~F-358 남음) — 선택 옵션 `--upscale-fill`·`--pair-vote`(기본 끔). 480×270 에서 `--max-features 3000` 과 함께 54/81 → 81/81(연구 노트 1회 측정).
+- [x] `region-cross-extend` — 2026-10-06 병합, 제품 4825669 (PR #64) — 구역 밖 도움 사진(앞 F 40·뒤 R/L 40), 인자 없는 synth → run → verify 기본 경로 7/7(81/81, 3구역).
 - [ ] T14 `perf` — 구간별 시간 측정, 병렬화. 합성 240장 전체 시간 기록. 이후 GPU 백엔드 설계 노트.
 
 ## 병렬 묶음 (동시에 진행)
