@@ -10,7 +10,7 @@
 - [x] T03 `features` — 2026-10-01 병합, 제품 cde0fb4 (실험 노트 보충 필요) — 가우시안 차분 특징점 + 128차원 기술자. 합성 장면 회전·축척 변화에서 재검출률·매칭 정확도 측정.
 - [x] T04 `matching` — 2026-10-01 병합, 제품 97cf72c (실험 노트 보충 필요) — 시간 이웃 + 카메라 간 짝 생성, 비율 검사, 기하 검증 RANSAC. 정답 대비 정상 짝 비율.
 - [x] T05 `two-view` — 2026-10-01 병합, 제품 7b2e6e6 (실험 노트 보충 필요) — 8점·5점 본질 행렬, 상대 자세 복원, 삼각측량. 잡음별 회전 오차(도).
-- [x] T05b `tracks` — 2026-10-03 병합, 제품 fe9a99d (PR #15, F-261·F-263~F-267·F-280·F-281 남음) — 검증된 짝 대응 → 다시점 트랙, 국소 변위 거름·Split 정책. 편대 재현율 30~50% 완전도 ≥0.9937. tracks-consistent 2026-10-06 병합, 제품 32a5da4 (PR #81, F-125 닫힘, F-381~F-384 남음) — 간선 투표·변위 문턱 하한 0.25, 일관 바꿈 1% 시드 1~5 × 30/40/50% Split 순도 ≥0.996.
+- [x] T05b `tracks` — 2026-10-03 병합, 제품 fe9a99d (PR #15, F-261·F-263~F-267·F-280·F-281 남음) — 검증된 짝 대응 → 다시점 트랙, 국소 변위 거름·Split 정책. 편대 재현율 30~50% 완전도 ≥0.9937. tracks-consistent 2026-10-06 병합, 제품 32a5da4 (PR #81, F-125 닫힘, F-381~F-384 남음) — 간선 투표·변위 문턱 하한 0.25, 일관 바꿈 1% 시드 1~5 × 30/40/50% Split 순도 ≥0.996. tracks-vote-csr 2026-10-06 병합, 제품 ca15f20 (PR #83, F-381·F-383·F-384 닫힘, F-387 남음) — 간선 투표를 CSR 하나로·반복 상한 3회, 기준 규모 Split 약 25~30% 단축.
 - [x] T06 `rotation-averaging` — 2026-10-01 병합, 제품 bc51103 — 상대 회전 그래프 → 전역 회전. 정답 대비 각도 오차.
 - [x] T07 `translation-averaging` — 2026-10-04 병합, 제품 8afa7fe (PR #37, F-288·F-291·F-303·F-307~F-311 남음) — 방향 제약 위치 추정 + 삼각측량 → 초벌 모델. 카메라 240대 등록 확인.
 - [x] T08 `bundle-adjustment` — 2026-10-01 병합, 제품 04e4d29 (F-034~F-037 남음) — 희소 Levenberg–Marquardt + 슈어 보수, 강건 손실, 카메라별 공유 내부 파라미터. 재투영·중심 오차.
@@ -45,7 +45,7 @@ CLI `main.rs` 는 하위 명령 연결 한 줄씩만 추가한다(충돌 최소)
 | [x] P09 `view-selection` (2026-10-01, 제품 80f9a86; dense-prep 2026-10-02 제품 60cbc2d, F-201~F-204 남음) | T10a 이웃 8장 점수·깊이 범위·왜곡 보정(960px) | 새 `view_selection.rs`, `undistort.rs` | camera-model | — |
 | [x] P10 `patchmatch` (2026-10-04, 제품 f3e9ed2; patchmatch-f293b·patchmatch-speed 2026-10-04 feat/patchmatch 92f56e4) | T10b 시점별 PatchMatch 깊이·법선(rayon) | 새 `patchmatch.rs` | camera-model | P09 인터페이스 |
 | [x] P11 `depth-fusion` (2026-10-01, 제품 6c0eea7; fusion-hardening 2026-10-02 제품 bbd82d8; fusion-tests 2026-10-02 제품 05ac3ac; fusion-stream 2026-10-03 제품 1578181; fusion-consistency 2026-10-03 제품 b75d5a5, F-113·F-226·F-229·F-241·F-242·F-255·F-282~F-285 남음) | T11 왕복 투영 걸러내기 + 3장 동의 합치기 → 점군 | 새 `fusion.rs` | camera-model | P10 인터페이스 |
-| [x] P12 `dataset-io` (2026-10-02, 제품 20a293c, F-206 남음) | 실제 데이터 읽기(`images/cam{F,R,L}`, `gps.txt`, STRIDE) + `run` 명령 뼈대 | 새 `dataset.rs`, CLI `run` | scaffold | — |
+| [x] P12 `dataset-io` (2026-10-02, 제품 20a293c, F-206 남음; dataset-frame-gaps 2026-10-06 제품 d9fd00e, PR #85 — 세 카메라 모두 없는 STRIDE 격자 프레임도 건너뜀으로 셈) | 실제 데이터 읽기(`images/cam{F,R,L}`, `gps.txt`, STRIDE) + `run` 명령 뼈대 | 새 `dataset.rs`, CLI `run` | scaffold | — |
 | [x] P13 `progressive-stream` (2026-10-01, 제품 f2b658b; stream-hardening 2026-10-02 제품 6f14401; stream-followup 2026-10-02 제품 c7b7287, F-055·F-056·F-065·F-066·F-175~F-177 남음) | T12 구역 분할, 초벌/정밀, 공유 관측 닮음 정렬, 잔상 1.5m 걸러내기, 스냅샷·manifest | 새 `stream.rs` | two-view | P08 인터페이스 |
 | [x] P14 `verify` (2026-10-02, 제품 0afc818; verify-followup 2026-10-02 제품 50fce8a, F-089·F-180·F-181·F-187 남음) | T13 `verify <폴더>` — SPEC §4 일곱 항목, 실패 시 종료 코드 1 | 새 `verify.rs`, CLI `verify` | scaffold | — |
 | [x] P15 `benchmarks` (2026-10-01, 제품 5f2e886; benchmarks-scale 2026-10-01 제품 dc9bb55; benchmarks-followup 2026-10-02 제품 25d71cf; benchmarks-args 2026-10-02 제품 70219c3, F-040·F-128·F-130·F-132·F-149·F-205 남음) | T14 구간별 시간 측정 틀(합성 240장) | 새 `benches/` | fast-matching | — |
