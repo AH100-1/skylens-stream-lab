@@ -2904,3 +2904,27 @@
 - 고칠 것: 주석·노트를 ±6° 로 맞추거나 코드를 ±3° 로. 롤 오차를 비행 축 둘레 성분으로 따로 내거나 표 머리말에 "전체 회전각"이라고 적기.
 - 확인 기준: 주석·노트·코드의 흩어짐 폭이 같고, 표 머리말이 실제로 잰 양을 말함.
 - 이력: PR #77 bdcf4d2 검토, 2026-10-05 등록. 시험 보조 코드·노트 문구라 병합을 막지 않음. 다음 코드 변경 때 함께.
+
+### F-372 [열림] (심각도: 높음) — 전체 시험 `helper_latency::coarse_back_off_keeps_refined_seams_tight` 실패
+- 위치: 제품 crates/cli/tests/helper_latency.rs:124 (feat/zone0-roll 33b8dec, PR #78). 원인 변경은 crates/core/src/pipeline.rs 의 정밀 시작점 `legacy_roll: true → false` 두 곳 또는 `merge_detached` 기본 켬.
+- 문제: `cargo test --release` 가 helper_latency 에서 멈춘다. 단언은 `!med.is_empty() && med.len() < want` 인데 이 PR 에서는 정밀 재정렬 기록이 3개(구역 수 3)라 개수 조건이 깨진다. 기록: refined 0→1 0.145 m, refined 1→2 0.054 m, refined 0→2(via 1) 0.145 m. 잔차는 모두 1 m 한도 안이고, base(bdcf4d2)에서는 같은 시험이 통과한다.
+- 실패 상황: 22위치·SPAN 8·`--coarse-back off` 장면에서 정밀 0→2 이음 기록이 새로 생긴다. 개수 조건이 지키려던 성질(어떤 이음은 GPS 맞춤에 맡김)이 바뀐 것인지, 단언이 우연한 개수에 기대고 있던 것인지 판단 근거가 없다.
+- 고칠 것: 0→2 이음이 왜 새로 생기는지 노트에 적고, 의도된 변화면 단언을 개수가 아닌 성질(예: 모든 기록 잔차 < 1 m, 기록 수 ≥ 1)로 바꾸며 근거를 주석에. 의도되지 않았으면 원인 변경을 고친다.
+- 확인 기준: 전체 `cargo test --release` 실패 0, helper_latency 3개(1 무시) 통과, 노트에 이음 기록 변화 설명.
+- 이력: PR #78 33b8dec 검토, 2026-10-06 00:05Z 등록. 병합을 막음.
+
+### F-373 [열림] (심각도: 중간) — 기본 경로 롤 규칙 변경을 시드 1·5 에서만 쟀고 시드5 구역 1 이 나빠졌다
+- 위치: 제품 crates/core/src/pipeline.rs `run_pipeline_with` 의 `legacy_roll: false` 두 곳(PR #78), 연구 experiments/zone0-roll.md '남은 문제'
+- 문제: 정밀 시작점·다시 등록한 전체 목록의 롤 규칙은 모든 장면의 기본 경로를 바꾸는데 시드 2~4 는 재지 않았다. 노트 표에서 시드5 구역 1 정면·오른쪽 2.49 → 4.39°, 왼쪽 1.96 → 3.18° 로 나빠졌다. `zone_rotation_error_limit` 의 구역 1·2 한도 4.5° 는 측정값 4.39° 를 거의 그대로 받아들인다.
+- 실패 상황: 지형 기복이 큰 구역에서 높이 분산 최소 롤이 치우쳐 구역 회전 오차가 커지고, 시험 한도가 그 후퇴를 막지 못한다.
+- 고칠 것: 시드 1~5 구역별 이전/이후 표, 구역 1 후퇴 원인(정밀 BA 직후 3.3° → 퍼짐 롤 4.4°) 설명. 한도는 측정값이 아닌 목표(2°)에서 정한 근거로.
+- 확인 기준: 시드 2~4 `default_path_seed_verify` 결과와 구역 회전 오차가 노트에 있고, 이전보다 나빠진 구역이 있으면 그 이유가 적혀 있음.
+- 이력: PR #78 33b8dec 검토, 2026-10-06 00:05Z 등록. 병합을 막지 않음(F-372 와 함께 다음 커밋에서).
+
+### F-374 [열림] (심각도: 낮음) — `attach_detached`·`merge_detached_components` 정리 거리
+- 위치: 제품 crates/core/src/pipeline.rs `attach_detached`, `icp_similarity`, `merge_detached_components` (PR #78)
+- 문제: (1) `merge_detached_components` 의 `keep_edge` 인자를 `let _ = keep_edge;` 로 버린다. (2) `attach_detached` 의 첫 `res` 는 정렬까지 하지만 개수 검사에만 쓰인다. (3) 비행 축 둘레 롤을 0.5° 간격 720번 탐색으로 고르는데 닫힌 해(두 법선의 축 수직 성분 사이 각)가 있다. (4) ICP 보정을 채택할 때 GPS 정상 대응 수만 보고 점 겹침 잔차가 줄었는지는 보지 않는다.
+- 실패 상황: (4) 점 겹침이 좁은 성분(시험 주석: 20 m 폭에서 회전 약 2.9°)에서 ICP 가 회전을 키워도 GPS 5 m 안이면 받아들인다.
+- 고칠 것: 쓰지 않는 인자·계산 제거, 닫힌 해로 바꾸거나 주석에 탐색 이유, ICP 채택 조건에 겹침 잔차 감소 추가.
+- 확인 기준: clippy 0, `detached_tests` 통과, ICP 가 잔차를 키우는 경우를 거부하는 단위 시험 하나.
+- 이력: PR #78 33b8dec 검토, 2026-10-06 00:05Z 등록. 병합을 막지 않음.
