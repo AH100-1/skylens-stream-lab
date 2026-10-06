@@ -35,7 +35,7 @@
 - 구역0 이 나빠진 이유 미확인: 다듬기가 구역0 의 L 성분 법선을 오히려 기울였을 가능성. 한 번 측정이라
   잡음 여부도 불명. 초벌 단계의 FR–L 상대 회전을 여러 위치 평균으로 직접 물려받는 방식은 시간 부족으로 시도하지 못함.
 - 구역1 상대 3.43° 는 기준 3° 보다 약간 큼.
-- 시드1 결과와 단위 시험은 제품 브랜치 커밋 메시지 이후 별도 확인 필요(아래 참조).
+- 시드1 default_path 7/7 통과, fmt·clippy·core pipeline 시험(20 통과) 통과.
 
 ## 제품 브랜치·커밋
-저장소 skylens-stream-rs, 브랜치 feat/l-attach-rel (기준 feat/zone1-rig-roll 87233a0).
+저장소 skylens-stream-rs, 브랜치 feat/l-attach-rel, 커밋 06105e2 (기준 feat/zone1-rig-roll 87233a0).
