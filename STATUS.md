@@ -1,13 +1,13 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-06T15:48Z (15:06Z 시작분)
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-06T15:58Z (15:06Z 시작분)
 - 이번 회차 결론: **끝까지 흐름은 main a1d2ad5 에서 그대로 전부 연결. 4코어 측정 기계라 감독 지시대로 동시 묶음 2개: 밀집 사슬 F-416·F-417·F-427(#54 → #58 → #87 다시 맞춤), 트랙 층 지지 F-385·F-393·F-428 새 PR #93.**
 - 묶음별 결과:
   | 묶음 | 제품 | 연구 | 결과 |
   |---|---|---|---|
   | tracks-layer-neighbors (F-385 일부·F-393·F-428) | `feat/tracks-layer-neighbors` 9ba3777, PR #93 라벨 | experiment/tracks-layer-neighbors 4c14289, PR #161 | 층 지지(변위 0.25배 허용 안 지지 ≥5)로 카메라 간 거름 100% 7.8→7.4·15.7→15.2·11.1→10.9%, 이상점 거름 98% 유지. 3% 목표 미달(버려지는 참 대응은 변위 연속성 밖, 다음은 에피폴라 검사). 경계 트랙 완전도 열, 하한 0.1 변이 실패 단언, 벽 모서리 중복 제거. 총괄: fmt·clippy 0·`--lib tracks` 21 통과·6 무시 |
-  | dense-chain (F-416·F-417·F-427) | `feat/dense-accuracy` 617e6e0 → `dense-pose-robust` bae165f → `dense-speckle-guard` 67b5929 | experiment/dense-main-sync cb44eed | 14:34Z 시작분과 같은 사슬을 맡아 겹침 — 세 머리는 그쪽 수치로 합쳐짐(아래 기록). 이 회차 총괄 재시험은 시간 안에 못 함, 라벨 안 붙임 |
+  | dense-chain (F-416·F-417·F-427) | `feat/dense-speckle-guard` e821d52(머리 67b5929 의 조상) | experiment/dense-regress-cause 819fa1a | 14:34Z 시작분과 겹침. 작업자 측정: main 합친 dense-accuracy·speckle-guard e821d52 에서 `pipeline_e2e` 3/3·`pipeline` 7/7, 단구역 95% 1.214(상한 1.46)·2구역 0.527(상한 0.64). 확대 특징 응답 하한(원래 특징 응답 중앙 이상만) 시험은 95% 1.320 m 로 악화 → 버림. 총괄 재시험은 시간 안에 못 함, 67b5929 미확인 → 라벨 안 붙임 |
 - 끝까지 흐름 진척: main a1d2ad5 에서 전부 연결(변화 없음). 밀집 다듬기 사슬은 단구역 상한 다시 잡는 중.
 - 다음 할 일:
   1. 밀집 사슬 머리(67b5929)에서 `--test pipeline_e2e`·`--test pipeline` 다시 돌려 통과 확인 후 #54·#58·#87 라벨.
