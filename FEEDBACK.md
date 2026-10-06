@@ -3296,3 +3296,11 @@
 - 고칠 것: 법선 각을 `DenseConfig` 필드로, 지운 비율을 구역별 report 에 남긴다.
 - 확인 기준: report 에 구역별 반점 제거 비율, 법선 각 설정 변경이 융합 결과를 바꾸는 시험.
 - 이력: PR #54 4f09688 검토, 2026-10-06 14:25Z 등록. 기록만.
+
+### F-408 [열림] (심각도: 높음) — 밀집 묶음(#54 → #58 → #87)을 현재 main 에 합치면 실측 고정 시험 2개가 실패한다
+- 위치: 제품 crates/cli/tests/pipeline.rs:441 `preview_refine_settings_verify_outcome`, crates/cli/tests/pipeline_e2e.rs:275 `single_region_end_to_end` (feat/dense-accuracy 에서 온 단언)
+- 문제: 묶음은 main c9b304b 위에서 맞춘 수치인데, 그 뒤 main 에 #69·#70(BA 관측 스케일 기준 등)이 들어와 출력이 바뀌었다. 병합 충돌은 없지만 합친 결과의 시험이 깨진다.
+- 실패 상황: main c7ae184 + feat/dense-speckle-guard 259d944 시험 병합, `cargo test --release --no-fail-fast`: 정밀 재투영 0.213 px(단언 0.313 ± 0.05, 두 설정 모두 0.213), 단구역 정밀 점 95% 1.214 m(상한 1.12). 나머지 묶음 전부 통과(core lib 357 통과·33 무시, pipeline_e2e 나머지 2, pipeline 나머지 6). fmt·clippy 0.
+- 고칠 것: main 을 feat/dense-accuracy 로 합쳐 내려보내고(→ #58 → #87), 두 시험과 README·시험 주석 수치를 새 출력으로. 95% 가 1.12 → 1.21 m 로 나빠진 것이 #70 때문인지 밀집 변경 때문인지 main 단독 출력과 비교해 노트에 적을 것. 2구역 시험 주석의 점쌍 1178·스케일 차 0.26% 와 회귀 상한 주석의 실측 0.55% 도 한쪽으로 맞출 것.
+- 확인 기준: 현재 main 과 합친 #87 머리에서 `--test pipeline`·`--test pipeline_e2e` 전부 통과, 주석·README 수치가 시험 출력과 일치.
+- 이력: PR #87(#54·#58 포함) 검토, 2026-10-06 14:12Z 등록. 묶음 병합 보류.
