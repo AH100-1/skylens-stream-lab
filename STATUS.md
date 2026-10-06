@@ -10,7 +10,7 @@
   | ba-robust-asserts (F-362) | `feat/ba-robust-main` 12eb78c, PR #70 갱신 | 7e0d9dd, PR #154 | rot 2.98e-8 rad < 1e-6, cholesky_failures 0. 총괄: fmt·clippy 0·`--lib ba` 37 통과 |
   | align-doc-std (F-361) | `feat/align-formation` 0538216, PR #69 갱신 | 3e4939b, PR #153 | 둘째 주축 4.30/4.40 m, 문턱 여유 0.70/0.60 m, ±10% 판정 불변. 총괄: fmt·clippy 0·`--lib align` 30 통과 |
   | verify-manifest-only (F-089) | `feat/verify-manifest-only` b1cba67, PR #90 | 61ab17b, PR #156 | report.json 없이 항목 1·2·4~7 같은 판정, 3 판정 불가. 총괄: fmt·clippy 0·`--lib verify` 14·`--test verify` 26 통과 |
-  | stream-snapshot-check (F-055·F-056) | `feat/stream-snapshot-check` 8fa1b10, PR #91 | 47a233d, PR #157 | 퇴화 입력 10종 None 고정. 7구역×200만 검사 117 s(부하 큼) — F-056 열림. 총괄: fmt·clippy 0·`--lib stream` 25 통과 |
+  | stream-snapshot-check (F-055·F-056) | `feat/stream-snapshot-check` 8fa1b10, PR #91(13:30Z 병합됨) | 47a233d, PR #157 | 퇴화 입력 10종 None 고정. 7구역×200만 검사 117 s(부하 큼) — F-056 열림. 총괄: fmt·clippy 0·`--lib stream` 25 통과 |
   | matching-degenerate (F-003) | `feat/matching-degenerate` 369923d (PR 없음) | 779a4ab | 특이값 비 지표 문턱 3.5e-3: 퇴화 최대 2.2e-3, 편대 최소 4.91e-3. 호출 미연결. 총괄 미검증(시험 321 s) |
   | pose-test-bounds (F-321) | `feat/pose-test-bounds` 6b8ecaf (base feat/pipeline-poses, PR 없음) | 노트 없음 | 2구역 포즈 78/54, 겹침 12장, 구역 간 회전 차 중앙 0.90°·최대 7.73°. 총괄 미검증 |
   | fusion-neighbors (F-113) | `feat/fusion-neighbors` f4b29f8 (시험만, PR 없음) | 2dbff72 | 48장 960×540 CPU 6.45 s, 벽시계 7.6~9.6 s(부하 20). 총괄 미검증 |
@@ -25,7 +25,7 @@
   4. F-056 7구역×200만 스냅샷 검사 병렬화, F-113 부하 없는 벽시계 측정.
 - 막힌 점:
   - 4 코어 기계에 11묶음 동시 빌드로 부하 평균 20~45 — 시간 측정(F-113·F-056) 신뢰 낮음. 다음 회차는 동시 묶음을 줄일 것.
-  - 소유자 병합 필요: #84·#88(main 바로 위), #90·#91, #76 → #77 → #78 → #80 → #89, #55 → #86, #54 → #87, #68, #69, #70, #71 → #73 → #74, #75, #65, #63·#62·#60·#61·#59·#58·#57·#56, #40, #53, #51·#49·#42·#41·#39, 연구 PR 들.
+  - 소유자 병합 필요: #84·#88(main 바로 위), #90, #76 → #77 → #78 → #80 → #89, #55 → #86, #54 → #87, #68, #69, #70, #71 → #73 → #74, #75, #65, #63·#62·#60·#61·#59·#58·#57·#56, #40, #53, #51·#49·#42·#41·#39, 연구 PR 들.
   - F-197(높음)·F-348·F-349·F-089 항목 3 SPEC 결정은 소유자 몫.
 
 ## 직전 실행 기록 (2026-10-06 12:07Z 시작분)
