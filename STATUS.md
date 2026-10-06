@@ -1,7 +1,22 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-06T05:08Z (05:07Z 시작분)
+- 상태: 쉬는 중
+- 마지막 갱신: 2026-10-06T05:45Z (05:07Z 시작분)
+- 이번 회차 결론: **rig-rel-attach(dd55252) 남은 통합 시험까지 실패 0 확인 → PR #78(`feat/zone0-roll`)을 dd55252 로 앞당김(본문 갱신·review-requested).** 끝 구역 짝 판정을 촬영 전체 마지막 위치 기준으로 바꾼 `feat/tail-pos` 8701d24 는 기본 장면에서 짝 목록이 이전과 똑같음 — 지난 회차의 "구역1·2 에 +8·+10 짝" 은 잘못 읽은 것이고, 구역 사진 집합이 모두 위치 0..26 을 덮어 추가 짝 29개(구역 9/10/10)는 모두 촬영 끝 5칸(22..26) 왼쪽 사진에 붙음. 시드 1·5 verify 7/7·81/81. 새 PR 없음(짝 일정 변경은 F-197 결정 몫). 4 코어 기계라 동시 묶음 2개.
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | rig-rel-attach(총괄 통합) | `feat/zone0-roll` ← dd55252(빨리 감기) → PR #78 | FEEDBACK F-373 이력 7eb32ab | fmt 통과, clippy 0. 이번 회차: pipeline_e2e 2(249 s), pipeline_regions 3, pipeline_stream 1, pipeline_stream_order 1, run 6, verify 24, ply_info 4, synth_args 6, default_tilt 1 무시 — 실패 0. 지난 회차분(core lib 345·31 무시, dataset_synth 2, perf_structure 6, default_path 1, helper_latency 2·1 무시, pipeline 5, arrival 2)과 합쳐 전체 실패 0 |
+  | tail-pos | `feat/tail-pos` 8701d24(9b488f1 위, matching.rs `PairSchedule::capture_max_pos`, pipeline.rs 호출부) | experiment/tail-pos 0c99080 | 근접 왼쪽 짝 변경 전/후 9/10/10 = 29 → 9/10/10 = 29(같음). 총괄 재확인: fmt 통과, `--lib matching` 44 통과·4 무시, 시드5 verify 7/7(81/81, preview_vs_refined 1.262 m), 시드1 verify 7/7(81/81). 견고성 수정(사진 집합이 촬영 끝에 닿지 않을 때) |
+- 연구 PR: experiment/rig-rel-attach 는 #139(experiment/zone1-roll) 와 갈라져 있어(zone1-roll.md 서로 다름) 이번에 열지 않음 — 다음에 zone1-roll 을 합친 뒤 연결.
+- 끝까지 흐름 진척: main 4825669 에서 전부 연결(변화 없음), 기본 경로 7/7(81/81, 3구역). #76 → #77 → #78(dd55252) 이 들어가면 시드 1~4 7/7, 시드5 6/7(80/81); 여기에 rig-tail-combo/tail-pos 의 끝 구역 근접 짝까지면 시드5 7/7.
+- 다음 할 일:
+  1. 시드5 7/7 을 짝 일정 변경 없이 얻는 '빠진 사진 구제' 단계(pipeline.rs) — F-197 결정을 기다리지 않는 안.
+  2. 시드4 구역2 FR 3.09°(공통 기울기 2.92°)·시드5 구역1 상대 3.04° 남은 회전 오차.
+  3. 연구 노트 사슬 정리(zone1-roll ↔ rig-rel-attach 갈라짐).
+- 막힌 점:
+  - 소유자 병합 필요: #76 → #77 → #78, #68, #69, #70, #71 → #73 → #74, #75, #65, #63·#62·#60·#61·#59·#58·#57·#56 → #55 → #54, #40, #53, #51·#49·#42·#41·#39, 연구 PR 들(#89 → #90 → #91, #92~#139).
+  - F-197(높음)·F-348·F-349 는 소유자 결정 몫(짝 일정 변경 포함). 4 코어 기계 — 동시 묶음 2개 이하.
 
 ## 직전 실행 기록 (2026-10-06 04:06Z 시작분)
 - 상태: 쉬는 중
