@@ -2820,7 +2820,7 @@
 - 이력: PR #68 e29110c 검토, 2026-10-04 등록. 병합을 막지 않음.
 - 확인: 2026-10-04 23:30, 78482b9 에서 옛 문장 지워짐(반환 설명 한 번). `cargo doc -p skylens-core --no-deps` 경고 15 개는 main 6a8bb90 과 같은 수이고 sparse.rs 에는 없음. 닫음.
 
-### F-361 [열림] (심각도: 낮음) — 정렬 모듈 문서·시험 주석의 편대 둘째 주축 표준편차 "약 4.1 m" 가 실제 배치(약 4.4 m)와 다르고, 5 m 문턱까지 여유가 작다
+### F-361 [처리됨-검증대기] (심각도: 낮음) — 정렬 모듈 문서·시험 주석의 편대 둘째 주축 표준편차 "약 4.1 m" 가 실제 배치(약 4.4 m)와 다르고, 5 m 문턱까지 여유가 작다
 - 위치: 제품 crates/core/src/align.rs 모듈 문서(11~14줄), `gps_alignment_formation_strip_tilt`·`gps_alignment_straight_path_tilt_undetermined` 주석 (feat/align-formation 3fc3e9e, PR #69)
 - 문제: `strip_enu` 의 삼각형(AB 9.8, AC 10.5, BC 10.6 m, AB 가 진행 방향과 나란함)은 횡 좌표 0·0·9.34 m 라 횡 표준편차가 √19.4 ≈ 4.40 m 이다(GPS 잡음 σ 1 m 를 더하면 ≈ 4.5 m). 문서는 4.1 m 로 적고 "위 방향 없는 정렬은 항상 `None`" 이라 단정한다.
 - 실패 상황: 삼각형이 진행 방향에 대해 다르게 놓이거나(가장 긴 높이 쪽이 횡으로 오면 최대 ≈ 4.4 m 이상) 잡음이 커지면 둘째 주축이 5 m 근처까지 올라 "항상 `None`" 이 깨질 수 있다. 파이프라인은 위 방향을 넘기므로 제품 동작 영향은 없음.
@@ -2829,6 +2829,7 @@
 - 이력: PR #69 3fc3e9e 검토, 2026-10-05 등록. 병합을 막지 않음.
 - 2026-10-06 13:16Z 작업자 처리(제품 feat/align-formation 0538216, PR #69; 연구 experiment/align-doc-std 3e4939b): 둘째 주축 표준편차 실제 배치 4.30 m·시험 띠 4.40 m 로 문서 수정, 시험이 문서값 ±0.1 m·문턱 여유 >0.5 m 단언. 오프셋 ±10% 200회 판정 불변(잡음 1.5 m+10% 에서 측정 표준편차 5.09 m 로 문턱 넘음 — 문서에 적음). 총괄 확인: fmt·clippy 0·`--lib align` 30 통과
 - 2026-10-06 13:45Z 감독 확인(PR #69 0538216, main fcd4baf): 4.30·4.40 m 는 출력과 맞으나 문서의 "GPS 잡음 σ 1 m 를 더하면 약 4.5 m" 는 `spread_m[1]` 4.396 m 와 0.12 m 차이 — 확인 기준(0.1 m) 미달, 시험은 허용치 0.15 m 로 통과. 원인은 F-408. 열림으로 되돌림.
+- 2026-10-06 17:25Z 처리(제품 feat/align-spread-doc d75fe98, PR #94; 연구 experiment/align-spread-doc 424b826, PR #162): 문서를 정렬된 카메라 중심 기준으로 정정, 띠 기대값 4.404 m·허용 0.1 m(출력 4.396, 차 0.008), σ 2 m 4.374 m. 민감도 시험은 판정 값 `spread_m[1]` 출력·단언(σ 1.5 m·+10%: GPS 점 5.015 m, 판정 값 4.741 m, None). 변이(`spread_m` 을 GPS 점에서)로 시험 3개 실패 확인. 총괄 재확인: fmt 통과, clippy 0, `--lib align` 30 통과.
 
 ### F-362 [닫힘] (심각도: 낮음) — 번들 조정 강건화 시험이 회전 차·촐레스키 실패 수를 단언하지 않는다
 - 위치: 제품 crates/core/src/ba.rs `collinear_prior_fixes_axis_rotation`(회전 차 `rot` 를 계산만 함), `scale_gauge_camera_has_observations`(보고의 `cholesky_failures` 미확인) (feat/ba-robust-main 2feb2d0, PR #70)
@@ -3229,13 +3230,14 @@
 - 이력: PR #55 검토, 2026-10-06 13:55Z 등록. 기록만.
 - 2026-10-06 14:30Z 작업자 처리(제품 feat/pipeline-poses af27852(main c7ae184 병합 9fbc5be 위, PR #55), 연구 experiment/poses-coarse-off dc6fe72(PR #159). 총괄 재확인: fmt 통과, clippy 0, `--lib poses_io` 5, `--test pipeline_poses` 2 통과(208 s)): 정렬 전 회전 중앙 < 1.4°·최대 < 1.95° 단언(실측 1.1398°/1.5920°), 주석 갱신
 
-### F-408 [열림] (심각도: 중간) — 정렬 문서·시험이 GPS 잡음이 `spread_m` 과 위 방향 판정에 들어간다고 적지만 실제로는 들어가지 않는다
+### F-408 [처리됨-검증대기] (심각도: 중간) — 정렬 문서·시험이 GPS 잡음이 `spread_m` 과 위 방향 판정에 들어간다고 적지만 실제로는 들어가지 않는다
 - 위치: 제품 crates/core/src/align.rs 모듈 문서 13~16줄, `formation_second_axis_spread_matches_doc` 1182~1191줄, `formation_threshold_sensitivity` 1200~1243줄 (main fcd4baf, PR #69). 연구 experiments/align-doc-std.md '남은 문제' 첫 항목.
 - 문제: `spread_m` 은 정상 카메라 중심을 닮음 변환한 점(609~629줄)에서 계산하므로 GPS 잡음과 무관하다. 측정 `spread_m[1]` 4.396 m 는 잡음 없는 띠 값 4.404 m 와 같고, 시험 기대값 √(4.404²+1) = 4.516 m 와 0.12 m 다르다(허용치 0.15 m 로 통과). 민감도 시험은 잡음 섞인 GPS 점 표준편차(σ 1.5 m·+10% 에서 5.015 m)를 출력하지만 판정이 보는 값은 4.73 m 라 None 이 유지된다.
 - 실패 상황: 문서대로라면 GPS 잡음이 큰 비행에서 판정이 바뀔 것으로 읽히나, 실제로 판정을 움직이는 것은 복원 중심의 퍼짐이다. `spread_m` 이 GPS 점을 쓰도록 잘못 바뀌어도 0.15 m 허용치 안에서 시험이 통과할 수 있다.
 - 고칠 것: 문서에서 GPS 잡음 문장을 빼고 "`spread_m` 은 정렬된 카메라 중심 기준" 으로 고친다. 시험 기대값을 잡음 없는 띠 값으로, 허용치 0.1 m 로. 민감도 시험은 판정에 쓰이는 값을 출력·단언. 노트 설명 정정.
 - 확인 기준: `(al.spread_m[1] - strip).abs() < 0.1` 단언 통과(현재 차 0.008 m), 문서 수치가 출력과 0.1 m 안. 그 뒤 F-361 함께 닫음.
 - 이력: PR #69 0538216 검토(병합 뒤 main fcd4baf), 2026-10-06 등록. 병합을 막지 않음.
+- 2026-10-06 17:25Z 처리(제품 feat/align-spread-doc d75fe98, PR #94; 연구 experiment/align-spread-doc 424b826, PR #162): 문서를 정렬된 카메라 중심 기준으로 정정, 띠 기대값 4.404 m·허용 0.1 m(출력 4.396, 차 0.008), σ 2 m 4.374 m. 민감도 시험은 판정 값 `spread_m[1]` 출력·단언(σ 1.5 m·+10%: GPS 점 5.015 m, 판정 값 4.741 m, None). 변이(`spread_m` 을 GPS 점에서)로 시험 3개 실패 확인. 총괄 재확인: fmt 통과, clippy 0, `--lib align` 30 통과.
 
 ### F-409 [열림] (심각도: 낮음) — 직선 사전항 축 회전 고정(`rot_fix`)을 꺼도 시험이 통과한다
 - 위치: 제품 crates/core/src/ba.rs:410 `g.rot_fix = best.map(...)`, :1709 `collinear_prior_fixes_axis_rotation` (main c7ae184, PR #70)
