@@ -24,6 +24,7 @@
 - [x] `region-cross-extend` — 2026-10-06 병합, 제품 4825669 (PR #64) — 구역 밖 도움 사진(앞 F 40·뒤 R/L 40), 인자 없는 synth → run → verify 기본 경로 7/7(81/81, 3구역).
 - [x] `pipeline-multizone-test` — 2026-10-06 병합, 제품 7ffb0d8 (PR #79, F-273 닫힘, F-377·F-378 남음) — 구역 ≥ 2 끝까지 잇기 시험에서 겹침·정렬·높이 차를 verify 기준 상수로 판정, BA 10회 구역 2개 시험 추가.
 - [x] `rig-tilt-ba` — 2026-10-07 병합, 제품 c770c80 (PR #100, F-442·F-443 닫힘, F-449 남음) — 번들 조정에 장착 상대 회전 공유 항(`BaOptions::rig_share`, 기본 끔), 편대 장면(기체별 독립 흔들림)에서 기본 끔 근거 시험.
+- [x] `zone-tilt-combo` — 2026-10-07 병합, 제품 105bdb7 (PR #107, F-454·F-455 기록) — 재정렬 기준 구역 선택(`SKYLENS_REALIGN_REF`)과 일직선 구역 GPS 정렬 연직 고정(`SKYLENS_ALIGN_LINE_FIX`), 둘 다 기본 끔. 단계별 기울기 진단(`SKYLENS_DIAG_PREVIEW`), 6° 거부 문턱(`SKYLENS_ALIGN_MAX_TILT`, 기본 끔).
 - [ ] T14 `perf` — 구간별 시간 측정, 병렬화. 합성 240장 전체 시간 기록. 이후 GPU 백엔드 설계 노트.
 
 ## 병렬 묶음 (동시에 진행)
