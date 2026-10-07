@@ -1,6 +1,30 @@
 # 현재 상태
 
 - 상태: 끝남
+- 마지막 갱신: 2026-10-07T01:40Z (01:05Z 시작분)
+- 이번 회차 결론: **덩어리 잇기(SKYLENS_ROT_BRIDGE=1)는 시드 3 구역 0 L 묶음을 정밀 BA 뒤에도 고친다(L 회전 오차 중앙 0.269°, verify 5/8 → 7/8). 시드 1 은 포즈 9묶음 모두 기준 안이지만, 기본 켬 상태 기본 경로 시드 1 시험에서 표면 오차 중앙 0.585 m(기준 0.5 m) 로 실패해 기본 켬은 되돌림.** 끔 상태 같은 부하 재측정이 없어 옵션 탓인지 미확정. 회전 평균 문턱을 종류별로 나누는 안·GM IRLS(σ 5°, 10° 거르기) 안은 합성 그래프에서 덩어리 잇기와 같은 수준(1.9~2.0°). 시드 4·5 기본 경로는 up_cross 거짓 실패 없음, 다만 시드 4·5 모두 preview_vs_refined 실패, 시드 5 는 등록 54/81. 4 코어 측정 기계라 동시 묶음 4개 + 분석 1개.
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | zone0-bridge-ba (시드 3 정밀 BA 뒤) | `feat/zone0-bridge-ba` 7edac69 (zone0-rot 위 + main 병합; 기본 켬 4d0f406 → 되돌림 7edac69, PR 없음) | experiment/zone0-bridge-ba f2effef, PR #198 | 정밀 BA 뒤 구역 0 회전 중앙 F/R/L 0.862/0.523/0.269°, 위치 중앙 0.251 m. verify 켬 7/8(preview_align 0.26%, up_cross 0.894/0.258/1.700°, preview_vs_refined 높이 차 3.289 m 실패). 기본 켬 default_path 시드 1: 등록 81, 중심 중앙 0.343 m, 표면 중앙 0.585 m 실패. 총괄: 기본 동작 불변이라 제품 PR 안 엶 |
+  | zone0-bridge-seeds (시드 1·2 끔/켬) | `feat/zone0-bridge-seeds` f946591 (zone0-rot 위; 시험 bridge_seeds.rs, PR 없음) | experiment/zone0-bridge-seeds bb655bc, PR #197 | 시드 1 세 구역 9묶음 모두 기준 통과(최대 악화 구역 1 L +0.045°, 구역 0 L 1.060 → 0.471°). 시드 2 미측정. 총괄: fmt 통과, clippy 0 |
+  | rot-bridge-threshold (회전 평균 문턱) | `feat/rot-bridge-threshold` f0c8557 (zone0-rot 위; rotation_averaging.rs `class_thresholds`·`gm_irls`·`weak_bridge`, 기본 끔, PR 없음) | experiment/rot-bridge-threshold b671fdc, PR #196 | 맞는3·틀린2: 기본 3.489°, 하한 10° 1.928°, 잇기·종류별·GM 1.93~1.98°. 초기화가 틀린 다리: 기본·하한 10° 83°, 잇기·종류별·GM 1.9~2.0°. 틀린 쪽 가중합이 크면 새 방법도 83°. 정상 장면 기본 0.930 → 0.631°. 총괄: fmt 통과, clippy 0, `--test rotation_bridge --test rotation_bridge_threshold` 2+3 통과, `--lib rotation_averaging` 13 통과 |
+  | verify-up-cross-seeds (F-446) | `feat/verify-up-cross-seeds` 5f072f0 (main 위; 시험 up_cross_seeds.rs, PR 없음) | experiment/verify-up-cross-seeds 27fcb59, PR #199 | 시드 4 0.559/1.477/2.135° 문턱 안, verify 7/8. 시드 5 등록 54/81, diff_deg 전부 null → 건너뜀, verify 6/8. F-446 열림 유지. 총괄: fmt 통과, clippy 0 |
+  | (확인) rig-tilt-ba F-442 | `feat/rig-tilt-ba` 15d8622, PR #100 라벨 유지 | experiment/rig-tilt-fleet 3a949f3, PR #192 | 앞 회차 끝무렵 처리분 확인: fmt 통과, clippy 0, `--test rig_tilt_ba` 2 통과(29.7 s). F-442 처리됨-검증대기 |
+- 끝까지 흐름 진척: main 8282283 에서 전부 연결, 변화 없음. 기본 경로 verify: 시드 1 8/8, 시드 3 5/8, 시드 4 7/8, 시드 5 6/8 — preview_vs_refined(높이 차 2.9~3.3 m)가 시드 3·4·5 공통 실패.
+- 다음 할 일:
+  1. 같은 부하에서 기본 경로 시드 1 끔/켬(SKYLENS_ROT_BRIDGE) 표면 오차 나란히 측정 — 0.585 m 가 옵션 탓인지 가르기. 시드 2 끔/켬 포즈 표(`ZONE0_SEEDS=2 cargo test --release -p skylens-stream --test bridge_seeds -- --ignored --nocapture`, feat/zone0-bridge-seeds).
+  2. preview_vs_refined 높이 차 2.9~3.3 m 가 시드 3·4·5 공통 — 원인 조사(초벌·정밀 높이 기준 차이).
+  3. 시드 5 등록 54/81 원인, up_cross 가 등록 부족 시 '건너뜀' 으로 통과하는 문제(F-446).
+  4. rot-bridge-threshold 를 파이프라인 시드 3 에서 측정(종류별 문턱·GM 을 환경 변수로 켜는 연결은 pipeline.rs 쪽 묶음).
+- 막힌 점:
+  - 소유자 병합 필요: #104, #100, #93, #99(#101 포함), #97, #55, #54 → #58 → #87, #90, #76(#77 포함), #89.
+  - F-197(높음) 은 SPEC §3.2 개정 결정 필요.
+  - 동시 묶음 수는 4 코어라 4개로 제한(10개 이상 지시와 다름). 무거운 측정(시드당 8~10분)이 겹쳐 시드 2·끔 재측정이 마감 안에 못 들어감.
+
+## 앞 회차 기록 (2026-10-07 00:45Z 시작분)
+
+- 상태: 끝남
 - 마지막 갱신: 2026-10-07T01:22Z (00:45Z 시작분)
 - 이번 회차 결론: **회전 다리 옵션(`SKYLENS_ROT_BRIDGE`)을 켜면 시드 3 기본 경로 verify 가 5/8 → 7/8 — 위 방향 일치(69.5 → 0.89°)와 preview_align(스케일 차 25.41 → 0.26%)은 구역 0 L 묶음 회전 오류와 같은 뿌리. preview_vs_refined(높이 차 3.289 m)는 다른 뿌리로 남음. 정밀 BA 뒤 시드 1·2 는 18칸 중 17칸 +0.2° 이내, 시드 2 구역 0 L +0.222° 초과라 기본 켬 제안은 아직 불가.** 뿌리 쪽 대안(묶음 사이 간선 따로 문턱)은 합성 그래프에서 맞는 간선 3개 유지·틀린 2개 제외 확인, 시드 3 실측 남음. F-442(높음)·F-443 처리: 편대 장면에서 장착 상대 회전 공유 항은 기준 카메라 F 를 10.5% 나쁘게 해 기본 끔 유지. #103 main 병합됨. 4 코어 측정 기계라 동시 묶음 4개.
 - 묶음별 결과:
