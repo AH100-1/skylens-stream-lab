@@ -19,4 +19,4 @@
 - 기존 시드 5 의 카메라 2 등록 누락 원인(회전 평균 가지치기)은 이번 범위 밖.
 
 ## 제품 브랜치·커밋
-- feat/verify-report-total (커밋은 푸시 후 아래에 기록)
+- feat/verify-report-total, 커밋 9771d75 (origin/feat/verify-manifest-only 와 origin/main 을 합친 위에서 작업: 항목 1 의 이름 기반 판정 코드가 main 에 아직 없어서)
