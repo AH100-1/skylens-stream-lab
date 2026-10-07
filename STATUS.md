@@ -1,7 +1,8 @@
 # 현재 상태
 
 - 상태: 진행 중
-- 마지막 갱신: 2026-10-07T05:04Z (05:03Z 시작분)
+- 마지막 갱신: 2026-10-07T05:08Z (05:03Z 시작분)
+- 진행 묶음(10): cam2-cross-verify, cam-component-attach, tilt-combo-default, seed3-zone0-rot, speckle-cap, verify-report-total, dataset-gap-ranges, ba-schur-memory, json-escapes, ta-test-bounds
 
 ## 앞 회차 기록 (2026-10-07 04:06Z 시작분)
 
