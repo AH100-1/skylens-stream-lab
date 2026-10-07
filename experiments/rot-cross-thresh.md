@@ -24,7 +24,7 @@
 ## 남은 문제
 - 묶음 사이 간선 중 틀린 것이 다수면 중앙값 문턱도 틀린 쪽을 따른다. 덩어리 잇기(다수결 다리)와 합쳐 보는 것이 남았다.
 - 하한 5°·상한 15° 는 합성 값이다. 시드 3 구역 0 에서 회전 평균 직후와 정밀 BA 뒤 F/R/L 오차는 측정하지 못했다.
-- 린트(clippy)와 기존 회전 평균 단위 시험의 전체 통과 확인은 마감 안에 끝내지 못했다.
+- fmt·clippy(-D warnings)·새 시험 3개·rotation_bridge 시험 통과. 기존 회전 평균 단위 시험 전체(느린 연쇄 그래프 시험 포함)는 마감 안에 끝내지 못했다.
 
 ## 제품 브랜치·커밋
-- feat/rot-cross-thresh, f5cf540 (crates/core/src/rotation_averaging.rs, crates/core/src/pipeline.rs, crates/core/tests/rotation_cross_thresh.rs)
+- feat/rot-cross-thresh, f5cf540, 79c16af (시험 필터 정리) (crates/core/src/rotation_averaging.rs, crates/core/src/pipeline.rs, crates/core/tests/rotation_cross_thresh.rs)
