@@ -1,7 +1,26 @@
 # 현재 상태
 
-- 상태: 진행 중
-- 마지막 갱신: 2026-10-07T01:49Z (01:48Z 시작분)
+- 상태: 끝남
+- 마지막 갱신: 2026-10-07T02:30Z (01:48Z 시작분)
+- 이번 회차 결론: **시드 1 표면 오차 0.585 m 는 덩어리 잇기 옵션 자체의 결과(같은 설정 반복 차 0, 끔 0.4042 / 켬 0.5849 m). 시드 3 에서는 종류별 문턱(SKYLENS_ROT_CLASS_THRESH)이 다리와 같은 정확도(정밀 BA 뒤 F/R/L 0.90/0.50/0.13°, verify 5/8 → 7/8)라 기본 켬 후보 — 시드 1 표면 오차 미측정. preview_vs_refined 높이 차의 뿌리는 초벌 점군이 아니라 짧은 마지막 구역(시드 4 구역 2) 정밀 모델의 연직 기울기 13.5° 이고, 그 모델 기준 재정렬이 구역 0·1 정밀을 9.6~10.2° 같이 기울임. 시드 5 미등록 27장은 모두 카메라 2 로 회전 평균 가지치기 단계에서 빠짐.** 4 코어 측정 기계라 동시 묶음 5개.
+- 묶음별 결과:
+  | 묶음 | 제품 | 연구 | 결과 |
+  |---|---|---|---|
+  | bridge-onoff-load (시드 1 끔/켬) | `feat/bridge-onoff-load` 171ce39 (zone0-bridge-ba + main, 시험 default_path_onoff.rs, PR 없음) | experiment/bridge-onoff-load 2c30e5d, PR #202 | 끔/켬 2회씩: 등록 81, 중심 중앙 0.4265/0.3430 m, 표면 중앙 0.4042/0.5849 m, p95 1.3237/1.5751 m, verify 8/8 둘 다. 반복 차 0 → 옵션 탓 확정. 시드 2 미측정. 총괄: fmt 통과, clippy 0 |
+  | rot-thresh-pipeline (시드 3 네 설정) | `feat/rot-thresh-pipeline` 09b7214 (rot-bridge-threshold + main; pipeline.rs `SKYLENS_ROT_CLASS_THRESH`·`SKYLENS_ROT_GM` 기본 끔, 시험 rot_thresh_pipeline.rs, PR 없음) | experiment/rot-thresh-pipeline 4917efd, PR #203 | 회전 평균 직후 L: 끔 84.72 / 다리 0.78 / 종류별 0.78 / GM 2.81°. 정밀 BA 뒤 F/R/L: 끔 3.46/1.10/74.30, 다리 0.96/0.55/0.14, 종류별 0.90/0.50/0.13, GM 1.03/0.46/0.12°. verify 5/8 → 7/8(셋 다 preview_vs_refined 만 실패). 총괄: fmt 통과, clippy 0, `--lib rotation_averaging` 13 통과 |
+  | preview-refined-gap (시드 4 높이 차 뿌리) | `feat/preview-refined-gap` b328646 (main 위; `SKYLENS_DIAG_PREVIEW`, `SKYLENS_ALIGN_MAX_TILT` 기본 0, 시험 preview_refined_gap.rs, PR 없음) | experiment/preview-refined-gap 3527903, PR #204 | 정렬 전 초벌 높이 p50 0.05~0.44 m 정상. 정밀 구역 0·1 p05/p95 약 −6.7/+8.3 m(5 m 초과 32~34%). 구역 2 정밀 연직 13.458° 기울기 → 정밀 1→2 9.630°, 0→2 10.245° 같이 기울임. sim3 축척 0.97~1.01, 이동 z 작음. 6° 초과 거부 켬: 구역 0·1 정상화, 구역 2 정렬 없음으로 verify 5/8 → 기본 끔. 총괄: fmt 통과, clippy 0 |
+  | seed5-reg-diag (시드 5 등록, F-446·F-447) | `feat/seed5-reg-diag` 11ee2a5, PR #106, 라벨 | experiment/seed5-reg-diag b9de258, PR #201 | 미등록 27장 전부 카메라 2(시점마다), 짝 4~12·내부 대응 ~1000 으로 충분, 회전 평균 가지치기에서 빠짐(가지친 간선 구역 0 139/346). up_cross 전부 null → '경고: 측정값 없음'(통과 유지). F-447 처리. 총괄: fmt 통과, clippy 0, `--lib verify::` 13·`--test verify` 25 통과 |
+  | rig-tilt-gauge (F-449) | `feat/rig-tilt-gauge` 25873f0, PR #105, 라벨 | experiment/rig-tilt-gauge ea916a7, PR #200 | 고정 정답에서도 끔 R 1.449~1.947° 로 시작 0.703° 보다 나쁨 → 기체 간 결합 부족이 주원인. 감독 검토로 F-449 닫힘. 총괄: fmt 통과, clippy 0, `--test rig_tilt_ba` 2 통과·1 무시 |
+- 끝까지 흐름 진척: main c770c80(#100 병합)에서 전부 연결, 변화 없음. 기본 경로 verify: 시드 1 8/8, 시드 3 5/8(종류별 문턱 켜면 7/8), 시드 4 7/8, 시드 5 6/8.
+- 다음 할 일:
+  1. 시드 1 기본 경로에서 `SKYLENS_ROT_CLASS_THRESH=1` 표면 오차 중앙(feat/rot-thresh-pipeline, `ROT_SETTINGS`) — 0.5 m 안이면 종류별 문턱 기본 켬 PR.
+  2. 짧은 마지막 구역 정밀 BA 의 연직 기울기 13.5° 원인(시드 4 구역 2, 위치 22~27). 대안: 재정렬 기준을 기울기가 작은 구역으로 고르기.
+  3. 시드 5 카메라 2 가 회전 평균 가지치기로 통째 빠지는 기준 — `SKYLENS_REG_DEBUG` 에 잘린 간선과 기준 출력 추가, 장착 자세 확인. 고친 뒤 시드 1·5 등록과 시드 5 up_cross(F-446).
+  4. 덩어리 잇기 켬에서 중심은 좋아지는데 표면이 나빠지는 이유.
+- 막힌 점:
+  - 소유자 병합 필요: #106, #105, #104, #93, #99(#101 포함), #97, #55, #54 → #58 → #87, #90, #76(#77 포함), #89.
+  - F-197(높음) 은 SPEC §3.2 개정 결정, F-447 의 SPEC §4 표는 소유자 결정.
+  - 동시 묶음 수는 4 코어라 5개로 제한(10개 이상 지시와 다름). 시드 하나 기본 경로가 부하 아래 약 5~10분.
 
 ## 앞 회차 기록 (2026-10-07 01:05Z 시작분)
 

@@ -3555,15 +3555,15 @@
 - 실패 상황: 시드 4·5 에서 정상 구역이 10° 를 넘으면 기본 경로가 8/8 을 못 받는다. 반대로 시드 3 처럼 다른 항목이 이미 잡는 경우만 있으면 새 항목의 고유 기여가 불분명하다.
 - 고칠 것: 시드 4·5 기본 경로 구역별 최대 어긋남을 노트 표에 추가. 다른 항목은 통과하는데 up_cross 만 실패하는 경우가 있는지 표에 열 하나로.
 - 확인 기준: 시드 1~5 표에서 시드 3 구역 0 외 모든 구역 ≤ 10°.
-- 이력: PR #103 102d5f0 검토, 2026-10-07 01:05Z 등록. 기록만, 병합을 막지 않음. → 2026-10-07 01:35Z 일부 측정(제품 `feat/verify-up-cross-seeds` 5f072f0, 연구 experiment/verify-up-cross-seeds 27fcb59, PR #199): 시드 4 구역별 최대 0.559/1.477/2.135° 문턱 안(verify 7/8, preview_vs_refined 실패). 시드 5 는 등록 54/81 로 diff_deg 전부 null → up_cross 건너뜀, 문턱 미확정(verify 6/8). up_cross 만 실패한 시드 없음. 열림 유지(시드 5 미확정).
+- 이력: PR #103 102d5f0 검토, 2026-10-07 01:05Z 등록. 기록만, 병합을 막지 않음. → 2026-10-07 01:35Z 일부 측정(제품 `feat/verify-up-cross-seeds` 5f072f0, 연구 experiment/verify-up-cross-seeds 27fcb59, PR #199): 시드 4 구역별 최대 0.559/1.477/2.135° 문턱 안(verify 7/8, preview_vs_refined 실패). 시드 5 는 등록 54/81 로 diff_deg 전부 null → up_cross 건너뜀, 문턱 미확정(verify 6/8). up_cross 만 실패한 시드 없음. 열림 유지(시드 5 미확정). → 2026-10-07 02:10Z 추가 진단(제품 `feat/seed5-reg-diag` 11ee2a5, PR #106; 연구 PR #201): 시드 5 미등록 27장은 모두 카메라 2, 회전 평균 가지치기 단계에서 빠짐. up_cross 는 전부 null 일 때 '경고: 측정값 없음' 으로 표시(판정 통과 유지). 시드 5 구역별 값 미측정이라 열림 유지.
 
-### F-447 [열림] (심각도: 낮음) — SPEC §4 표에 여덟째 항목이 없고, 경고 문턱 0.3° 를 verify.rs 에 따로 둔다
+### F-447 [처리됨-검증대기] (심각도: 낮음) — SPEC §4 표에 여덟째 항목이 없고, 경고 문턱 0.3° 를 verify.rs 에 따로 둔다
 - 위치: 제품 crates/core/src/verify.rs `UP_CROSS_WARN_DEG`, 모듈 문서 첫 줄(PR #103 102d5f0), 연구 SPEC.md §4
 - 문제: verify 출력이 n/8 이 됐는데 SPEC §4 검증 기준 표는 일곱 항목 그대로다. 경고 문턱은 `crate::align::UP_CROSS_WARN_DEG` 와 같은 값을 따로 정의해, 한쪽만 바뀌면 run 알림과 verify 경고가 어긋난다.
 - 실패 상황: SPEC 만 보는 사람은 8/8 의 여덟째가 무엇인지 모른다. align 의 문턱을 바꾸면 verify 경고 기준이 조용히 달라진다.
 - 고칠 것: verify.rs 에서 `crate::align::UP_CROSS_WARN_DEG` 를 그대로 쓰고, SPEC §4 에 up_cross 줄을 넣을지 소유자 결정.
 - 확인 기준: verify.rs 에 0.3 상수 정의가 없고, SPEC §4 표와 verify 항목 수가 같다.
-- 이력: PR #103 102d5f0 검토, 2026-10-07 01:05Z 등록. 기록만, 병합을 막지 않음.
+- 이력: PR #103 102d5f0 검토, 2026-10-07 01:05Z 등록. 기록만, 병합을 막지 않음. → 2026-10-07 02:10Z 처리(제품 `feat/seed5-reg-diag` 11ee2a5, PR #106): verify.rs 의 0.3 정의 삭제, `crate::align::UP_CROSS_WARN_DEG` 사용. SPEC §4 표는 소유자 결정이라 그대로.
 
 ### F-448 [열림] (심각도: 낮음) — 교차 검사 초과 알림이 후보 카메라를 '짐벌 구름 치우침' 원인으로 단정한다
 - 위치: 제품 crates/core/src/pipeline.rs `UpCrossReport::alert` (PR #104 360805f)
